@@ -1,60 +1,63 @@
-# Sistema de Gestión de Asistencia - Defensa Civil
+# Sistema de Gestión de Asistencia - Defensa Civil (V3)
 
-Sistema web para la gestión integral de asistencia a familias afectadas por emergencias.
+Sistema web integral para el registro, seguimiento y gestión de asistencia a familias afectadas por emergencias, desarrollado para la práctica profesional.
 
-## � Cómo usar el sistema
+## 🚀 Tecnologías Utilizadas
 
-### 1. Abrir el sistema
-- Abrir `index.html` en tu navegador, o
-- Ir directamente a `frontend/pages/login.html`
+- **Frontend:** HTML5, CSS3, Bootstrap 5, JavaScript (ES6+ Modulado)
+- **Backend:** Node.js, Express.js (Arquitectura REST API)
+- **ORM / Base de Datos:** Sequelize, MySQL Workbench
+- **Seguridad y Entorno:** Cors, Dotenv (Variables de entorno protegidas)
 
-### 2. Iniciar sesión
-- **Usuario:** `admin`
-- **Contraseña:** `111`
+## 📁 Estructura Actual del Proyecto
 
-### 3. Funcionalidades disponibles
-- ✅ **Relevamientos** - Registrar necesidades de familias afectadas
-- ✅ **Solicitudes** - Enviar pedidos a Desarrollo Social
-- ✅ **Órdenes de Provisión** - Registrar aprobaciones/rechazos
-- ✅ **Entregas** - Registrar distribución a familias
-- ✅ **Inventario** - Control de stock en tiempo real
-- ✅ **Reportes** - Generar informes por período
-
-## 📁 Estructura del Proyecto
-
-```
-PP/
-├── frontend/           # Código del cliente
-│   ├── pages/          # HTML (login, dashboard)
-│   ├── css/            # Estilos
-│   ├── js/             # JavaScript
-│   └── assets/         # Imágenes
+```text
+DfcV3/
+├── frontend/               # Código del lado del cliente
+│   ├── css/                # Estilos globales y responsivos (ui.css)
+│   ├── js/                 # Lógica interactiva del cliente
+│   │   ├── ui.js           # Notificaciones y comportamiento global de interfaz
+│   │   ├── relevamientos.js # Gestión de la vista de relevamientos
+│   │   └── ...             
+│   └── pages/              # Vistas HTML de la aplicación
 │
-├── backend/            # API (preparado para futuro)
-│   ├── config/         # Configuración
-│   ├── database/       # Scripts SQL
-│   └── ...             # Modelos, controladores, rutas
-│
-└── legacy/             # Archivos antiguos
-```
+├── backend/                # Servidor API y Lógica de Negocio
+│   ├── config/             # Conexión a la base de datos (database.js)
+│   ├── models/             # Modelos de Sequelize (usuarios, familias, relevamientos)
+│   ├── routes/             # Rutas Express (auth, familias, relevamientos)
+│   ├── app.js              # Archivo principal de arranque del servidor Backend
+│   ├── package.json        # Dependencias del backend (Express, Sequelize, MySQL2, etc.)
+│   └── .env                # Variables de entorno secretas (IGNORADO EN GIT)
+└── .gitignore              # Filtro de archivos protegidos para Git
 
-## 🔧 Tecnologías
+💻 Configuración Local para Desarrollo
+1. Requisitos Previos
+Tener instalado Node.js (versión v16 o superior).
 
-- **Frontend:** HTML5, CSS3, Bootstrap 5, JavaScript ES6
-- **Almacenamiento:** LocalStorage (temporal)
-- **Backend (futuro):** Node.js, Express, MySQL
+Tener instalado MySQL Server y MySQL Workbench corriendo localmente.
 
-## 🎯 Flujo del Sistema (4 Momentos)
+2. Configuración de la Base de Datos
+Crear un esquema en MySQL llamado según corresponda.
 
-```
-1. RELEVAMIENTO → 2. SOLICITUD → 3. ORDEN PROVISIÓN → 4. ENTREGA
-```
+Configurar las credenciales de acceso dentro del archivo backend/.env.
 
-## � Base de Datos
+3. Levantar el Servidor Backend
+Abrir la terminal y navegar hasta la carpeta del backend:
 
-Script SQL disponible en: `backend/database/defcivilBD.sql`
+Bash
+cd backend
+Instalar las dependencias necesarias:
 
----
+Bash
+npm install
+Iniciar el servidor con Node:
+
+Bash
+node app.js
+El servidor sincronizará las tablas mediante Sequelize ({ alter: true }) e iniciará en el puerto 3000.
+
+4. Acceder al Sistema
+El backend expone la carpeta del frontend de forma estática en: http://localhost:3000.
 
 **Proyecto Académico - Defensa Civil**  
-Versión 1.0.0 | Diciembre 2025
+Versión 3.0.0 | julio 2026
