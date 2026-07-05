@@ -1,0 +1,77 @@
+/* ========================================================
+   1. ESTILOS GENERALES (Para todos los tamaños)
+   ======================================================== */
+   body { 
+    min-height: 100vh; 
+    background-color: #f8f9fa; 
+    margin: 0; 
+}
+
+/* Compartido por los links del sidebar y del menú móvil */
+.sidebar .nav-link, .navbar-collapse .nav-link { 
+    color: rgba(255, 255, 255, 0.75); 
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active,
+.navbar-collapse .nav-link:hover, .navbar-collapse .nav-link.active { 
+    color: white; 
+    background-color: rgba(255, 255, 255, 0.1); 
+}
+
+/* ========================================================
+   2. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
+   ======================================================== */
+@media (max-width: 767.98px) {
+    /* ❌ Ocultamos el sidebar de PC porque en celu usamos la barra superior con la hamburguesa */
+    #sidebar-app, .sidebar {
+        display: none !important;
+    }
+
+    /* El contenido respira abajo de la barra móvil */
+    .main-content-wrapper {
+        width: 100%;
+        display: block;
+        min-height: calc(100vh - 60px); 
+        position: relative;
+    }
+
+    /* 👑 EL RECTÁNGULO FLOTANTE: Caja flotante para las opciones en móvil */
+    #sidebar-mobile .navbar-collapse {
+        position: absolute;
+        top: 55px; /* Ajustado al alto de tu barra superior */
+        right: 15px; /* Lo pega a la derecha, abajo de la hamburguesa */
+        width: 240px; /* Ancho en forma de rectángulo */
+        background-color: #212529; /* Fondo oscuro */
+        z-index: 1040; 
+        border-radius: 8px; /* Bordes redondeados de tarjeta */
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.4); /* Sombra para resaltar la capa */
+        padding: 12px;
+    }
+    /* 2. Eliminamos el borde gris/azul de selección "pegajoso" en el botón hamburguesa */
+    #sidebar-mobile .navbar-toggler:focus,
+    #sidebar-mobile .navbar-toggler:active {
+        outline: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important; /* Evita que quede el fondo gris */
+    }
+}
+
+/* ========================================================
+   3. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
+   ======================================================== */
+@media (min-width: 768px) {
+    body { 
+        display: flex; 
+    }
+    
+    /* Muestra el sidebar fijo a la izquierda */
+    #sidebar-app, .sidebar {
+        display: flex !important;
+    }
+
+    /* Empuja el contenido 280px a la derecha para que conviva con el sidebar */
+    .main-content-wrapper { 
+        flex: 1; 
+        margin-left: 280px; 
+    }
+}
