@@ -5,9 +5,10 @@ import sequelize from '../config/database.js'; // Apunta a tu archivo de conexi√
 const Usuario = sequelize.define('Usuario', {
     id: {
         type: DataTypes.INTEGER,
+        primaryKey: true,
         autoIncrement: true,
-        primaryKey: true
-    },
+        field: 'id_usuario' // <-- ESTO le dice a Sequelize: "en el c√≥digo llamalo 'id', pero en la base de datos buscalo como 'id_usuario'"
+      },
     username: {
         type: DataTypes.STRING(50),
         allowNull: false,
