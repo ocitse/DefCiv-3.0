@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
@@ -13,7 +15,13 @@ import relevamientoroutes from './routes/relevamientoroutes.js';
 import familiaRoutes from './routes/familiaroutes.js';
 import authRoutes from './routes/authroutes.js';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.static('../frontend'));
@@ -31,6 +39,10 @@ app.get('/api/status', (req, res) => {
 app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaRoutes);
 app.use('/api/auth', authRoutes);
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/index.html'));
+});
 
 async function iniciarServidor() {
     try {
