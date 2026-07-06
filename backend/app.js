@@ -12,9 +12,9 @@ import usuario from './models/usuario.js';
 
 // 🌟 IMPORTAMOS LAS RUTAS NUEVAS
 import relevamientoroutes from './routes/relevamientoroutes.js';
-import familiaRoutes from './routes/familiaroutes.js';
-import authRoutes from './routes/authroutes.js';
-import usuarioRoutes from './routes/usuarioroutes.js';
+import familiaroutes from './routes/familiaroutes.js';
+import authroutes from './routes/authroutes.js';
+import usuarioroutes from './routes/usuarioroutes.js';
 
 import fs from 'fs';
 
@@ -34,9 +34,9 @@ app.get('/api/status', (req, res) => {
 
 // 🌟 VINCULAMOS LAS RUTAS A UN ENDPOINT BASE
 app.use('/api/relevamientos', relevamientoroutes);
-app.use('/api/familias', familiaRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/familias', familiaroutes);
+app.use('/api/auth', authroutes);
+app.use('/api/usuarios', usuarioroutes);
 
 app.get('*', (req, res) => {
     res.sendFile('/home/defenprov/index.html');
