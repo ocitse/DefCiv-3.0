@@ -1,4 +1,4 @@
-// backend/models/Usuario.js
+// backend/models/usuario.js
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js'; // Apunta a tu archivo de conexión
 
@@ -36,11 +36,12 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.STRING(30),
         allowNull: false // Obligatorio como acordamos
     },
-    passwordHash: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-        field: 'password_hash' // Forzamos el nombre en la BD física
-    },
+    // REEMPLAZÁ EL BLOQUE DE passwordHash POR ESTE:
+    password: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    field: 'password_hash' // En MySQL se llamará password_hash, pero en JS lo usás como .password
+   },
     rol: {
         type: DataTypes.ENUM('Operador', 'Administrador', 'Solo Consulta'),
         allowNull: false,
