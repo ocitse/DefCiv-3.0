@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnLogin.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Conectando...`;
 
             // 2. Hacemos la petición fetch real a nuestro Backend
-            const respuesta = await fetch('http://localhost:3000/api/auth/login', {
+            const respuesta = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
