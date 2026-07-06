@@ -8,23 +8,20 @@ import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
 import familia from './models/familia.js';
-import usuario from './models/usuarios.js';
+import usuario from './models/usuario.js';
 
 // 🌟 IMPORTAMOS LAS RUTAS NUEVAS
 import relevamientoroutes from './routes/relevamientoroutes.js';
 import familiaRoutes from './routes/familiaroutes.js';
 import authRoutes from './routes/authroutes.js';
+import usuarioRoutes from './routes/usuarioroutes.js';
 
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
-app.use(express.static('../frontend'));
+app.use(express.static('/home/defenprov'));
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
@@ -39,9 +36,10 @@ app.get('/api/status', (req, res) => {
 app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/index.html'));
+    res.sendFile('/home/defenprov/index.html');
 });
 
 async function iniciarServidor() {

@@ -1,0 +1,61 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-user-plus"></i> Agregar Nuevo Usuario</h5>
+    </div>
+    <div class="card-body">
+        <form id="formAltaUsuario">
+            <div class="row g-3">
+                <div class="col-md-4 mb-3">
+                    <label for="apellido" class="form-label">Apellido *</label>
+                    <input type="text" class="form-control" id="apellido" name="apellido" required placeholder="Ej: Pérez">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="nombres" class="form-label">Nombres *</label>
+                    <input type="text" class="form-control" id="nombres" name="nombres" required placeholder="Ej: Juan Carlos">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="dni" class="form-label">DNI *</label>
+                    <input type="text" class="form-control" id="dni" name="dni" required placeholder="Sin puntos, solo números">
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4 mb-3">
+                    <label for="username" class="form-label">Nombre de Usuario *</label>
+                    <input type="text" class="form-control" id="username" name="username" required placeholder="Ej: jperez">
+                    <small class="text-muted">Sugerido: inicial del apellido + primer nombre.</small>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="juan@ejemplo.com">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="celular" class="form-label">Celular *</label>
+                    <input type="tel" class="form-control" id="celular" name="celular" required placeholder="Ej: 3851234567">
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4 mb-3">
+                    <label for="rol" class="form-label">Rol *</label>
+                    <select class="form-select form-control" id="rol" name="rol" required>
+                        <option value="" disabled selected>Seleccione un rol...</option>
+                        <option value="Operador">Operador</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Solo Consulta">Solo Consulta</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary" id="btnGuardarUsuario">
+                    <i class="fas fa-save"></i> Guardar Usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

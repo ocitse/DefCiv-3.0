@@ -1,5 +1,5 @@
 // backend/controllers/authController.js
-import usuario from '../models/usuarios.js';
+import usuario from '../models/usuario.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
