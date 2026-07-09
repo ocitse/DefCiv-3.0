@@ -1,19 +1,18 @@
 // backend/controllers/usuariocontroller.js
 import bcrypt from 'bcryptjs';
-import usuario from '../models/usuario.js'; // Importamos el modelo que acabas de crear
-import { Op } from 'sequelize'; // Para usar operadores lógicos en las búsquedas (OR, AND)
+import Usuario from '../models/usuario.js'; // 👈 Corregido: Importamos con 'Usuario' en mayúscula
+import { Op } from 'sequelize'; 
 
 // 1. Obtener todos los usuarios (para listar en la tabla)
-// Excluimos a los que tienen estado 'Baja' para no mostrarlos
 export const obtenerUsuarios = async (req, res) => {
     try {
         const usuarios = await Usuario.findAll({
             where: {
                 estado: {
-                    [Op.ne]: 'Baja' // Op.ne significa "Not Equal" (No igual a 'Baja')
+                    [Op.ne]: 'Baja' 
                 }
             },
-            // Atributos que queremos devolver al frontend (excluimos el password_hash por seguridad)
+            // Atributos que devolvemos (excluimos la clave por seguridad)
             attributes: ['id', 'username', 'dni', 'apellido', 'nombres', 'email', 'celular', 'rol', 'estado', 'ultimoAcceso']
         });
 
@@ -53,18 +52,19 @@ export const crearUsuario = async (req, res) => {
 
         // Encriptamos el DNI para usarlo como contraseña inicial
         const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(dni, salt);
+        // Nos aseguramos de pasar el DNI como string al encriptar
+        const passwordEncriptada = await bcrypt.hash(dni.toString(), salt);
 
         // Guardamos en la base de datos usando el modelo
-        // Sequelize maneja automáticamente: estado='Activo', requiereCambioPass=true, y los timestamps
+        // Sequelize maneja automáticamente: estado='Activo', requiereCambioPass=true (o requiere_cambio_pass=1), y los timestamps
         await Usuario.create({
             username,
             dni,
             apellido,
             nombres,
-            email: email || null, // Si viene vacío lo guarda como NULL en la BD
+            email: email || null, 
             celular,
-            passwordHash,
+            password: passwordEncriptada, // 👈 Ojo: verificá que en tu modelo se llame 'passwordHash' y no 'password'
             rol
         });
 
@@ -76,5 +76,40 @@ export const crearUsuario = async (req, res) => {
     } catch (error) {
         console.error('Error al crear usuario con Sequelize:', error);
         res.status(500).json({ success: false, message: 'Error al procesar el alta en el servidor.' });
+    }
+};
+// Función para actualizar los datos de un usuario
+// Asegurate de que arriba de todo en tu controlador esté importado el modelo:
+// import Usuario from '../models/usuario.js';
+
+export const actualizarUsuario = async (req, res) => {
+    const { id } = req.params;
+    const { nombres, apellido, dni, email, celular, rol } = req.body;
+
+    try {
+        // Usamos la sintaxis oficial de Sequelize para actualizar
+        const [rowsUpdated] = await Usuario.update(
+            { nombres, apellido, dni, email, celular, rol },
+            { where: { id: id } }
+        );
+
+        if (rowsUpdated === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No se encontró el usuario o los datos son idénticos.'
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Usuario actualizado correctamente.'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar usuario en Sequelize:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Hubo un error interno en el servidor al intentar actualizar.'
+        });
     }
 };

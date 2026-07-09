@@ -42,10 +42,10 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false,
     field: 'password_hash' // En MySQL se llamará password_hash, pero en JS lo usás como .password
    },
-    rol: {
-        type: DataTypes.ENUM('Operador', 'Administrador', 'Solo Consulta'),
-        allowNull: false,
-        defaultValue: 'Operador'
+   rol: {
+    type: DataTypes.ENUM('Administrador', 'Administrativo', 'Relevador', 'Consulta'),
+    allowNull: false,
+    defaultValue: 'Consulta'
     },
     estado: {
         type: DataTypes.ENUM('Activo', 'Inactivo', 'Baja'),

@@ -43,8 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(resultado.mensaje || 'Error al intentar iniciar sesión.');
             }
 
-            // ÉXITO TOTAL: Guardamos el Token y los datos del usuario en sessionStorage
-            // Usamos sessionStorage para que si cierra la pestaña, la sesión se destruya por seguridad
+            /// ÉXITO TOTAL: Guardamos el Token y los datos del usuario en sessionStorage
             sessionStorage.setItem('token', resultado.token);
             sessionStorage.setItem('usuario', JSON.stringify(resultado.usuario));
 
@@ -52,9 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
             errorMessage.style.color = '#198754';
             errorMessage.textContent = '¡Acceso concedido! Redirigiendo...';
 
-            // 4. Redirección al Dashboard tras 1 segundo
+            // 4. Redirección inteligente tras 1 segundo
             setTimeout(() => {
-                window.location.href = '../../index.html';
+                // 👁️ VALIDACIÓN CRUCIAL: ¿Es su primera vez o debe cambiar la clave?
+                if (resultado.usuario.requiereCambioPass) {
+                    // Lo mandamos de una a cambiar la contraseña
+                    window.location.href = 'cambiar-password.html'; 
+                } else {
+                    // Si ya la cambió antes, pasa directo al Dashboard
+                    window.location.href = '../../index.html';
+                }
             }, 1000);
 
         } catch (error) {

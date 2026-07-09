@@ -74,4 +74,13 @@
         flex: 1; 
         margin-left: 280px; 
     }
+
+    /* Efecto Hover para el submenú de configuración en Desktop */
+@media (min-width: 768px) {
+    .dropdown-hover:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; 
+        animation: fadeIn 0.2s; /* Aprovechando que tenés animate.css */
+    }
+}
 }

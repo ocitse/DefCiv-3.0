@@ -9,6 +9,7 @@ import sequelize from './config/database.js';
 import relevamiento from './models/relevamiento.js';
 import familia from './models/familia.js';
 import usuario from './models/usuario.js';
+import relevadorroutes from './routes/relevadorroutes.js'; // <--- NUEVO
 
 // 🌟 IMPORTAMOS LAS RUTAS NUEVAS
 import relevamientoroutes from './routes/relevamientoroutes.js';
@@ -37,6 +38,7 @@ app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
+app.use('/api/relevadores', relevadorroutes); // <--- NUEVO
 
 app.get('*', (req, res) => {
     res.sendFile('/home/defenprov/index.html');
@@ -47,7 +49,7 @@ async function iniciarServidor() {
         await sequelize.authenticate();
         console.log('✅ Conexión a MySQL establecida de manera exitosa.');
 
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         console.log('🚀 Tablas de la base de datos sincronizadas correctamente.');
 
         app.listen(PORT, () => {

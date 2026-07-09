@@ -13,10 +13,17 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST,
         port: process.env.DB_PORT || 3306,
         dialect: 'mysql',
-        logging: false, // Desactiva los logs de SQL en consola para mantenerla limpia
+        logging: false,
+        // 🌟 AGREGAR ESTE BLOQUE DE POOL PARA LIBERAR SENTENCIAS Y CONEXIONES
+        pool: {
+            max: 5,         // Máximo de conexiones simultáneas en el pool (bajalo si está muy alto)
+            min: 0,         // Mínimo de conexiones en reposo
+            acquire: 30000, // Tiempo máximo (ms) que el pool intentará conectar antes de tirar error
+            idle: 10000     // Tiempo máximo (ms) que una conexión puede estar inactiva antes de ser liberada
+        },
         define: {
-            timestamps: true, // Nos crea automáticamente las columnas createdAt y updatedAt
-            underscored: true // Convierte camelCase a snake_case en la BD (ej: id_familia)
+            timestamps: true,
+            underscored: true
         }
     }
 );

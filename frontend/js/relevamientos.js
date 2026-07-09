@@ -1,5 +1,6 @@
 // frontend/js/relevamientos.js
 import { Storage } from './storage.js'; // Ajustá la ruta según tu proyecto
+import { departamentosYLocalidades } from './ubicaciones.js';
 import { mostrarNotificacion } from './ui.js'; // Ajustá la ruta según tu proyecto
 
 // ID del contenedor principal en tu index.html donde se renderiza todo
@@ -62,6 +63,12 @@ export function verListaRelevamientos() {
     cargarVistaDinamica('frontend/pages/tabla-relevamientos.html', () => {
         const tbody = document.getElementById('tabla-relevamientos-body');
         if (!tbody) return;
+
+        // 🌟 AGREGAR ESTO ACÁ: Vinculación limpia del botón Volver al panel
+        const btnVolver = document.getElementById('btn-volver-panel');
+        if (btnVolver) {
+            btnVolver.onclick = verPanelPrincipal;
+        }
 
         const data = Storage.getData();
         const lista = data.relevamientos || [];
@@ -549,33 +556,64 @@ function getBadgeUrgencia(urgencia) {
 }
 
 function cargarDesplegablesUbicacion() {
-    const dept = document.getElementById('r_departamento');
-    const loc = document.getElementById('r_localidad');
-    if (!dept || !loc) return;
+    const selectDep = document.getElementById('r_departamento');
+    const selectLoc = document.getElementById('r_localidad');
+    if (!selectDep || !selectLoc) return;
 
-    // Simulación limpia: Esto a futuro se alimentará de tu base de datos o JSON de la provincia
-    dept.innerHTML = `
-        <option value="" disabled>Seleccione Departamento...</option>
-        <option value="14" selected>Banda</option>
-        <option value="01">Capital</option>
-    `;
-    loc.innerHTML = `
-        <option value="" disabled>Seleccione Localidad...</option>
-        <option value="1402" selected>La Banda</option>
-        <option value="1405">Clodomira</option>
-    `;
+    // 1. Limpiamos y cargamos los departamentos desde el módulo importado
+    selectDep.innerHTML = '<option value="" selected disabled>Seleccione Departamento...</option>';
+    
+    const departamentos = Object.keys(departamentosYLocalidades);
+    departamentos.forEach(depto => {
+        const option = document.createElement('option');
+        option.value = depto;
+        option.textContent = depto;
+        selectDep.appendChild(option);
+    });
+
+    // 2. Estado inicial del select de localidades
+    selectLoc.innerHTML = '<option value="" selected disabled>Seleccione Localidad...</option>';
+
+    // 3. Listener en cascada para cuando cambie el departamento seleccionado
+    selectDep.onchange = (e) => {
+        const deptoElegido = e.target.value;
+        const localidades = departamentosYLocalidades[deptoElegido] || [];
+
+        selectLoc.innerHTML = '<option value="" selected disabled>Seleccione Localidad...</option>';
+        localidades.forEach(loc => {
+            const option = document.createElement('option');
+            option.value = loc;
+            option.textContent = loc;
+            selectLoc.appendChild(option);
+        });
+    };
 }
 
-function cargarDesplegableRelevadores() {
+async function cargarDesplegableRelevadores() {
     const select = document.getElementById('r_relevador');
     if (!select) return;
     
-    // Simulación de los usuarios gestionados del sistema
-    select.innerHTML = `
-        <option value="" disabled>Asignar a...</option>
-        <option value="USR-01" selected>Cavalieri Omar</option>
-        <option value="USR-02">Pérez Juan</option>
-    `;
+    // Dejamos la opción por defecto
+    select.innerHTML = '<option value="" disabled selected>Asignar a...</option>';
+
+    try {
+        const respuesta = await fetch('/api/relevadores');
+        const resultado = await respuesta.json();
+
+        if (resultado.success && resultado.data) {
+            resultado.data.forEach(rev => {
+                const option = document.createElement('option');
+                // Usamos el id o dni según cómo guardes el relevamiento en tu base de datos
+                option.value = rev.id; 
+                option.textContent = rev.nombre;
+                select.appendChild(option);
+            });
+        } else {
+            console.error('No se pudieron cargar los relevadores');
+        }
+    } catch (error) {
+        console.error('Error de red al obtener relevadores:', error);
+    }
 }
 
 /**
