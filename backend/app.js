@@ -22,7 +22,7 @@ import fs from 'fs';
 dotenv.config();
 
 const app = express();
-app.use(express.static('/home/defenprov'));
+app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), '../frontend')));
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
