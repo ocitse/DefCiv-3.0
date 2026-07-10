@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs'; // 👈 1. Importamos el módulo fs acá arriba
 import { fileURLToPath } from 'url';
 import sequelize from './config/database.js';
 
@@ -21,6 +22,18 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 🔍 2. Agregamos el diagnóstico acá mismo para que verifique las dos opciones físicas
+const rutaOpcion1 = path.join(__dirname, 'frontend');
+const rutaOpcion2 = path.join(__dirname, '../frontend');
+
+console.log("--- DIAGNÓSTICO DE RUTAS ---");
+console.log("Directorio actual (__dirname):", __dirname);
+console.log("¿Existe /backend/frontend?:", fs.existsSync(rutaOpcion1));
+console.log("¿Existe un nivel arriba (/home/defenprov/frontend)?:", fs.existsSync(rutaOpcion2));
+
+// Directorio actual de trabajo
+console.log('Directorio actual de trabajo (CWD):', process.cwd());
+
 const app = express();
 
 // Definimos la ruta absoluta al directorio raíz del proyecto (un nivel arriba de backend)
@@ -30,27 +43,22 @@ const projectRoot = path.join(__dirname, '../');
 app.use(cors());
 app.use(express.json());
 
-// 📂 SERVIR ARCHIVOS ESTÁTICOS DE FORMA SEGURA Y UNIVERSAL
-// Esto hace accesible todo lo que está en /frontend (ej: /frontend/assets/logo.jpg)
-// Exponemos la carpeta assets directamente para que no haya margen de error en la ruta
+// 📂 SERVIR ARCHIVOS ESTÁTICOS
 app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend/assets')));
-
-// Si tenés un index.html general en la raíz del proyecto también lo exponemos
 app.use(express.static(projectRoot));
 
-// Endpoints de la API
+// Endpoints y Rutas de la API
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', message: 'API de Defensa Civil funcionando correctamente.' });
 });
 
-// Rutas de la API
 app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
 
-// Comodín para SPA (si corresponde) o fallback
+// Comodín para SPA
 app.get('*', (req, res) => {
     res.sendFile(path.join(projectRoot, 'index.html'));
 });
