@@ -32,7 +32,8 @@ app.use(express.json());
 
 // 📂 SERVIR ARCHIVOS ESTÁTICOS DE FORMA SEGURA Y UNIVERSAL
 // Esto hace accesible todo lo que está en /frontend (ej: /frontend/assets/logo.jpg)
-app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
+// Exponemos la carpeta assets directamente para que no haya margen de error en la ruta
+app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend/assets')));
 
 // Si tenés un index.html general en la raíz del proyecto también lo exponemos
 app.use(express.static(projectRoot));
