@@ -21,7 +21,18 @@ import fs from 'fs';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+
+// Ruta dinámica que se adapta sola si estás en Windows o en Linux
+const rootDir = process.env.NODE_ENV === 'production' 
+    ? '/home/defenprov' 
+    : path.join(__dirname, '../');
+
+app.use(express.static(rootDir));
+
 app.use(express.static('/home/defenprov'));
 const PORT = process.env.PORT || 3000;
 
@@ -41,7 +52,7 @@ app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes); // <--- NUEVO
 
 app.get('*', (req, res) => {
-    res.sendFile('/home/defenprov/index.html');
+    res.sendFile(path.join(rootDir, 'index.html'));
 });
 
 async function iniciarServidor() {
