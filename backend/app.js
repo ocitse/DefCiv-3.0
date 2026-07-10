@@ -44,7 +44,8 @@ app.use(cors());
 app.use(express.json());
 
 // 📂 SERVIR ARCHIVOS ESTÁTICOS
-app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend/assets')));
+// Servimos la carpeta frontend de forma limpia desde la raíz del proyecto
+app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 app.use(express.static(projectRoot));
 
 // Endpoints y Rutas de la API
