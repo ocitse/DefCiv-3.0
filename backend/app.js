@@ -42,14 +42,13 @@ app.use(cors());
 app.use(express.json());
 
 // 📂 SERVIR ARCHIVOS ESTÁTICOS FORZANDO CONTENT-TYPE (Evita errores ORB)
-app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend/assets'), {
+// Apuntamos directamente a la carpeta absoluta que el sistema confirmó que existe
+app.use('/frontend/assets', express.static('/home/defenprov/frontend/assets', {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
             res.setHeader('Content-Type', 'image/jpeg');
         } else if (filePath.endsWith('.png')) {
             res.setHeader('Content-Type', 'image/png');
-        } else if (filePath.endsWith('.svg')) {
-            res.setHeader('Content-Type', 'image/svg+xml');
         }
     }
 }));
