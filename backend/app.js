@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import fs from 'fs'; // 👈 1. Importamos el módulo fs acá arriba
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import sequelize from './config/database.js';
 
@@ -22,7 +22,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🔍 2. Agregamos el diagnóstico acá mismo para que verifique las dos opciones físicas
+// Diagnóstico de rutas para Alwaysdata
 const rutaOpcion1 = path.join(__dirname, 'frontend');
 const rutaOpcion2 = path.join(__dirname, '../frontend');
 
@@ -30,8 +30,6 @@ console.log("--- DIAGNÓSTICO DE RUTAS ---");
 console.log("Directorio actual (__dirname):", __dirname);
 console.log("¿Existe /backend/frontend?:", fs.existsSync(rutaOpcion1));
 console.log("¿Existe un nivel arriba (/home/defenprov/frontend)?:", fs.existsSync(rutaOpcion2));
-
-// Directorio actual de trabajo
 console.log('Directorio actual de trabajo (CWD):', process.cwd());
 
 const app = express();
@@ -43,18 +41,20 @@ const projectRoot = path.join(__dirname, '../');
 app.use(cors());
 app.use(express.json());
 
-// 📂 SERVIR ARCHIVOS ESTÁTICOS
-// Servimos la carpeta frontend de forma limpia desde la raíz del proyecto
-// Forzamos los archivos estáticos asegurando que Express lea y mande los headers correctos
+// 📂 SERVIR ARCHIVOS ESTÁTICOS FORZANDO CONTENT-TYPE (Evita errores ORB)
 app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend/assets'), {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
             res.setHeader('Content-Type', 'image/jpeg');
         } else if (filePath.endsWith('.png')) {
             res.setHeader('Content-Type', 'image/png');
+        } else if (filePath.endsWith('.svg')) {
+            res.setHeader('Content-Type', 'image/svg+xml');
         }
     }
 }));
+
+app.use(express.static(projectRoot));
 
 // Endpoints y Rutas de la API
 app.get('/api/status', (req, res) => {
