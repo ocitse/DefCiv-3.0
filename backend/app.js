@@ -45,8 +45,16 @@ app.use(express.json());
 
 // 📂 SERVIR ARCHIVOS ESTÁTICOS
 // Servimos la carpeta frontend de forma limpia desde la raíz del proyecto
-app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
-app.use(express.static(projectRoot));
+// Forzamos los archivos estáticos asegurando que Express lea y mande los headers correctos
+app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend/assets'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+            res.setHeader('Content-Type', 'image/jpeg');
+        } else if (filePath.endsWith('.png')) {
+            res.setHeader('Content-Type', 'image/png');
+        }
+    }
+}));
 
 // Endpoints y Rutas de la API
 app.get('/api/status', (req, res) => {
