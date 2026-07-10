@@ -6,33 +6,34 @@ import jwt from 'jsonwebtoken';
 // 1. REGISTRAR UN NUEVO USUARIO
 export const registrar = async (req, res) => {
     try {
-        const { nombre, email, password, rol } = req.body;
+        const { username, dni, apellido, nombres, email, celular, password, rol } = req.body;
 
-        if (!nombre || !email || !password) {
-            return res.status(400).json({ mensaje: 'Todos los campos son obligatorios.' });
+        if (!username || !dni || !apellido || !nombres || !celular || !password) {
+            return res.status(400).json({ mensaje: 'Todos los campos obligatorios deben completarse.' });
         }
 
-        // Verificamos si el email ya está en uso
-        const usuarioExiste = await usuario.findOne({ where: { email } });
+        const usuarioExiste = await usuario.findOne({ where: { username } });
         if (usuarioExiste) {
-            return res.status(400).json({ mensaje: 'El correo electrónico ya está registrado.' });
+            return res.status(400).json({ mensaje: 'El nombre de usuario ya está registrado.' });
         }
 
-        // Encriptamos la contraseña (hashing) antes de guardarla
         const salt = await bcrypt.genSalt(10);
         const passwordEncriptada = await bcrypt.hash(password, salt);
 
-        // Guardamos en MySQL
         const nuevoUsuario = await usuario.create({
-            nombre,
+            username,
+            dni,
+            apellido,
+            nombres,
             email,
+            celular,
             password: passwordEncriptada,
             rol
         });
 
         res.status(201).json({
             mensaje: 'Usuario registrado con éxito.',
-            usuario: { id: nuevoUsuario.id_usuario, nombre: nuevoUsuario.nombre, email: nuevoUsuario.email }
+            usuario: { id: nuevoUsuario.id, username: nuevoUsuario.username, email: nuevoUsuario.email }
         });
     } catch (error) {
         console.error('Error en registro:', error);
@@ -40,16 +41,16 @@ export const registrar = async (req, res) => {
     }
 };
 
-// 2. INICIAR SESIÓN (LOGIN)
+// 2. INICIAR SESIÓN (LOGIN) - Totalmente alineado a tu tabla 'usuarios'
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ mensaje: 'Email y contraseña requeridos.' });
+        if (!username || !password) {
+            return res.status(400).json({ mensaje: 'Nombre de usuario y contraseña requeridos.' });
         }
 
-        const usuarioEncontrado = await usuario.findOne({ where: { email } });
+        const usuarioEncontrado = await usuario.findOne({ where: { username } });
         
         if (!usuarioEncontrado) {
             return res.status(400).json({ mensaje: 'Credenciales inválidas (Usuario no encontrado).' });
@@ -60,9 +61,9 @@ export const login = async (req, res) => {
             return res.status(400).json({ mensaje: 'Credenciales inválidas (Contraseña incorrecta).' });
         }
 
-        console.log("🔍 DATOS REALES EN EL BACKEND:", usuarioEncontrado.toJSON());
         const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_defensa_civil';
         
+        // Usamos usuarioEncontrado.id (que Sequelize mapea a id_usuario)
         const token = jwt.sign(
             { id_usuario: usuarioEncontrado.id, rol: usuarioEncontrado.rol },
             JWT_SECRET,
@@ -95,23 +96,19 @@ export const cambiarPassword = async (req, res) => {
             return res.status(400).json({ mensaje: 'Todos los campos son obligatorios.' });
         }
 
-        // Buscamos al usuario por su ID
         const usuarioEncontrado = await usuario.findByPk(id_usuario);
         if (!usuarioEncontrado) {
             return res.status(404).json({ mensaje: 'Usuario no encontrado.' });
         }
 
-        // Validamos que la contraseña actual sea la correcta
         const passwordCorrecta = await bcrypt.compare(passwordActual, usuarioEncontrado.password);
         if (!passwordCorrecta) {
             return res.status(400).json({ mensaje: 'La contraseña actual es incorrecta.' });
         }
 
-        // Encriptamos la nueva contraseña
         const salt = await bcrypt.genSalt(10);
         const nuevaPasswordEncriptada = await bcrypt.hash(passwordNueva, salt);
 
-        // Actualizamos los campos en la base de datos
         usuarioEncontrado.password = nuevaPasswordEncriptada;
         usuarioEncontrado.requiereCambioPass = false; 
         usuarioEncontrado.fechaUltimoCambioPass = new Date(); 

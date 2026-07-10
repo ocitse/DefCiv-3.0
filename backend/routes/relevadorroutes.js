@@ -1,4 +1,5 @@
 import express from 'express';
+import { QueryTypes } from 'sequelize'; // 👈 Importamos QueryTypes
 import sequelize from '../config/database.js';
 
 const router = express.Router();
@@ -6,8 +7,10 @@ const router = express.Router();
 // GET /api/relevadores - Listar relevadores activos
 router.get('/', async (req, res) => {
     try {
-        const [relevadores] = await sequelize.query(
-            'SELECT id, nombre, dni, email FROM relevadores WHERE activo = 1 ORDER BY nombre ASC'
+        // 🌟 Especificamos QueryTypes.SELECT para optimizar y liberar el statement de inmediato
+        const relevadores = await sequelize.query(
+            'SELECT id, nombre, dni, email FROM relevadores WHERE activo = 1 ORDER BY nombre ASC',
+            { type: QueryTypes.SELECT }
         );
         
         res.json({

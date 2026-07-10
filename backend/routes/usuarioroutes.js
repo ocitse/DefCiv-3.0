@@ -36,36 +36,26 @@ router.put('/:id/estado', async (req, res) => {
 });
 
 // 🌟 SOLUCIÓN DIRECTA: Lógica embebida en la ruta para evitar problemas con el import del controlador
+// Dentro de tu archivo backend/routes/usuarioroutes.js (alrededor de la línea 45)
 router.put('/:id', async (req, res) => {
-    const { id } = req.params;
-    const { nombres, apellido, dni, email, celular, rol } = req.body;
-
     try {
-        // Usamos Sequelize directamente acá
-        const [rowsUpdated] = await Usuario.update(
+        const { id } = req.params;
+        const { nombres, apellido, dni, email, celular, rol } = req.body;
+
+        // 🌟 Usamos el modelo directamente de forma limpia y atómica
+        const [updated] = await Usuario.update(
             { nombres, apellido, dni, email, celular, rol },
-            { where: { id: id } }
+            { where: { id } }
         );
 
-        if (rowsUpdated === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No se encontró el usuario o los datos son idénticos.'
-            });
+        if (!updated) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
         }
 
-        return res.json({
-            success: true,
-            message: 'Usuario actualizado correctamente.'
-        });
-
-    } // En lugar de esto:
-    // res.status(500).json({ success: false, message: "Hubo un error interno en el servidor al intentar actualizar." });
-    
-    // Poné esto para ver la verdad en el Response de la consola:
-    catch (error) {
-        console.error("Error real:", error);
-        res.status(500).json({ success: false, message: error.message, stack: error.stack });
+        res.json({ success: true, message: 'Actualizado correctamente' });
+    } catch (error) {
+        console.error('Error en ruta:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 

@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 1. Capturamos los valores de los inputs
-        const email = document.getElementById('username').value.trim();
+        // 1. Capturamos el valor del input de usuario (renombramos la variable a 'nombre')
+        const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
 
         // Limpiamos mensajes previos
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.style.color = '#dc3545'; 
 
         // Validación visual rápida en el cliente
-        if (!email || !password) {
+        if (!username || !password) {
             errorMessage.textContent = 'Por favor, complete todos los campos.';
             return;
         }
@@ -26,24 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
             btnLogin.disabled = true;
             btnLogin.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Conectando...`;
 
-            // 2. Hacemos la petición fetch real a nuestro Backend
+            // 2. Hacemos la petición fetch enviando la propiedad 'nombre'
             const respuesta = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ username, password }) // 👈 Enviamos 'nombre' en lugar de 'email'
             });
 
             const resultado = await respuesta.json();
 
             // 3. Evaluamos la respuesta de la API
             if (!respuesta.ok) {
-                // Si el backend responde con 400 o 500, mostramos el mensaje exacto que programamos
                 throw new Error(resultado.mensaje || 'Error al intentar iniciar sesión.');
             }
 
-            /// ÉXITO TOTAL: Guardamos el Token y los datos del usuario en sessionStorage
+            // ÉXITO TOTAL: Guardamos el Token y los datos del usuario en sessionStorage
             sessionStorage.setItem('token', resultado.token);
             sessionStorage.setItem('usuario', JSON.stringify(resultado.usuario));
 
@@ -53,18 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 4. Redirección inteligente tras 1 segundo
             setTimeout(() => {
-                // 👁️ VALIDACIÓN CRUCIAL: ¿Es su primera vez o debe cambiar la clave?
                 if (resultado.usuario.requiereCambioPass) {
-                    // Lo mandamos de una a cambiar la contraseña
                     window.location.href = 'cambiar-password.html'; 
                 } else {
-                    // Si ya la cambió antes, pasa directo al Dashboard
                     window.location.href = '../../index.html';
                 }
             }, 1000);
 
         } catch (error) {
-            // Mostramos los errores controlados (Usuario no encontrado, Contraseña incorrecta, etc.)
             errorMessage.textContent = error.message;
             
             // Restauramos el botón original
