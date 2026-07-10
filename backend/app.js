@@ -9,15 +9,12 @@ import sequelize from './config/database.js';
 import relevamiento from './models/relevamiento.js';
 import familia from './models/familia.js';
 import usuario from './models/usuario.js';
-import relevadorroutes from './routes/relevadorroutes.js'; // <--- NUEVO
+import relevadorroutes from './routes/relevadorroutes.js';
 
-// 🌟 IMPORTAMOS LAS RUTAS NUEVAS
 import relevamientoroutes from './routes/relevamientoroutes.js';
 import familiaroutes from './routes/familiaroutes.js';
 import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
-
-import fs from 'fs';
 
 dotenv.config();
 
@@ -26,34 +23,38 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Ruta dinámica que se adapta sola si estás en Windows o en Linux
-const rootDir = process.env.NODE_ENV === 'production' 
-    ? '/home/defenprov' 
-    : path.join(__dirname, '../');
+// Definimos la ruta absoluta al directorio raíz del proyecto (un nivel arriba de backend)
+const projectRoot = path.join(__dirname, '../');
 
-app.use(express.static(rootDir));
-
-app.use(express.static('/home/defenprov'));
-const PORT = process.env.PORT || 3000;
-
+// Middlewares generales
 app.use(cors());
 app.use(express.json());
+
+// 📂 SERVIR ARCHIVOS ESTÁTICOS DE FORMA SEGURA Y UNIVERSAL
+// Esto hace accesible todo lo que está en /frontend (ej: /frontend/assets/logo.jpg)
+app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
+
+// Si tenés un index.html general en la raíz del proyecto también lo exponemos
+app.use(express.static(projectRoot));
 
 // Endpoints de la API
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', message: 'API de Defensa Civil funcionando correctamente.' });
 });
 
-// 🌟 VINCULAMOS LAS RUTAS A UN ENDPOINT BASE
+// Rutas de la API
 app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
-app.use('/api/relevadores', relevadorroutes); // <--- NUEVO
+app.use('/api/relevadores', relevadorroutes);
 
+// Comodín para SPA (si corresponde) o fallback
 app.get('*', (req, res) => {
-    res.sendFile(path.join(rootDir, 'index.html'));
+    res.sendFile(path.join(projectRoot, 'index.html'));
 });
+
+const PORT = process.env.PORT || 3000;
 
 async function iniciarServidor() {
     try {
