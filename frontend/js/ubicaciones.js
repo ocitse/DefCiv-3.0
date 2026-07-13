@@ -120,7 +120,7 @@ export const departamentosYLocalidades = {
         "Santa María",
         "Sol de Mayo",
         "El Zanjón",
-        "Macon",
+        "Maco",
         "Maquito",
         "Mal Paso",
         "Puestito San Antonio",
