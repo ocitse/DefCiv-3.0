@@ -75,3 +75,20 @@ document.addEventListener('click', function (event) {
         }
     }
 });
+
+// =========================================================================
+// 📂 NAVEGACIÓN GLOBAL: MÓDULO SOLICITUDES
+// =========================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnEscritorio = document.getElementById('btn-menu-solicitudes');
+    const btnMobile = document.getElementById('btn-mobile-solicitudes');
+
+    const irASolicitudes = (e) => {
+        e.preventDefault();
+        window.location.href = './tabla-solicitudes.html'; // Ajustá la ruta relativa si estás dentro de pages o la raíz
+    };
+
+    if (btnEscritorio) btnEscritorio.addEventListener('click', irASolicitudes);
+    if (btnMobile) btnMobile.addEventListener('click', irASolicitudes);
+});
