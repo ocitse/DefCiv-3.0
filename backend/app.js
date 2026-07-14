@@ -16,6 +16,7 @@ import relevamientoroutes from './routes/relevamientoroutes.js';
 import familiaroutes from './routes/familiaroutes.js';
 import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
+import solicitudroutes from './routes/solicitudroutes.js';
 
 dotenv.config();
 
@@ -41,8 +42,7 @@ const projectRoot = path.join(__dirname, '../');
 app.use(cors());
 app.use(express.json());
 
-// 📂 SERVIR ARCHIVOS ESTÁTICOS FORZANDO CONTENT-TYPE (Evita errores ORB)
-// Apuntamos directamente a la carpeta absoluta que el sistema confirmó que existe
+// 📂 SERVIR ARCHIVOS ESTÁTICOS Y CARPETA FRONTEND COMPLETA
 app.use('/frontend/assets', express.static('/home/defenprov/frontend/assets', {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
@@ -53,6 +53,8 @@ app.use('/frontend/assets', express.static('/home/defenprov/frontend/assets', {
     }
 }));
 
+// Servir de forma estática toda la carpeta frontend para que los .html sean accesibles directamente por fetch
+app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 app.use(express.static(projectRoot));
 
 // Endpoints y Rutas de la API
@@ -65,9 +67,10 @@ app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
+app.use('/api/solicitudes', solicitudroutes); // O app.use('/api/solicitudes', solicitudroutes); según cómo lo pida tu frontend
 
-// Comodín para SPA
-app.get('*', (req, res) => {
+// Comodín para SPA (Excluyendo explícitamente las rutas de api y frontend para que no interceptes los partials)
+app.get(/^(?!\/api|\/frontend).*/, (req, res) => {
     res.sendFile(path.join(projectRoot, 'index.html'));
 });
 

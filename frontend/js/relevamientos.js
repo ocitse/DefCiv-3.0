@@ -53,7 +53,6 @@ async function cargarVistaDinamica(rutaHtml, callback) {
 export function verListaRelevamientos() {
     idRelevamientoActivo = null; // Limpiamos el contexto activo
 
-    // LINEA NUEVA: Asegura que el menú se ilumine en Relevamientos al volver de cualquier pantalla interna
     const btnMenu = document.getElementById('btn-menu-relevamientos');
     if (btnMenu) {
         document.querySelectorAll('#sidebar-app .nav-link').forEach(el => el.classList.remove('active'));
@@ -64,7 +63,6 @@ export function verListaRelevamientos() {
         const tbody = document.getElementById('tabla-relevamientos-body');
         if (!tbody) return;
 
-        // 🌟 AGREGAR ESTO ACÁ: Vinculación limpia del botón Volver al panel
         const btnVolver = document.getElementById('btn-volver-panel');
         if (btnVolver) {
             btnVolver.onclick = verPanelPrincipal;
@@ -76,17 +74,17 @@ export function verListaRelevamientos() {
         if (lista.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="text-center text-muted py-4">
+                    <td colspan="10" class="text-center text-muted py-4">
                         <i class="bi bi-info-circle me-1"></i> No hay relevamientos registrados
                     </td>
                 </tr>`;
             return;
         }
 
-        // Renderizamos las filas de Relevamientos con los datos limpios para estadísticas
+        // Renderizamos las filas incluyendo el Estado de Terreno y Botón de Cierre
         tbody.innerHTML = lista.map(rel => {
-            // Contamos de forma segura cuántas familias tiene este relevamiento adentro
             const cantFamilias = rel.familias ? rel.familias.length : 0;
+            const estadoTerreno = rel.estado_relevamiento || 'En curso';
             
             return `
                 <tr>
@@ -95,13 +93,17 @@ export function verListaRelevamientos() {
                     <td><span class="fw-semibold">${rel.departamento}</span> / ${rel.localidad}</td>
                     <td>${rel.barrio}</td>
                     <td>${rel.tipo_evento}</td>
-                    <td>${rel.solicitante || '<span class="text-muted">-</span>'}</td>
+                    <td>${rel.relevador_asignado || '<span class="text-muted">-</span>'}</td>
                     <td><span class="badge ${getBadgeUrgencia(rel.urgencia_general)}">${rel.urgencia_general}</span></td>
+                    <td><span class="badge ${getBadgeEstadoTerreno(estadoTerreno)}">${estadoTerreno}</span></td>
                     <td class="text-center"><span class="badge bg-info text-dark fw-bold">${cantFamilias} Familias</span></td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm">
                             <button class="btn btn-outline-primary" onclick="ingresarARelevamiento('${rel.id_relevamiento}')" title="Ver Familias">
                                 <i class="bi bi-eye-fill"></i>
+                            </button>
+                            <button class="btn btn-outline-success" onclick="abrirModalCierreRelevamiento('${rel.id_relevamiento}')" title="Gestionar Cierre / Estado">
+                                <i class="bi bi-check2-circle"></i>
                             </button>
                             <button class="btn btn-outline-secondary" onclick="editarRelevamientoGeneral('${rel.id_relevamiento}')" title="Editar Configuración">
                                 <i class="bi bi-pencil"></i>
@@ -112,6 +114,90 @@ export function verListaRelevamientos() {
             `;
         }).join('');
     });
+}
+
+/**
+ * Retorna la clase CSS para el badge según el estado de terreno
+ */
+function getBadgeEstadoTerreno(estado) {
+    if (estado === 'Completado') return 'bg-success';
+    if (estado === 'En curso') return 'bg-primary';
+    if (estado === 'Suspendido') return 'bg-warning text-dark';
+    return 'bg-danger'; // Baja
+}
+
+/**
+ * Abre un modal rápido o selector para cambiar el estado de terreno y cerrar el relevamiento
+ */
+export function abrirModalCierreRelevamiento(idRelevamiento) {
+    const data = Storage.getData();
+    const rel = data.relevamientos.find(r => r.id_relevamiento === idRelevamiento);
+    if (!rel) return;
+
+    const modalHtml = `
+        <div class="modal fade" id="modalCierreRel" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title fw-bold">Gestión de Cierre: #${rel.id_relevamiento}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Seleccionar Estado Operativo de Terreno:</label>
+                            <select id="select-nuevo-estado-terreno" class="form-select">
+                                <option value="En curso" ${rel.estado_relevamiento === 'En curso' ? 'selected' : ''}>En curso</option>
+                                <option value="Completado" ${rel.estado_relevamiento === 'Completado' ? 'selected' : ''}>Completado (Habilita para Solicitudes)</option>
+                                <option value="Suspendido" ${rel.estado_relevamiento === 'Suspendido' ? 'selected' : ''}>Suspendido</option>
+                                <option value="Baja" ${rel.estado_relevamiento === 'Baja' ? 'selected' : ''}>Baja</option>
+                            </select>
+                        </div>
+                        <div class="alert alert-info small m-0">
+                            <i class="bi bi-info-circle-fill me-1"></i> Al marcar como <strong>Completado</strong> y guardar, el relevamiento quedará disponible de inmediato en el menú de <strong>Solicitudes</strong>.
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="guardarEstadoTerreno('${rel.id_relevamiento}')">Guardar y Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const viejo = document.getElementById('temp-modal-cierre');
+    if (viejo) viejo.remove();
+
+    const div = document.createElement('div');
+    div.id = 'temp-modal-cierre';
+    div.innerHTML = modalHtml;
+    document.body.appendChild(div);
+
+    const m = new bootstrap.Modal(document.getElementById('modalCierreRel'));
+    m.show();
+
+    document.getElementById('modalCierreRel').addEventListener('hidden.bs.modal', () => div.remove());
+}
+
+/**
+ * Guarda el cambio de estado de terreno en el LocalStorage / Estructura
+ */
+export function guardarEstadoTerreno(idRelevamiento) {
+    const nuevoEstado = document.getElementById('select-nuevo-estado-terreno').value;
+    const data = Storage.getData();
+    const idx = data.relevamientos.findIndex(r => r.id_relevamiento === idRelevamiento);
+
+    if (idx !== -1) {
+        data.relevamientos[idx].estado_relevamiento = nuevoEstado;
+        Storage.setData(data);
+        mostrarNotificacion(`Estado actualizado a: ${nuevoEstado}`);
+        
+        const modalEl = document.getElementById('modalCierreRel');
+        const modalObj = bootstrap.Modal.getInstance(modalEl);
+        if (modalObj) modalObj.hide();
+
+        verListaRelevamientos();
+    }
 }
 
 /**
@@ -884,6 +970,8 @@ if (typeof window !== 'undefined') {
     window.agregarItemLista = agregarItemLista;
     window.eliminarItemLista = eliminarItemLista;
     window.verPanelPrincipal = verPanelPrincipal;
+    window.abrirModalCierreRelevamiento = abrirModalCierreRelevamiento;
+window.guardarEstadoTerreno = guardarEstadoTerreno;
     
     // 🔗 Vinculamos de forma segura ambas variantes para que tus botones funcionen sí o sí:
     window.verListaFamilias = (id) => ingresarARelevamiento(id || idRelevamientoActivo);

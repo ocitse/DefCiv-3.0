@@ -56,11 +56,16 @@
                             <i class="bi bi-people-fill me-2"></i> Usuarios
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" href="#" id="btn-sub-relevadores">
+                            <i class="bi bi-person-badge-fill me-2"></i> Relevadores
+                        </a>
+                    </li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-sliders me-2"></i> Ajustes Sistema</a></li>
                 </ul>
             </li>
         </ul>
-        </div>
+    </div>
     
     <nav class="navbar navbar-dark bg-dark border-bottom border-secondary sticky-top px-3 d-flex d-md-none position-relative" id="sidebar-mobile" style="z-index: 1000; width: 100%;">
         <div class="container-fluid d-flex align-items-center justify-content-between p-0">
@@ -108,6 +113,11 @@
                                     <i class="bi bi-people-fill me-2"></i> Usuarios
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" id="btn-mobile-sub-relevadores" href="#">
+                                    <i class="bi bi-person-badge-fill me-2"></i> Relevadores
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -121,404 +131,161 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="frontend/js/usuarios.js"></script>
+    
     <script type="module">
+        import { cargarModuloUsuarios } from './frontend/js/usuarios.js';
         import { verPanelPrincipal, verListaRelevamientos } from './frontend/js/relevamientos.js';
         import { verListaSolicitudes } from './frontend/js/solicitudes.js';
+        import { cargarVistaRelevadores } from './frontend/js/relevadores.js';
 
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // 🔒 1. CONTROL DE SEGURIDAD (CANDADO)
             const token = sessionStorage.getItem('token');
             const usuarioRaw = sessionStorage.getItem('usuario');
 
             if (!token || !usuarioRaw) {
                 alert('Acceso denegado. Por favor, inicie sesión.');
-                window.location.href = 'frontend/pages/login.html'; 
+                window.location.href = './frontend/pages/login.html'; 
                 return; 
             }
 
-            // 👤 2. PARSEO E INYECCIÓN DINÁMICA DEL NOMBRE DE USUARIO
             try {
                 const usuarioLogueado = JSON.parse(usuarioRaw);
-
                 if (usuarioLogueado.requiereCambioPass) {
-                    window.location.href = 'frontend/pages/cambiar-password.html';
+                    window.location.href = './frontend/pages/cambiar-password.html';
                     return; 
                 }
 
                 if (usuarioLogueado && usuarioLogueado.nombres && usuarioLogueado.apellido) {
-                    const nombreCompleto = `${usuarioLogueado.nombres} ${usuarioLogueado.apellido}`;
-                    
-                    const txtDesktop = document.getElementById('nombre-usuario-desktop');
-                    const txtMobile = document.getElementById('nombre-usuario-mobile');
-                    
-                    if (txtDesktop) txtDesktop.textContent = nombreCompleto;
-                    if (txtMobile) txtMobile.textContent = nombreCompleto;
+                    const nombreCompleto = usuarioLogueado.nombres + ' ' + usuarioLogueado.apellido;
+                    const elDesktop = document.getElementById('nombre-usuario-desktop');
+                    const elMobile = document.getElementById('nombre-usuario-mobile');
+                    if (elDesktop) elDesktop.textContent = nombreCompleto;
+                    if (elMobile) elMobile.textContent = nombreCompleto;
                 }
             } catch (e) {
-                console.error("Error al parsear el usuario de sessionStorage:", e);
+                console.error("Error al parsear el usuario:", e);
             }
 
-            // 🚪 3. FUNCIÓN AL BOTÓN "SALIR"
             const realizarSalida = (e) => {
                 e.preventDefault();
                 if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
                     sessionStorage.clear(); 
-                    window.location.href = 'frontend/pages/login.html'; 
+                    window.location.href = './frontend/pages/login.html'; 
                 }
             };
 
-            document.getElementById('btn-salir-desktop')?.addEventListener('click', realizarSalida);
-            document.getElementById('btn-salir-mobile')?.addEventListener('click', realizarSalida);
+            const btnSalirDesk = document.getElementById('btn-salir-desktop');
+            const btnSalirMob = document.getElementById('btn-salir-mobile');
+            if (btnSalirDesk) btnSalirDesk.addEventListener('click', realizarSalida);
+            if (btnSalirMob) btnSalirMob.addEventListener('click', realizarSalida);
 
-            // 🔑 4. ESCUCHADOR CON RUTA ABSOLUTA DESDE LA RAÍZ
             const abrirModalCambioClave = (e) => {
                 e.preventDefault();
-                // Forzamos la ruta absoluta exacta para evitar ambigüedades del navegador
-                window.location.href = '/frontend/pages/cambiar-password.html';
+                window.location.href = './frontend/pages/cambiar-password.html';
             };
-            document.getElementById('btn-cambiar-pass-desktop')?.addEventListener('click', abrirModalCambioClave);
-            document.getElementById('btn-cambiar-pass-mobile')?.addEventListener('click', abrirModalCambioClave);
+            const btnPassDesk = document.getElementById('btn-cambiar-pass-desktop');
+            const btnPassMob = document.getElementById('btn-cambiar-pass-mobile');
+            if (btnPassDesk) btnPassDesk.addEventListener('click', abrirModalCambioClave);
+            if (btnPassMob) btnPassMob.addEventListener('click', abrirModalCambioClave);
             
-            // 🚀 Arranca la app mostrando el Dashboard original
             verPanelPrincipal(); 
             
             function cambiarEnlaceActivo(idBotonDesktop, idBotonMobile) {
                 document.querySelectorAll('.sidebar .nav-link, .navbar-nav .nav-link').forEach(enlace => {
                     enlace.classList.remove('active');
                 });
-                document.getElementById(idBotonDesktop)?.classList.add('active');
-                document.getElementById(idBotonMobile)?.classList.add('active');
+                const desk = document.getElementById(idBotonDesktop);
+                const mob = document.getElementById(idBotonMobile);
+                if (desk) desk.classList.add('active');
+                if (mob) mob.classList.add('active');
             }
 
-            // Clic en INICIO
-            document.getElementById('btn-menu-inicio')?.addEventListener('click', (e) => {
+            const btnInicioDesk = document.getElementById('btn-menu-inicio');
+            const btnInicioMob = document.getElementById('btn-mobile-inicio');
+            const handlerInicio = (e) => {
                 e.preventDefault();
                 cambiarEnlaceActivo('btn-menu-inicio', 'btn-mobile-inicio');
                 verPanelPrincipal();
-            });
-            document.getElementById('btn-mobile-inicio')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-inicio', 'btn-mobile-inicio');
-                verPanelPrincipal();
-            });
+            };
+            if (btnInicioDesk) btnInicioDesk.addEventListener('click', handlerInicio);
+            if (btnInicioMob) btnInicioMob.addEventListener('click', handlerInicio);
 
-            // Clic en RELEVAMIENTOS
-            document.getElementById('btn-menu-relevamientos')?.addEventListener('click', (e) => {
+            const btnRevDesk = document.getElementById('btn-menu-relevamientos');
+            const btnRevMob = document.getElementById('btn-mobile-relevamientos');
+            const handlerRev = (e) => {
                 e.preventDefault();
                 cambiarEnlaceActivo('btn-menu-relevamientos', 'btn-mobile-relevamientos');
                 verListaRelevamientos();
-            });
-            document.getElementById('btn-mobile-relevamientos')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-relevamientos', 'btn-mobile-relevamientos');
-                verListaRelevamientos();
-            });
+            };
+            if (btnRevDesk) btnRevDesk.addEventListener('click', handlerRev);
+            if (btnRevMob) btnRevMob.addEventListener('click', handlerRev);
 
-            // Clic en SOLICITUDES
-            document.getElementById('btn-menu-solicitudes')?.addEventListener('click', (e) => {
+            const btnSolDesk = document.getElementById('btn-menu-solicitudes');
+            const btnSolMob = document.getElementById('btn-mobile-solicitudes');
+            const handlerSol = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 cambiarEnlaceActivo('btn-menu-solicitudes', 'btn-mobile-solicitudes');
                 verListaSolicitudes();
-            });
-            document.getElementById('btn-mobile-solicitudes')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-solicitudes', 'btn-mobile-solicitudes');
-                verListaSolicitudes();
-            });
+            };
+            if (btnSolDesk) btnSolDesk.addEventListener('click', handlerSol);
+            if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
 
-            // Clic en submenú USUARIOS (Desktop)
-            document.getElementById('btn-sub-usuarios')?.addEventListener('click', (e) => {
+            const btnUsuDesk = document.getElementById('btn-sub-usuarios');
+            if (btnUsuDesk) {
+                btnUsuDesk.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+                    if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios(); 
+                });
+            }
+
+            const btnUsuMob = document.getElementById('btn-mobile-sub-usuarios');
+            if (btnUsuMob) {
+                btnUsuMob.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+                    const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNavMobile'));
+                    if (bsCollapse) bsCollapse.hide();
+                    if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
+                });
+            }
+
+            const cargarVistaRelevadoresDinamica = async (e) => {
                 e.preventDefault();
                 cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-                cargarModuloUsuarios(); 
-            });
 
-            // Clic en submenú USUARIOS (Mobile)
-            document.getElementById('btn-mobile-sub-usuarios')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-                const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNavMobile'));
-                if (bsCollapse) bsCollapse.hide();
-                cargarModuloUsuarios();
-            });
-        });
-        
-        // 🛠️ FUNCIÓN 1: CARGA DE LA TABLA Y EL MODAL (ROLES ACTUALIZADOS)
-        async function cargarModuloUsuarios() {
-            const contenedor = document.querySelector('.content-principal');
-            if (!contenedor) return;
-
-            contenedor.innerHTML = `
-                <div class="animate__animated animate__fadeIn">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="mb-1 text-dark"><i class="bi bi-people-fill text-warning me-2"></i> Gestión de Usuarios</h2>
-                            <p class="text-muted mb-0">Administración de accesos y roles del sistema.</p>
-                        </div>
-                        <button class="btn btn-warning fw-bold d-flex align-items-center gap-2 shadow-sm" id="btn-nuevo-usuario" data-bs-toggle="modal" data-bs-target="#modalUsuario">
-                            <i class="bi bi-person-plus-fill fs-5"></i> Nuevo Usuario
-                        </button>
-                    </div>
-
-                    <div class="card shadow-sm border-0" style="background-color: #f8f9fa;">
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped align-middle mb-0" id="tabla-usuarios" style="border-color: #dee2e6;">
-                                    <thead class="table-dark text-white fw-bold">
-                                        <tr>
-                                            <th class="ps-3 text-center" style="width: 80px;">ID</th>
-                                            <th>Usuario / DNI</th>
-                                            <th>Nombre Completo</th>
-                                            <th>Rol</th>
-                                            <th>Estado</th>
-                                            <th class="text-end pe-3" style="width: 120px;">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbody-usuarios" class="bg-white"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="modalUsuario" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered text-dark">
-                        <div class="modal-content border-0 shadow">
-                            <div class="modal-header bg-dark text-white border-0">
-                                <h5 class="modal-title" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body bg-light p-4">
-                                <form id="form-usuario">
-                                    <div class="alert alert-danger d-none small text-center" id="alert-modal-usuario"></div>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold small">Nombres *</label>
-                                            <input type="text" class="form-control" id="u-nombres" placeholder="Ej: Juan Pedro" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold small">Apellido *</label>
-                                            <input type="text" class="form-control" id="u-apellido" placeholder="Ej: Pérez" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold small">Documento (Será su clave inicial) *</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-secondary text-white"><i class="bi bi-card-text"></i></span>
-                                                <input type="number" class="form-control" id="u-dni" placeholder="Ej: 38444222" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold small">Rol del Usuario *</label>
-                                            <select class="form-select" id="u-rol" required>
-                                                <option value="" disabled selected>Seleccione un rol...</option>
-                                                <option value="Administrador">Administrador</option>
-                                                <option value="Administrativo">Administrativo</option>
-                                                <option value="Relevador">Relevador</option>
-                                                <option value="Consulta">Consulta</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold small">Email *</label>
-                                            <input type="email" class="form-control" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold small">Celular *</label>
-                                            <input type="tel" class="form-control" id="u-celular" placeholder="Ej: 3851234567" required>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-end gap-2 mt-4">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-dark fw-bold" id="btn-guardar-usuario">
-                                            <i class="bi bi-save-fill me-1"></i> Guardar Usuario
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('form-usuario')?.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                // 👈 AGREGÁ ESTA COMPUERTA AQUÍ EN EL INDEX.HTML
-    if (idUsuarioEnEdicion) {
-        actualizarUsuarioBackend(); // Si hay ID, que maneje la edición usuarios.js
-        return; // Frenamos la ejecución del alta del index
-    }
-            
-                registrarUsuarioBackend();
-            });
-
-            try {
-                const respuesta = await fetch('/api/usuarios');
-                const resultado = await respuesta.json();
-
-                const tbody = document.getElementById('tbody-usuarios');
-                if (!tbody) return;
-
-                if (!respuesta.ok || !resultado.success) {
-                    throw new Error(resultado.message || 'No se pudieron cargar los usuarios.');
+                const navMobile = document.getElementById('navbarNavMobile');
+                if (navMobile) {
+                    const bsCollapse = bootstrap.Collapse.getInstance(navMobile);
+                    if (bsCollapse) bsCollapse.hide();
                 }
 
-                if (resultado.data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3 text-muted">No hay usuarios registrados.</td></tr>`;
-                    return;
-                }
+                const contenedor = document.querySelector('.content-principal');
+                if (!contenedor) return;
 
-                tbody.innerHTML = '';
-
-                resultado.data.forEach(u => {
-                    const rolCrudo = String(u.rol || '').trim().toLowerCase();
+                try {
+                    const respuesta = await fetch('./frontend/pages/config-relevadores.html');
+                    if (!respuesta.ok) throw new Error('No se pudo cargar la vista de relevadores');
                     
-                    let nombreRolMostrar = 'No Asignado';
-                    let badgeColor = 'bg-secondary text-white'; 
+                    contenedor.innerHTML = await respuesta.text();
 
-                    // 🎨 Mapeo de colores según el nuevo esquema estructurado
-                    if (rolCrudo === 'administrador') {
-                        nombreRolMostrar = 'Administrador';
-                        badgeColor = 'bg-primary text-white';
-                    } else if (rolCrudo === 'administrativo') {
-                        nombreRolMostrar = 'Administrativo';
-                        badgeColor = 'bg-info text-dark';
-                    } else if (rolCrudo === 'relevador') {
-                        nombreRolMostrar = 'Relevador';
-                        badgeColor = 'bg-success text-white';
-                    } else if (rolCrudo === 'consulta') {
-                        nombreRolMostrar = 'Consulta';
-                        badgeColor = 'bg-secondary text-white';
-                    } else if (u.rol) {
-                        nombreRolMostrar = u.rol;
+                    if (typeof cargarVistaRelevadores === 'function') {
+                        cargarVistaRelevadores();
                     }
-
-                    const badgeEstado = String(u.estado).trim().toLowerCase() === 'activo' 
-                        ? '<span class="badge bg-success text-white">Activo</span>' 
-                        : '<span class="badge bg-danger text-white">Inactivo</span>';
-
-                    tbody.innerHTML += `
-                        <tr class="text-dark">
-                            <td class="ps-3 fw-bold text-center text-muted" style="background-color: #f1f3f5;">${u.id}</td>
-                            <td>
-                                <div class="fw-bold text-primary">@${u.username}</div>
-                                <div class="small text-muted">DNI: ${u.dni || 'S/D'}</div>
-                            </td>
-                            <td class="fw-bold">${u.apellido || ''}, ${u.nombres || ''}</td>
-                            <td><span class="badge ${badgeColor}">${nombreRolMostrar}</span></td>
-                            <td>${badgeEstado}</td>
-                            <td class="text-end pe-3">
-                               <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
-                                    <i class="bi bi-pencil-square text-dark"></i>
-                                </button>
-                                <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
-                                        onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
-                                    <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-            } catch (error) {
-                console.error(error);
-                const tbody = document.getElementById('tbody-usuarios');
-                if (tbody) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3 text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> Error al conectar con el servidor.</td></tr>`;
+                } catch (error) {
+                    console.error("Error al cargar la sección de relevadores:", error);
                 }
-            }
-        } // 👈 ACÁ TERMINA CORRECTAMENTE CARGARMODULOUSUARIOS
+            };
 
-        // 🛠️ FUNCIÓN 2: REGISTRO DE UN NUEVO USUARIO
-async function registrarUsuarioBackend() {
-    const btnGuardar = document.getElementById('btn-guardar-usuario');
-    const alertModal = document.getElementById('alert-modal-usuario');
+            const btnRevConfigDesk = document.getElementById('btn-sub-relevadores');
+            if (btnRevConfigDesk) btnRevConfigDesk.addEventListener('click', cargarVistaRelevadoresDinamica);
 
-    // Capturamos los valores reales ingresados en la interfaz
-    const nombres = document.getElementById('u-nombres').value.trim();
-    const apellido = document.getElementById('u-apellido').value.trim();
-    const dni = document.getElementById('u-dni').value.trim();
-    const rol = document.getElementById('u-rol').value;
-    const email = document.getElementById('u-email').value.trim();
-    const celular = document.getElementById('u-celular').value.trim();
-
-    // 🔄 REGLA: Primera letra del primer nombre + primer apellido completo
-    // Separamos por si cargan nombres compuestos (ej: "Juan Pedro" -> "Juan")
-    const primerNombre = nombres.split(' ')[0]; 
-    const primerApellido = apellido.split(' ')[0];
-    const username = (primerNombre.charAt(0) + primerApellido).toLowerCase().replace(/[^a-z0-9]/g, '');
-
-    alertModal.className = 'alert alert-danger d-none small text-center';
-    alertModal.textContent = '';
-
-    try {
-        btnGuardar.disabled = true;
-        btnGuardar.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Guardando...`;
-
-        const respuesta = await fetch('/api/usuarios', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, dni, apellido, nombres, email, celular, rol })
+            const btnRevConfigMob = document.getElementById('btn-mobile-sub-relevadores');
+            if (btnRevConfigMob) btnRevConfigMob.addEventListener('click', cargarVistaRelevadoresDinamica);
         });
-
-        const resultado = await respuesta.json();
-
-        if (!respuesta.ok || !resultado.success) {
-            throw new Error(resultado.message || 'Error al intentar registrar el usuario.');
-        }
-
-        alertModal.classList.remove('alert-danger', 'd-none');
-        alertModal.classList.add('alert-success');
-        alertModal.textContent = resultado.message;
-
-        document.getElementById('form-usuario').reset();
-
-        setTimeout(() => {
-            const modalElement = document.getElementById('modalUsuario');
-            const modalInstance = bootstrap.Modal.getInstance(modalElement);
-            if (modalInstance) modalInstance.hide();
-            cargarModuloUsuarios();
-        }, 2000);
-
-    } catch (error) {
-        alertModal.classList.remove('d-none');
-        alertModal.textContent = error.message;
-        btnGuardar.disabled = false;
-        btnGuardar.innerHTML = `<i class="bi bi-save-fill me-1"></i> Guardar Usuario`;
-    }
-}
-        // 🔄 FUNCIÓN 3: Cambiar estado (Activo/Inactivo) en el Backend
-        window.cambiarEstadoUsuario = async function(id, estadoActual) {
-            const accion = estadoActual === 'Activo' ? 'dar de BAJA' : 'ACTIVAR';
-            
-            if (!confirm(`¿Está seguro de que desea ${accion} al usuario con ID ${id}?`)) {
-                return; // Si el usuario cancela el cartel, frenamos acá
-            }
-
-            try {
-                const respuesta = await fetch(`/api/usuarios/${id}/estado`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                const resultado = await respuesta.json();
-
-                if (!respuesta.ok || !resultado.success) {
-                    throw new Error(resultado.message || 'No se pudo cambiar el estado.');
-                }
-
-                alert(resultado.message);
-                
-                // Refrescamos la tabla automáticamente para ver el cambio de badge al instante
-                cargarModuloUsuarios();
-
-            } catch (error) {
-                console.error(error);
-                alert(`Error: ${error.message}`);
-            }
-        }
-        window.cargarModuloUsuarios = cargarModuloUsuarios;
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 </body>
 </html>

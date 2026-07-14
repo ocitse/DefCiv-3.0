@@ -1,98 +1,79 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defensa Civil - Solicitudes a Desarrollo Social</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../css/styles.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+<div class="animate__animated animate__fadeIn">
+    <div class="d-flex align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2 text-dark"><i class="bi bi-send text-primary me-2"></i> Solicitudes a Desarrollo Social</h1>
+    </div>
 
-    <div class="container-fluid">
-        <div class="row">
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-                <div class="d-flex align-items-center pb-2 mb-3 border-bottom">
-                    <h1 class="h2 text-dark"><i class="bi bi-send text-primary me-2"></i> Solicitudes a Desarrollo Social</h1>
-                </div>
+    <div class="mb-4">
+        <button type="button" class="btn btn-primary active me-2" id="tab-nueva-solicitud">
+            <i class="bi bi-plus-circle me-1"></i> Nueva Solicitud
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="tab-ver-historial">
+            <i class="bi bi-list-ul me-1"></i> Ver Historial
+        </button>
+    </div>
 
-                <div class="mb-4">
-                    <button class="btn btn-primary active me-2" id="tab-nueva-solicitud">
-                        <i class="bi bi-plus-circle me-1"></i> Nueva Solicitud
-                    </button>
-                    <button class="btn btn-outline-secondary" id="tab-ver-historial">
-                        <i class="bi bi-list-ul me-1"></i> Ver Historial
-                    </button>
-                </div>
+    <div class="card shadow-sm p-4 mb-4" id="seccion-nueva-solicitud">
+        <div class="mb-3">
+            <h4 class="text-secondary fs-5"><i class="bi bi-file-earmark-plus me-2"></i> Generar Solicitud de Provisión</h4>
+            <p class="text-muted small">Seleccione el relevamiento que desea incluir en la solicitud a Desarrollo Social:</p>
+        </div>
 
-                <div class="card shadow-sm p-4 mb-4" id="seccion-nueva-solicitud">
-                    <div class="mb-3">
-                        <h4 class="text-secondary fs-5"><i class="bi bi-file-earmark-plus me-2"></i> Generar Solicitud de Provisión</h4>
-                        <p class="text-muted small">Seleccione el relevamiento que desea incluir en la solicitud a Desarrollo Social:</p>
-                    </div>
+        <div class="table-responsive mb-3">
+            <table class="table table-hover align-middle border" id="tabla-relevamientos-espera">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 50px;">Selección</th>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Departamento / Localidad</th>
+                        <th>Tipo Evento</th>
+                        <th>Relevador</th>
+                        <th>Urgencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-3">Cargando relevamientos en espera...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-                    <div class="table-responsive mb-3">
-                        <table class="table table-hover align-middle border" id="tabla-relevamientos-espera">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th style="width: 50px;">Selección</th>
-                                    <th>ID Relevamiento</th>
-                                    <th>Fecha</th>
-                                    <th>Familia / Beneficiario</th>
-                                    <th>Zona / Localidad</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-3">Cargando relevamientos en espera...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="mb-3">
+            <label for="observaciones-solicitud" class="form-label fw-bold text-secondary small">Observaciones / Justificación</label>
+            <textarea class="form-control" id="observaciones-solicitud" rows="3" placeholder="Detalles adicionales sobre la solicitud..."></textarea>
+        </div>
 
-                    <div class="mb-3">
-                        <label for="observaciones-solicitud" class="form-label fw-bold text-secondary small">Observaciones / Justificación</label>
-                        <textarea class="form-control" id="observaciones-solicitud" rows="3" placeholder="Detalles adicionales sobre la solicitud..."></textarea>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-success fw-bold" id="btn-enviar-solicitud">
-                            <i class="bi bi-check-circle me-1"></i> Enviar Solicitud a Desarrollo Social
-                        </button>
-                        <button type="button" class="btn btn-secondary" id="btn-cancelar-solicitud">
-                            <i class="bi bi-x-circle me-1"></i> Cancelar
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm p-4 d-none" id="seccion-historial">
-                    <h4 class="text-secondary fs-5 mb-3"><i class="bi bi-clock-history me-2"></i> Historial de Solicitudes</h4>
-                    <div class="table-responsive">
-                        <table class="table table-striped border" id="tabla-historial-solicitudes">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Fecha Solicitud</th>
-                                    <th>Relevamiento ID</th>
-                                    <th>Estado</th>
-                                    <th>Fecha Respuesta</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted py-3">No hay solicitudes registradas</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </main>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-success fw-bold" id="btn-enviar-solicitud">
+                <i class="bi bi-check-circle me-1"></i> Enviar Solicitud a Desarrollo Social
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-cancelar-solicitud">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+            </button>
         </div>
     </div>
 
-    <script src="../js/solicitudes.js"></script>
-</body>
-</html>
+    <div class="card shadow-sm p-4 d-none" id="seccion-historial">
+        <h4 class="text-secondary fs-5 mb-3"><i class="bi bi-clock-history me-2"></i> Historial de Solicitudes</h4>
+        <div class="table-responsive">
+            <table class="table table-striped border" id="tabla-historial-solicitudes">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha Actualización</th>
+                        <th>Departamento / Localidad</th>
+                        <th>Tipo Evento</th>
+                        <th>Relevador</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-3">No hay solicitudes registradas</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold m-0"><i class="bi bi-people-fill text-primary me-2"></i> Gestión de Relevadores</h3>
+            <p class="text-muted small m-0">Administración del personal de campo autorizado para operativos de Defensa Civil.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="abrirModalNuevoRelevador()">
+            <i class="bi bi-person-plus-fill me-1"></i> Nuevo Relevador
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre y Apellido</th>
+                            <th>DNI</th>
+                            <th>Email</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-relevadores-body">
+                        <tr><td colspan="6" class="text-center text-muted py-4">Cargando relevadores...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNuevoRelevador" tabindex="-1" aria-labelledby="modalNuevoRelevadorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalNuevoRelevadorLabel"><i class="bi bi-person-plus-fill me-2 text-primary"></i>Registrar Nuevo Relevador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-nuevo-relevador">
+                    <div class="mb-3">
+                        <label for="rev-nombre" class="form-label small fw-semibold">Nombre y Apellido *</label>
+                        <input type="text" class="form-control form-control-sm" id="rev-nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rev-dni" class="form-label small fw-semibold">DNI *</label>
+                        <input type="text" class="form-control form-control-sm" id="rev-dni" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rev-email" class="form-label small fw-semibold">Correo Electrónico</label>
+                        <input type="email" class="form-control form-control-sm" id="rev-email">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="guardarNuevoRelevador()">Guardar Relevador</button>
+            </div>
+        </div>
+    </div>
+</div>

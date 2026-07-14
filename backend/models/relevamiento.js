@@ -30,9 +30,13 @@ const Relevamiento = sequelize.define('Relevamiento', {
         defaultValue: 'Media'
     },
     estado: {
-        type: DataTypes.ENUM('Nuevo', 'En Proceso', 'Finalizado'),
+        type: DataTypes.ENUM('en-espera', 'enviado', 'Nuevo', 'En Proceso', 'Finalizado'),
         allowNull: false,
-        defaultValue: 'Nuevo'
+        defaultValue: 'en-espera'
+    },
+    observaciones: {
+        type: DataTypes.TEXT,
+        allowNull: true
     }
 }, {
     tableName: 'relevamientos' // Nombre explícito de la tabla en MySQL
