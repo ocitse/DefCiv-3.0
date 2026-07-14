@@ -10,7 +10,7 @@ export async function cargarModuloUsuarios() {
                     <h2 class="mb-1 text-dark"><i class="bi bi-people-fill text-warning me-2"></i> Gestión de Usuarios</h2>
                     <p class="text-muted mb-0">Administración de accesos y roles del sistema.</p>
                 </div>
-                <button class="btn btn-warning fw-bold d-flex align-items-center gap-2 shadow-sm" id="btn-nuevo-usuario" data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                <button class="btn btn-warning fw-bold d-flex align-items-center gap-2 shadow-sm" id="btn-nuevo-usuario" onclick="abrirModalNuevoUsuario()">
                     <i class="bi bi-person-plus-fill fs-5"></i> Nuevo Usuario
                 </button>
             </div>
@@ -41,7 +41,7 @@ export async function cargarModuloUsuarios() {
                 <div class="modal-content border-0 shadow">
                     <div class="modal-header bg-dark text-white border-0">
                         <h5 class="modal-title" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
                     </div>
                     <div class="modal-body bg-light p-4">
                         <form id="form-usuario">
@@ -82,7 +82,7 @@ export async function cargarModuloUsuarios() {
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end gap-2 mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetearModalUsuario()">Cancelar</button>
                                 <button type="submit" class="btn btn-dark fw-bold" id="btn-guardar-usuario">
                                     <i class="bi bi-save-fill me-1"></i> Guardar Usuario
                                 </button>
@@ -174,10 +174,67 @@ export async function cargarModuloUsuarios() {
     }
 }
 
-// 🛠️ FUNCIÓN 2: REGISTRO DE UN NUEVO USUARIO
+// ➕ FUNCIÓN PARA ABRIR NUEVO USUARIO
+window.abrirModalNuevoUsuario = function() {
+    resetearModalUsuario();
+    const modalElement = document.getElementById('modalUsuario');
+    if (modalElement && typeof bootstrap !== 'undefined') {
+        const modalInstance = new bootstrap.Modal(modalElement);
+        modalInstance.show();
+    }
+}
+
+// ✏️ FUNCIÓN PARA ABRIR MODAL EN EDICIÓN
+window.abrirModalEditar = function(u) {
+    const tituloModal = document.getElementById('modalUsuarioLabel');
+    if (tituloModal) {
+        tituloModal.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Usuario (ID: ${u.id})`;
+    }
+
+    document.getElementById('u-nombres').value = u.nombres || '';
+    document.getElementById('u-apellido').value = u.apellido || '';
+    document.getElementById('u-dni').value = u.dni || '';
+    document.getElementById('u-email').value = u.email || '';
+    document.getElementById('u-celular').value = u.celular || '';
+    document.getElementById('u-rol').value = u.rol || '';
+
+    const form = document.getElementById('form-usuario');
+    if (form) {
+        form.dataset.editId = u.id;
+    }
+
+    const modalElement = document.getElementById('modalUsuario');
+    if (modalElement && typeof bootstrap !== 'undefined') {
+        const modalInstance = new bootstrap.Modal(modalElement);
+        modalInstance.show();
+    }
+}
+
+// 🧹 LIMPIEZA DE ESTADOS DEL MODAL
+window.resetearModalUsuario = function() {
+    const form = document.getElementById('form-usuario');
+    if (form) {
+        form.removeAttribute('data-edit-id');
+        form.reset();
+    }
+    const tituloModal = document.getElementById('modalUsuarioLabel');
+    if (tituloModal) {
+        tituloModal.innerHTML = `<i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario`;
+    }
+    const alertModal = document.getElementById('alert-modal-usuario');
+    if (alertModal) {
+        alertModal.className = 'alert alert-danger d-none small text-center';
+        alertModal.textContent = '';
+    }
+}
+
+// 🛠️ REGISTRO O EDICIÓN DE UN USUARIO (INTELIGENTE: POST O PUT)
 async function registrarUsuarioBackend() {
     const btnGuardar = document.getElementById('btn-guardar-usuario');
     const alertModal = document.getElementById('alert-modal-usuario');
+    const form = document.getElementById('form-usuario');
+    
+    const editId = form ? form.dataset.editId : null;
 
     const nombres = document.getElementById('u-nombres').value.trim();
     const apellido = document.getElementById('u-apellido').value.trim();
@@ -197,8 +254,11 @@ async function registrarUsuarioBackend() {
         btnGuardar.disabled = true;
         btnGuardar.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Guardando...`;
 
-        const respuesta = await fetch('/api/usuarios', {
-            method: 'POST',
+        const url = editId ? `/api/usuarios/${editId}` : '/api/usuarios';
+        const method = editId ? 'PUT' : 'POST';
+
+        const respuesta = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, dni, apellido, nombres, email, celular, rol })
         });
@@ -206,21 +266,21 @@ async function registrarUsuarioBackend() {
         const resultado = await respuesta.json();
 
         if (!respuesta.ok || !resultado.success) {
-            throw new Error(resultado.message || 'Error al intentar registrar el usuario.');
+            throw new Error(resultado.message || 'Error al intentar procesar la operación del usuario.');
         }
 
         alertModal.classList.remove('alert-danger', 'd-none');
         alertModal.classList.add('alert-success');
         alertModal.textContent = resultado.message;
 
-        document.getElementById('form-usuario').reset();
-
         setTimeout(() => {
             const modalElement = document.getElementById('modalUsuario');
             const modalInstance = bootstrap.Modal.getInstance(modalElement);
             if (modalInstance) modalInstance.hide();
+            
+            resetearModalUsuario();
             cargarModuloUsuarios();
-        }, 2000);
+        }, 1500);
 
     } catch (error) {
         alertModal.classList.remove('d-none');
@@ -230,7 +290,7 @@ async function registrarUsuarioBackend() {
     }
 }
 
-// 🔄 FUNCIÓN 3: Cambiar estado (Activo/Inactivo) en el Backend
+// 🔄 CAMBIAR ESTADO (ACTIVO/INACTIVO) EN EL BACKEND
 window.cambiarEstadoUsuario = async function(id, estadoActual) {
     const accion = estadoActual === 'Activo' ? 'dar de BAJA' : 'ACTIVAR';
     
@@ -259,5 +319,5 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
     }
 }
 
-// Exponemos la función al objeto global window por si se llama desde eventos inline
+// Exponemos las funciones principales al objeto global window
 window.cargarModuloUsuarios = cargarModuloUsuarios;

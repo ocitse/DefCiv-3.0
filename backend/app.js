@@ -1,4 +1,3 @@
-// backend/app.js
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -42,7 +41,24 @@ const projectRoot = path.join(__dirname, '../');
 app.use(cors());
 app.use(express.json());
 
-// 📂 SERVIR ARCHIVOS ESTÁTICOS Y CARPETA FRONTEND COMPLETA
+// ==========================================
+// 🌐 RUTAS DE VISTAS PRINCIPALES (FRONTEND)
+// ==========================================
+
+// Ruta raíz principal: Muestra el Portal Público en Construcción
+app.get('/', (req, res) => {
+    res.sendFile(path.join(projectRoot, 'frontend/portal.html'));
+});
+
+// Ruta para acceder al sistema interno de gestión
+app.get('/sistema', (req, res) => {
+    res.sendFile(path.join(projectRoot, 'frontend/index.html'));
+});
+
+// ==========================================
+// 📂 SERVIR ARCHIVOS ESTÁTICOS
+// ==========================================
+
 app.use('/frontend/assets', express.static('/home/defenprov/frontend/assets', {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
@@ -53,11 +69,13 @@ app.use('/frontend/assets', express.static('/home/defenprov/frontend/assets', {
     }
 }));
 
-// Servir de forma estática toda la carpeta frontend para que los .html sean accesibles directamente por fetch
 app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 app.use(express.static(projectRoot));
 
-// Endpoints y Rutas de la API
+// ==========================================
+// 🔌 ENDPOINTS Y RUTAS DE LA API
+// ==========================================
+
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', message: 'API de Defensa Civil funcionando correctamente.' });
 });
@@ -67,11 +85,11 @@ app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
-app.use('/api/solicitudes', solicitudroutes); // O app.use('/api/solicitudes', solicitudroutes); según cómo lo pida tu frontend
+app.use('/api/solicitudes', solicitudroutes);
 
-// Comodín para SPA (Excluyendo explícitamente las rutas de api y frontend para que no interceptes los partials)
+// Comodín para cualquier otra ruta que no sea de API ni de frontend
 app.get(/^(?!\/api|\/frontend).*/, (req, res) => {
-    res.sendFile(path.join(projectRoot, 'index.html'));
+    res.sendFile(path.join(projectRoot, 'frontend/portal.html'));
 });
 
 const PORT = process.env.PORT || 3000;

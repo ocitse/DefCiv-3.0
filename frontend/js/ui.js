@@ -1,16 +1,23 @@
-// frontend/js/ui.js
-
 /**
  * Muestra una notificación visual en la esquina superior derecha de la pantalla
  * @param {string} mensaje - El texto a mostrar
- * @param {string} tipo - 'success' (verde) o 'error' (rojo)
+ * @param {string} tipo - 'success' (verde), 'error'/'danger' (rojo) o 'info'/'warning' (amarillo)
  */
 export function mostrarNotificacion(mensaje, tipo = 'success') {
     const alertaVieja = document.getElementById('alerta-flotante-app');
     if (alertaVieja) alertaVieja.remove();
 
-    const colorBg = tipo === 'success' ? 'bg-success' : 'bg-danger';
-    const icono = tipo === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+    // Determinar color e ícono según el tipo de notificación
+    let colorBg = 'bg-success';
+    let icono = 'bi-check-circle-fill';
+
+    if (tipo === 'error' || tipo === 'danger') {
+        colorBg = 'bg-danger';
+        icono = 'bi-exclamation-triangle-fill';
+    } else if (tipo === 'info' || tipo === 'warning') {
+        colorBg = 'bg-warning text-dark';
+        icono = 'bi-info-circle-fill';
+    }
 
     const alertaHtml = `
         <div id="alerta-flotante-app" class="animate__animated animate__fadeInRight" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
@@ -20,7 +27,7 @@ export function mostrarNotificacion(mensaje, tipo = 'success') {
                         <i class="bi ${icono} fs-5"></i>
                         <span>${mensaje}</span>
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="document.getElementById('alerta-flotante-app').remove()"></button>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="document.getElementById('alerta-flotante-app').remove()"></button>
                 </div>
             </div>
         </div>

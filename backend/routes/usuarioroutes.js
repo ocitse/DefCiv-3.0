@@ -1,6 +1,4 @@
-// backend/routes/usuarioroutes.js
 import express from 'express';
-// Dejamos solo los métodos que ya te funcionaban antes de romperle el 502
 import { obtenerUsuarios, crearUsuario } from '../controllers/usuariocontroller.js';
 import Usuario from '../models/usuario.js'; 
 
@@ -35,14 +33,18 @@ router.put('/:id/estado', async (req, res) => {
     }
 });
 
-// 🌟 SOLUCIÓN DIRECTA: Lógica embebida en la ruta para evitar problemas con el import del controlador
-// Dentro de tu archivo backend/routes/usuarioroutes.js (alrededor de la línea 45)
+// 🌟 Actualizar datos y rol del usuario
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { nombres, apellido, dni, email, celular, rol } = req.body;
 
-        // 🌟 Usamos el modelo directamente de forma limpia y atómica
+        // Validamos que existan los datos esenciales antes de actualizar
+        if (!nombres || !apellido || !dni || !rol) {
+            return res.status(400).json({ success: false, message: 'Faltan campos obligatorios para la actualización.' });
+        }
+
+        // Usamos el modelo directamente de forma limpia y atómica
         const [updated] = await Usuario.update(
             { nombres, apellido, dni, email, celular, rol },
             { where: { id } }
@@ -54,7 +56,7 @@ router.put('/:id', async (req, res) => {
 
         res.json({ success: true, message: 'Actualizado correctamente' });
     } catch (error) {
-        console.error('Error en ruta:', error);
+        console.error('Error en ruta PUT /:id:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
