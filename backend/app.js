@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
@@ -36,7 +37,6 @@ app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 // 🌐 RUTAS DE VISTAS (FRONTEND)
 // ==========================================
 app.get('/login', (req, res) => {
-    // Apuntamos de forma absoluta usando __dirname de este archivo
     res.sendFile(path.join(__dirname, '../frontend/pages/login.html'));
 });
 
@@ -59,12 +59,6 @@ app.use('/api/relevadores', relevadorroutes);
 app.use('/api/solicitudes', solicitudroutes);
 
 // Ruta por defecto (Raíz)
-//app.get('/', (req, res) => {
- //   res.send('¡DefCiv-3.0 en línea y funcionando!');
- //   res.sendFile(path.join(projectRoot, 'portal.html'));
-//});
-
-// Ruta por defecto (Raíz)
 app.get('/', (req, res) => {
     const portalPath = path.join(projectRoot, 'portal.html');
     res.sendFile(portalPath, (err) => {
@@ -75,15 +69,42 @@ app.get('/', (req, res) => {
     });
 });
 
-
-
 const PORT = process.env.PORT || 3000;
+
+// Función para crear un administrador si la tabla está vacía
+async function crearAdminPorDefecto() {
+    try {
+        const totalUsuarios = await usuario.count();
+        
+        if (totalUsuarios === 0) {
+            console.log('⚠️ No hay usuarios en la BD. Creando administrador por defecto...');
+            
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash('123456', salt);
+
+            await usuario.create({
+                nombre: 'Administrador',
+                email: 'admin@defensacivil.com',
+                password: passwordHash,
+                rol: 'admin'
+            });
+            
+            console.log('✅ ¡Administrador creado con éxito! Email: admin@defensacivil.com | Contraseña: 123456');
+        }
+    } catch (error) {
+        console.error('❌ Error al intentar crear el admin por defecto:', error);
+    }
+}
 
 async function iniciarServidor() {
     try {
         await sequelize.authenticate();
         console.log('✅ Conexión a la base de datos establecida.');
         await sequelize.sync();
+        
+        // Ejecutamos la verificación del usuario admin
+        await crearAdminPorDefecto();
+
         app.listen(PORT, () => {
             console.log(`📡 Servidor corriendo en el puerto ${PORT}`);
         });
