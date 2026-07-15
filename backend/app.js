@@ -29,14 +29,15 @@ app.use(express.json());
 // ==========================================
 // 📂 ARCHIVOS ESTÁTICOS
 // ==========================================
-app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 app.use(express.static(projectRoot));
+app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 
 // ==========================================
 // 🌐 RUTAS DE VISTAS (FRONTEND)
 // ==========================================
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'login.html'));
+    // Apuntamos de forma absoluta usando __dirname de este archivo
+    res.sendFile(path.join(__dirname, '../frontend/pages/login.html'));
 });
 
 app.get('/sistema', (req, res) => {
