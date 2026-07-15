@@ -22,19 +22,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Diagnóstico de rutas para Alwaysdata
-const rutaOpcion1 = path.join(__dirname, 'frontend');
-const rutaOpcion2 = path.join(__dirname, '../frontend');
-
-console.log("--- DIAGNÓSTICO DE RUTAS ---");
-console.log("Directorio actual (__dirname):", __dirname);
-console.log("¿Existe /backend/frontend?:", fs.existsSync(rutaOpcion1));
-console.log("¿Existe un nivel arriba (/home/defenprov/frontend)?:", fs.existsSync(rutaOpcion2));
-console.log('Directorio actual de trabajo (CWD):', process.cwd());
-
 const app = express();
-
-// Definimos la ruta absoluta al directorio raíz del proyecto (un nivel arriba de backend)
 const projectRoot = path.join(__dirname, '../');
 
 // Middlewares generales
@@ -45,35 +33,35 @@ app.use(express.json());
 // 🌐 RUTAS DE VISTAS PRINCIPALES (FRONTEND)
 // ==========================================
 
-// Ruta raíz principal: Muestra el Portal Público en Construcción
+// 1. Ruta Raíz: Única y exclusivamente devuelve el Portal Público
 app.get('/', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'frontend/portal.html'));
-});
-
-// Ruta para acceder al sistema interno de gestión
-app.get('/sistema', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'frontend/index.html'));
-});
-
-// ==========================================
-// 📂 SERVIR ARCHIVOS ESTÁTICOS
-// ==========================================
-
-app.use('/frontend/assets', express.static('/home/defenprov/frontend/assets', {
-    setHeaders: (res, filePath) => {
-        if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
-            res.setHeader('Content-Type', 'image/jpeg');
-        } else if (filePath.endsWith('.png')) {
-            res.setHeader('Content-Type', 'image/png');
-        }
+    const rutaPortal = path.join(projectRoot, 'portal.html');
+    if (fs.existsSync(rutaPortal)) {
+        return res.sendFile(rutaPortal);
     }
-}));
+    res.sendFile(path.join(projectRoot, 'frontend', 'portal.html'));
+});
 
+// 2. Ruta de Sistema Interno: Única y exclusivamente devuelve el index.html del sistema
+app.get('/sistema', (req, res) => {
+    const rutaIndex = path.join(projectRoot, 'index.html');
+    if (fs.existsSync(rutaIndex)) {
+        return res.sendFile(rutaIndex);
+    }
+    res.sendFile(path.join(projectRoot, 'frontend', 'index.html'));
+});
+
+// ==========================================
+// 📂 ARCHIVOS ESTÁTICOS (Corregidos dinámicamente)
+// ==========================================
+
+// Usamos ruta dinámica en lugar de quemar '/home/defenprov/...' para que no falle
+app.use('/frontend/assets', express.static(path.join(projectRoot, 'frontend', 'assets')));
 app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 app.use(express.static(projectRoot));
 
 // ==========================================
-// 🔌 ENDPOINTS Y RUTAS DE LA API
+// 🔌 API ROUTES
 // ==========================================
 
 app.get('/api/status', (req, res) => {
@@ -87,9 +75,13 @@ app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
 app.use('/api/solicitudes', solicitudroutes);
 
-// Comodín para cualquier otra ruta que no sea de API ni de frontend
+// Comodín estricto para que cualquier otra ruta que no sea API redirija al portal
 app.get(/^(?!\/api|\/frontend).*/, (req, res) => {
-    res.sendFile(path.join(projectRoot, 'frontend/portal.html'));
+    const rutaPortal = path.join(projectRoot, 'portal.html');
+    if (fs.existsSync(rutaPortal)) {
+        return res.sendFile(rutaPortal);
+    }
+    res.sendFile(path.join(projectRoot, 'frontend', 'portal.html'));
 });
 
 const PORT = process.env.PORT || 3000;

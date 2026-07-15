@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (resultado.usuario.requiereCambioPass) {
                     window.location.href = 'cambiar-password.html'; 
                 } else {
-                    window.location.href = '../../index.html';
+                    window.location.href = '../index.html';
                 }
             }, 1000);
 

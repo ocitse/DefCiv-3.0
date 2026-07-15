@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./frontend/css/index.css">
 </head>
 <body> 
-
+    <body style="display: none;" id="cuerpo-sistema"></body>
     <div class="sidebar d-none d-md-flex flex-column p-3 text-white bg-dark" id="sidebar-desktop" style="width: 280px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 1000;">
         <div class="mb-2">
             <span class="fs-4 text-warning me-2"><i class="bi bi-shield-fill-exclamation"></i></span>
@@ -144,9 +144,11 @@
 
             if (!token || !usuarioRaw) {
                 alert('Acceso denegado. Por favor, inicie sesión.');
-                window.location.href = './frontend/pages/login.html'; 
-                return; 
-            }
+                window.location.href = '/'; 
+            } else {
+        // Si SÍ hay sesión: Recién aquí hacemos visible el sistema
+        document.getElementById('cuerpo-sistema').style.display = 'block';
+    }
 
             try {
                 const usuarioLogueado = JSON.parse(usuarioRaw);
