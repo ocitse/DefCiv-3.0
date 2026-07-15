@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
@@ -79,17 +80,22 @@ async function crearAdminPorDefecto() {
         if (totalUsuarios === 0) {
             console.log('⚠️ No hay usuarios en la BD. Creando administrador por defecto...');
             
+            const dniAdmin = '00000000';
             const salt = await bcrypt.genSalt(10);
-            const passwordHash = await bcrypt.hash('123456', salt);
+            const passwordEncriptada = await bcrypt.hash(dniAdmin, salt);
 
             await usuario.create({
-                nombre: 'Administrador',
+                username: 'admin',
+                dni: dniAdmin,
+                apellido: 'Sistema',
+                nombres: 'Administrador',
                 email: 'admin@defensacivil.com',
-                password: passwordHash,
-                rol: 'admin'
+                celular: '0000000000',
+                password: passwordEncriptada,
+                rol: 'Administrador' // Coincide exactamente con el ENUM de tu modelo ('Administrador')
             });
             
-            console.log('✅ ¡Administrador creado con éxito! Email: admin@defensacivil.com | Contraseña: 123456');
+            console.log('✅ ¡Administrador creado con éxito!');
         }
     } catch (error) {
         console.error('❌ Error al intentar crear el admin por defecto:', error);
