@@ -5,27 +5,50 @@ import dotenv from 'dotenv';
 // Cargamos las variables de entorno
 dotenv.config();
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASS,
-    {
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT || 3306,
-        dialect: 'mysql',
+// Si Render nos provee DATABASE_URL, la usamos directamente. 
+// Si no (por ejemplo, si pruebas en local), armamos la conexión tradicional.
+const sequelize = process.env.DATABASE_URL
+    ? new Sequelize(process.env.DATABASE_URL, {
+        dialect: 'postgres',
+        protocol: 'postgres',
         logging: false,
-        // 🌟 AGREGAR ESTE BLOQUE DE POOL PARA LIBERAR SENTENCIAS Y CONEXIONES
+        dialectOptions: {
+            ssl: {
+                require: true,
+                rejectUnauthorized: false // Necesario para conexiones seguras en Render
+            }
+        },
         pool: {
-            max: 5,         // Máximo de conexiones simultáneas en el pool (bajalo si está muy alto)
-            min: 0,         // Mínimo de conexiones en reposo
-            acquire: 30000, // Tiempo máximo (ms) que el pool intentará conectar antes de tirar error
-            idle: 10000     // Tiempo máximo (ms) que una conexión puede estar inactiva antes de ser liberada
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
         },
         define: {
             timestamps: true,
             underscored: true
         }
-    }
-);
+    })
+    : new Sequelize(
+        process.env.DB_NAME,
+        process.env.DB_USER,
+        process.env.DB_PASS,
+        {
+            host: process.env.DB_HOST,
+            port: process.env.DB_PORT || 5432,
+            dialect: 'postgres',
+            logging: false,
+            pool: {
+                max: 5,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            },
+            define: {
+                timestamps: true,
+                underscored: true
+            }
+        }
+    );
 
 export default sequelize;
