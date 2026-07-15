@@ -58,9 +58,23 @@ app.use('/api/relevadores', relevadorroutes);
 app.use('/api/solicitudes', solicitudroutes);
 
 // Ruta por defecto (Raíz)
+//app.get('/', (req, res) => {
+ //   res.send('¡DefCiv-3.0 en línea y funcionando!');
+ //   res.sendFile(path.join(projectRoot, 'portal.html'));
+//});
+
+// Ruta por defecto (Raíz)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'portal.html'));
+    const portalPath = path.join(projectRoot, 'portal.html');
+    res.sendFile(portalPath, (err) => {
+        if (err) {
+            console.error('Error al enviar portal.html:', err);
+            res.status(404).send('No se encontró el archivo portal.html en la raíz del proyecto.');
+        }
+    });
 });
+
+
 
 const PORT = process.env.PORT || 3000;
 
