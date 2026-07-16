@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import bcrypt from 'bcryptjs'; // 👈 Dejamos únicamente bcryptjs limpio
+import bcrypt from 'bcryptjs';
 import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
@@ -37,11 +37,19 @@ app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
 // 🌐 RUTAS DE VISTAS (FRONTEND)
 // ==========================================
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/pages/login.html'));
+    res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'login.html'));
 });
 
 app.get('/sistema', (req, res) => {
     res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'panel-principal.html'));
+});
+
+app.get('/cambiar-password', (req, res) => {
+    res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'cambiar-password.html'));
+});
+
+app.get('/cambiar-password.html', (req, res) => {
+    res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'cambiar-password.html'));
 });
 
 // ==========================================
@@ -58,13 +66,13 @@ app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
 app.use('/api/solicitudes', solicitudroutes);
 
-// Ruta por defecto (Raíz)
+// Ruta por defecto (Raíz) -> Envía al portal o login según prefieras
 app.get('/', (req, res) => {
     const portalPath = path.join(projectRoot, 'portal.html');
     res.sendFile(portalPath, (err) => {
         if (err) {
-            console.error('Error al enviar portal.html:', err);
-            res.status(404).send('No se encontró el archivo portal.html en la raíz del proyecto.');
+            // Si portal.html no existe en la raíz, redirigimos de forma segura al login
+            res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'login.html'));
         }
     });
 });
@@ -103,10 +111,6 @@ async function crearAdminPorDefecto() {
     }
 }
 
-app.get('/cambiar-password', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'cambiar-password.html'));
-});
-
 async function iniciarServidor() {
     try {
         console.log('🔄 Intentando conectar a la base de datos...');
@@ -116,7 +120,6 @@ async function iniciarServidor() {
         await sequelize.sync();
         console.log('✅ Sincronización de modelos completada.');
 
-        // 🟢 REACTIVAMOS EL AUTOSEED DE FORMA SEGURA
         await crearAdminPorDefecto();
 
         app.listen(PORT, () => {
