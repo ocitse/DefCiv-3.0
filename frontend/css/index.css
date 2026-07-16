@@ -18,16 +18,44 @@
     background-color: rgba(255, 255, 255, 0.1); 
 }
 
+/* Estilos de la Barra de Navegación Superior */
+.navbar {
+    background-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.navbar-brand, .navbar-nav .nav-link {
+    color: #fff !important;
+}
+
+/* Estilos del Contenido Principal */
+.main-content {
+    padding: 30px;
+}
+.page-title {
+    margin-bottom: 30px;
+    color: #343a40;
+}
+
+/* Estilos de la Tarjeta de Perfil */
+.profile-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid #dee2e6;
+}
+.profile-card .card-header {
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+}
+
 /* ========================================================
    2. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
    ======================================================== */
 @media (max-width: 767.98px) {
-    /* ❌ Ocultamos el sidebar de PC porque en celu usamos la barra superior con la hamburguesa */
     #sidebar-app, .sidebar {
         display: none !important;
     }
 
-    /* El contenido respira abajo de la barra móvil */
     .main-content-wrapper {
         width: 100%;
         display: block;
@@ -35,24 +63,23 @@
         position: relative;
     }
 
-    /* 👑 EL RECTÁNGULO FLOTANTE: Caja flotante para las opciones en móvil */
     #sidebar-mobile .navbar-collapse {
         position: absolute;
-        top: 55px; /* Ajustado al alto de tu barra superior */
-        right: 15px; /* Lo pega a la derecha, abajo de la hamburguesa */
-        width: 240px; /* Ancho en forma de rectángulo */
-        background-color: #212529; /* Fondo oscuro */
+        top: 55px;
+        right: 15px;
+        width: 240px;
+        background-color: #212529;
         z-index: 1040; 
-        border-radius: 8px; /* Bordes redondeados de tarjeta */
-        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.4); /* Sombra para resaltar la capa */
+        border-radius: 8px;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.4);
         padding: 12px;
     }
-    /* 2. Eliminamos el borde gris/azul de selección "pegajoso" en el botón hamburguesa */
+
     #sidebar-mobile .navbar-toggler:focus,
     #sidebar-mobile .navbar-toggler:active {
         outline: none !important;
         box-shadow: none !important;
-        background-color: transparent !important; /* Evita que quede el fondo gris */
+        background-color: transparent !important;
     }
 }
 
@@ -64,23 +91,18 @@
         display: flex; 
     }
     
-    /* Muestra el sidebar fijo a la izquierda */
     #sidebar-app, .sidebar {
         display: flex !important;
     }
 
-    /* Empuja el contenido 280px a la derecha para que conviva con el sidebar */
     .main-content-wrapper { 
         flex: 1; 
         margin-left: 280px; 
     }
 
-    /* Efecto Hover para el submenú de configuración en Desktop */
-@media (min-width: 768px) {
     .dropdown-hover:hover .dropdown-menu {
         display: block;
         margin-top: 0; 
-        animation: fadeIn 0.2s; /* Aprovechando que tenés animate.css */
+        animation: fadeIn 0.2s;
     }
-}
 }
