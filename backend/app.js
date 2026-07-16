@@ -73,34 +73,36 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Función para crear un administrador si la tabla está vacía
-import bcrypt from 'bcryptjs';
-
 async function crearAdminPorDefecto() {
     try {
-        const totalUsuarios = await usuario.count();
+        // Verificamos si ya existe el usuario admin por su username
+        const adminExistente = await usuario.findOne({ where: { username: 'admin' } });
         
-        if (totalUsuarios === 0) {
-            console.log('⚠️ No hay usuarios en la BD. Creando administrador por defecto...');
+        if (!adminExistente) {
+            console.log('⚠️ No existe el usuario admin. Creando administrador por defecto...');
             
-            const passwordPlana = '123456'; // Contraseña inicial temporal
+            const passwordPlana = '123456';
             const salt = await bcrypt.genSalt(10);
             const passwordEncriptada = await bcrypt.hash(passwordPlana, salt);
 
             await usuario.create({
-                username: 'admin',                // El login busca exactamente esto
-                dni: '00000000',                  // Obligatorio por el modelo
-                apellido: 'Sistema',              // Obligatorio por el modelo
-                nombres: 'Administrador',         // Obligatorio por el modelo
-                email: 'admin@defensacivil.com',  // Opcional/Único
-                celular: '0000000000',            // Obligatorio por el modelo
-                password: passwordEncriptada,     // Encriptado con bcryptjs como lo hace el controller
-                rol: 'Administrador'              // Coincide exactamente con el ENUM del modelo
+                username: 'admin',
+                dni: '00000000',
+                apellido: 'Sistema',
+                nombres: 'Administrador',
+                email: 'admin@defensacivil.com',
+                celular: '0000000000',
+                password: passwordEncriptada,
+                rol: 'Administrador'
             });
             
             console.log('✅ ¡Administrador por defecto creado con éxito!');
+        } else {
+            console.log('ℹ️ El usuario administrador ya existe en la base de datos.');
         }
     } catch (error) {
-        console.error('❌ Error al intentar crear el admin por defecto:', error);
+        // Capturamos el error para que NO tire abajo el servidor de Render
+        console.error('⚠️ Aviso menor al verificar/crear el admin (el servidor continuará):', error.message);
     }
 }
 async function iniciarServidor() {
