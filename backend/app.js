@@ -16,6 +16,7 @@ import familiaroutes from './routes/familiaroutes.js';
 import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
 import solicitudroutes from './routes/solicitudroutes.js';
+import provisionesroutes from './routes/provisionesroutes.js';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
 app.use('/api/solicitudes', solicitudroutes);
+app.use('/api/provisiones', provisionesroutes);
 
 // Ruta por defecto (Raíz)
 app.get('/', (req, res) => {

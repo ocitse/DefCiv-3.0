@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Provisiones - Defensa Civil</title>
+    </head>
+<body class="container mt-4">
+    <h2>Gestión de Provisiones y Retornos</h2>
+    <hr>
+    
+    <div class="table-responsive">
+        <table class="table table-striped" id="tablaProvisiones">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Detalle</th>
+                    <th>Destino</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function cargarProvisiones() {
+            try {
+                const res = await fetch('/api/provisiones');
+                const json = await res.json();
+                const tbody = document.querySelector('#tablaProvisiones tbody');
+                tbody.innerHTML = '';
+
+                if(json.success && json.data.length > 0) {
+                    json.data.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${p.id}</td>
+                                <td>${p.detalle}</td>
+                                <td>${p.destino}</td>
+                                <td><span class="badge bg-warning">${p.estado}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-success" onclick="cerrarCircuito(${p.id})">Registrar Retorno</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center">No hay provisiones en tránsito.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Error cargando provisiones:", err);
+            }
+        }
+
+        async function cerrarCircuito(id) {
+            const observaciones = prompt("Ingrese el resultado del retorno (Ej: Entregado correctamente, Faltó firmar remito, etc.):");
+            if (!observaciones) return;
+
+            const res = await fetch(`/api/provisiones/${id}/cerrar`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado_retorno: 'Cerrado / Entregado', observaciones })
+            });
+            const data = await res.json();
+            if(data.success) {
+                alert('¡Circuito cerrado con éxito!');
+                cargarProvisiones();
+            } else {
+                alert('Error al cerrar el circuito.');
+            }
+        }
+
+        cargarProvisiones();
+    </script>
+</body>
+</html>
