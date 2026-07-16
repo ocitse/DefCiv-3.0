@@ -3,8 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import bcrypt from 'bcrypt';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs'; // 👈 Dejamos únicamente bcryptjs limpio
 import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
@@ -75,7 +74,6 @@ const PORT = process.env.PORT || 3000;
 // Función para crear un administrador si la tabla está vacía
 async function crearAdminPorDefecto() {
     try {
-        // Verificamos si ya existe el usuario admin por su username
         const adminExistente = await usuario.findOne({ where: { username: 'admin' } });
         
         if (!adminExistente) {
@@ -101,10 +99,10 @@ async function crearAdminPorDefecto() {
             console.log('ℹ️ El usuario administrador ya existe en la base de datos.');
         }
     } catch (error) {
-        // Capturamos el error para que NO tire abajo el servidor de Render
         console.error('⚠️ Aviso menor al verificar/crear el admin (el servidor continuará):', error.message);
     }
 }
+
 async function iniciarServidor() {
     try {
         console.log('🔄 Intentando conectar a la base de datos...');
@@ -114,17 +112,8 @@ async function iniciarServidor() {
         await sequelize.sync();
         console.log('✅ Sincronización de modelos completada.');
 
-        // 🛑 COMENTAMOS EL AUTOSEED TEMPORALMENTE PARA DESCARTAR EL ERROR
-        /*
-        try {
-            const totalUsuarios = await usuario.count();
-            if (totalUsuarios === 0) {
-                // ...
-            }
-        } catch (seedError) {
-            console.error('⚠️ Error menor:', seedError.message);
-        }
-        */
+        // 🟢 REACTIVAMOS EL AUTOSEED DE FORMA SEGURA
+        await crearAdminPorDefecto();
 
         app.listen(PORT, () => {
             console.log(`📡 Servidor corriendo en el puerto ${PORT}`);
