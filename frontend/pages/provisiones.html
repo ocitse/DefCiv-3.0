@@ -2,26 +2,40 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Provisiones - Defensa Civil</title>
-    </head>
-<body class="container mt-4">
-    <h2>Gestión de Provisiones y Retornos</h2>
-    <hr>
-    
-    <div class="table-responsive">
-        <table class="table table-striped" id="tablaProvisiones">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Detalle</th>
-                    <th>Destino</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Provisiones y Retornos - Defensa Civil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-boxes text-primary"></i> Gestión de Provisiones y Retornos</h2>
+            <a href="/sistema" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver al Sistema</a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="tablaProvisiones">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID Prov.</th>
+                                <th>Solicitud Orig.</th>
+                                <th>Detalle / Insumos</th>
+                                <th>Destino</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -32,43 +46,60 @@
                 const tbody = document.querySelector('#tablaProvisiones tbody');
                 tbody.innerHTML = '';
 
-                if(json.success && json.data.length > 0) {
+                if (json.success && json.data.length > 0) {
                     json.data.forEach(p => {
+                        let badgeClass = 'bg-warning text-dark';
+                        if (p.estado.includes('Entregado') || p.estado.includes('Cerrado')) badgeClass = 'bg-success';
+                        if (p.estado.includes('Rechazado')) badgeClass = 'bg-danger';
+
                         tbody.innerHTML += `
                             <tr>
-                                <td>${p.id}</td>
+                                <td><strong>#${p.id}</strong></td>
+                                <td>Solicitud #${p.solicitud_id || 'N/A'}</td>
                                 <td>${p.detalle}</td>
                                 <td>${p.destino}</td>
-                                <td><span class="badge bg-warning">${p.estado}</span></td>
+                                <td><span class="badge ${badgeClass}">${p.estado}</span></td>
+                                <td>${p.observaciones || 'Sin observaciones'}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-success" onclick="cerrarCircuito(${p.id})">Registrar Retorno</button>
+                                    ${p.estado === 'Enviado' ? `
+                                        <button class="btn btn-sm btn-success" onclick="cerrarCircuito(${p.id})">
+                                            <i class="fas fa-check-circle"></i> Registrar Retorno
+                                        </button>
+                                    ` : `<span class="text-muted small">Cerrado</span>`}
                                 </td>
                             </tr>
                         `;
                     });
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center">No hay provisiones en tránsito.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No hay provisiones registradas en tránsito.</td></tr>`;
                 }
             } catch (err) {
-                console.error("Error cargando provisiones:", err);
+                console.error("Error al cargar provisiones:", err);
             }
         }
 
         async function cerrarCircuito(id) {
-            const observaciones = prompt("Ingrese el resultado del retorno (Ej: Entregado correctamente, Faltó firmar remito, etc.):");
-            if (!observaciones) return;
+            const observaciones = prompt("Ingrese el resultado del retorno (Ej: Entregado correctamente, firmó el remito, etc.):");
+            if (observaciones === null) return; // Si cancela
 
-            const res = await fetch(`/api/provisiones/${id}/cerrar`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ estado_retorno: 'Cerrado / Entregado', observaciones })
-            });
-            const data = await res.json();
-            if(data.success) {
-                alert('¡Circuito cerrado con éxito!');
-                cargarProvisiones();
-            } else {
-                alert('Error al cerrar el circuito.');
+            try {
+                const res = await fetch(`/api/provisiones/${id}/cerrar`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        estado_retorno: 'Cerrado / Entregado', 
+                        observaciones: observaciones || 'Entregado sin novedades' 
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('¡Circuito cerrado correctamente!');
+                    cargarProvisiones();
+                } else {
+                    alert('Error al cerrar el circuito.');
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
             }
         }
 

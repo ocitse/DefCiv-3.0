@@ -1,5 +1,7 @@
 // backend/routes/solicitudroutes.js
 import express from 'express';
+import { QueryTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 import Relevamiento from '../models/relevamiento.js';
 
 const router = express.Router();
@@ -17,7 +19,7 @@ router.get('/en-espera', async (req, res) => {
     }
 });
 
-// 2. Enviar solicitud: cambia el estado a 'En Proceso' y guarda las observaciones
+// 2. Enviar solicitud: cambia el estado a 'En Proceso', guarda observaciones Y CREA LA PROVISIÓN AUTOMÁTICAMENTE
 router.post('/', async (req, res) => {
     try {
         const { relevamientoId, observaciones } = req.body;
@@ -28,7 +30,7 @@ router.post('/', async (req, res) => {
 
         console.log(`Guardando solicitud del relevamiento ID: ${relevamientoId} con observaciones: ${observaciones}`);
 
-        // Actualizamos usando 'id_relevamiento' (tu clave primaria real)
+        // A. Actualizamos el relevamiento a 'En Proceso'
         await Relevamiento.update(
             { 
                 estado: 'En Proceso', 
@@ -37,9 +39,28 @@ router.post('/', async (req, res) => {
             { where: { id_relevamiento: relevamientoId } }
         );
 
-        res.status(201).json({ success: true, message: "Solicitud enviada correctamente a Desarrollo Social." });
+        // B. Buscamos los datos del relevamiento para asignarlos al detalle y destino de la provisión
+        const relevamientoInfo = await Relevamiento.findOne({
+            where: { id_relevamiento: relevamientoId }
+        });
+
+        // C. ¡EL PUENTE AUTOMÁTICO HACIA PROVISIONES!
+        const detalleInsumos = observaciones || 'Insumos / Ayuda solicitada según relevamiento';
+        const destinoEntrega = relevamientoInfo ? (relevamientoInfo.direccion || 'Dirección no especificada') : 'Destino general';
+
+        await sequelize.query(
+            'INSERT INTO provisiones (solicitud_id, detalle, destino, estado) VALUES (?, ?, ?, "Enviado")',
+            { 
+                replacements: [relevamientoId, detalleInsumos, destinoEntrega], 
+                type: QueryTypes.INSERT 
+            }
+        );
+
+        console.log(`✅ Provisión creada automáticamente para el relevamiento ID: ${relevamientoId}`);
+
+        res.status(201).json({ success: true, message: "Solicitud enviada y provisión generada correctamente." });
     } catch (error) {
-        console.error("Error al guardar la solicitud:", error);
+        console.error("Error al guardar la solicitud y crear la provisión:", error);
         res.status(500).json({ success: false, error: "Error al procesar la solicitud" });
     }
 });
