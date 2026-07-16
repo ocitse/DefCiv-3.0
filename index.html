@@ -10,8 +10,7 @@
     
     <link rel="stylesheet" href="./frontend/css/index.css">
 </head>
-<body> 
-    <body style="display: none;" id="cuerpo-sistema"></body>
+<body style="display: none;" id="cuerpo-sistema">
     <div class="sidebar d-none d-md-flex flex-column p-3 text-white bg-dark" id="sidebar-desktop" style="width: 280px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 1000;">
         <div class="mb-2">
             <span class="fs-4 text-warning me-2"><i class="bi bi-shield-fill-exclamation"></i></span>
@@ -129,6 +128,7 @@
         <div class="content-principal p-3" style="padding-top: 20px;">
         </div>
     </div>
+</body>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -142,18 +142,19 @@
             const token = sessionStorage.getItem('token');
             const usuarioRaw = sessionStorage.getItem('usuario');
 
+            // 🟢 Corrección: Sin alert molesto, redirección limpia al login
             if (!token || !usuarioRaw) {
-                alert('Acceso denegado. Por favor, inicie sesión.');
-                window.location.href = '/'; 
+                window.location.replace('/login'); 
+                return;
             } else {
-        // Si SÍ hay sesión: Recién aquí hacemos visible el sistema
-        document.getElementById('cuerpo-sistema').style.display = 'block';
-    }
+                // Si SÍ hay sesión: Hacemos visible el sistema
+                document.getElementById('cuerpo-sistema').style.display = 'block';
+            }
 
             try {
                 const usuarioLogueado = JSON.parse(usuarioRaw);
                 if (usuarioLogueado.requiereCambioPass) {
-                    window.location.href = './frontend/pages/cambiar-password.html';
+                    window.location.replace('/cambiar-password');
                     return; 
                 }
 
@@ -172,7 +173,7 @@
                 e.preventDefault();
                 if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
                     sessionStorage.clear(); 
-                    window.location.href = './frontend/pages/login.html'; 
+                    window.location.replace('/login'); 
                 }
             };
 
@@ -183,7 +184,7 @@
 
             const abrirModalCambioClave = (e) => {
                 e.preventDefault();
-                window.location.href = './frontend/pages/cambiar-password.html';
+                window.location.replace('/cambiar-password');
             };
             const btnPassDesk = document.getElementById('btn-cambiar-pass-desktop');
             const btnPassMob = document.getElementById('btn-cambiar-pass-mobile');
@@ -289,5 +290,4 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-</body>
 </html>
