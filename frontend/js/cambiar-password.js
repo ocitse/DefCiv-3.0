@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioRaw = sessionStorage.getItem('usuario');
 
     if (!token || !usuarioRaw) {
-        window.location.href = '/login'; 
+        window.location.replace('/login'); 
         return;
     }
 
@@ -69,13 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Actualizando...`;
 
+            // 🟢 Petición corregida enviando token y el método correcto (PUT)
             const respuesta = await fetch('/api/auth/cambiar-password', {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    id_usuario: usuarioLogueado.id,
+                    userId: usuarioLogueado.id || usuarioLogueado.usuarioId,
+                    id_usuario: usuarioLogueado.id || usuarioLogueado.usuarioId, // Compatibilidad para ambos nombres de campo
                     passwordActual,
                     passwordNueva
                 })
@@ -93,10 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             alertMessage.classList.remove('d-none');
             alertMessage.classList.add('alert-success');
-            alertMessage.textContent = '¡Contraseña actualizada con éxito!';
+            alertMessage.textContent = '¡Contraseña actualizada con éxito! Redirigiendo...';
 
             setTimeout(() => {
-                window.location.href = '/sistema';
+                window.location.replace('/sistema');
             }, 1500);
 
         } catch (error) {
