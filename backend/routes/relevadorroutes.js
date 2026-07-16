@@ -112,10 +112,11 @@ router.put('/:id/estado', async (req, res) => {
             message: 'Estado del relevador actualizado con éxito'
         });
     } catch (error) {
-        console.error('Error al actualizar estado del relevador:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar el estado'
+        console.error('❌ ERROR REAL AL INSERTAR RELEVADOR:', error); // <--- Cambia esto
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error al registrar el relevador en la base de datos',
+            detalle: error.message // <--- Esto te devolverá el mensaje exacto de MySQL
         });
     }
 });
