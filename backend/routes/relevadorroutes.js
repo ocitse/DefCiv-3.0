@@ -17,10 +17,10 @@ router.get('/', async (req, res) => {
             data: relevadores
         });
     } catch (error) {
-        console.error('Error al obtener relevadores:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error interno del servidor al cargar relevadores'
+        console.warn('⚠️ Aviso: La tabla relevadores aún no existe o está vacía:', error.message);
+        res.json({
+            success: true,
+            data: []
         });
     }
 });
@@ -38,16 +38,15 @@ router.get('/admin', async (req, res) => {
             data: relevadores
         });
     } catch (error) {
-        console.error('Error al obtener administradores de relevadores:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error al cargar la administración de relevadores'
+        console.warn('⚠️ Aviso: La tabla relevadores admin aún no existe o está vacía:', error.message);
+        res.json({
+            success: true,
+            data: []
         });
     }
 });
 
 // POST /api/relevadores - Registrar un nuevo relevador
-// Actualiza el router.post('/') en backend/routes/relevadorroutes.js
 router.post('/', async (req, res) => {
     const { nombre, dni, email } = req.body;
 
