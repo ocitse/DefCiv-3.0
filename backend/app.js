@@ -107,19 +107,45 @@ async function crearAdminPorDefecto() {
 }
 async function iniciarServidor() {
     try {
+        console.log('🔄 Intentando conectar a la base de datos...');
         await sequelize.authenticate();
         console.log('✅ Conexión a la base de datos establecida.');
-        await sequelize.sync();
         
-        // Ejecutamos la verificación del usuario admin
-        await crearAdminPorDefecto();
+        await sequelize.sync();
+        console.log('✅ Sincronización de modelos completada.');
+        
+        // Intentamos crear el admin de forma completamente aislada
+        try {
+            const totalUsuarios = await usuario.count();
+            if (totalUsuarios === 0) {
+                console.log('⚠️ No hay usuarios en la BD. Creando administrador por defecto...');
+                const passwordPlana = '123456';
+                const salt = await bcrypt.genSalt(10);
+                const passwordEncriptada = await bcrypt.hash(passwordPlana, salt);
+
+                await usuario.create({
+                    username: 'admin',
+                    dni: '00000000',
+                    apellido: 'Sistema',
+                    nombres: 'Administrador',
+                    email: 'admin@defensacivil.com',
+                    celular: '0000000000',
+                    password: passwordEncriptada,
+                    rol: 'Administrador'
+                });
+                console.log('✅ ¡Administrador por defecto creado con éxito!');
+            }
+        } catch (seedError) {
+            console.error('⚠️ Error menor al crear el admin (continuando ejecución):', seedError.message);
+        }
 
         app.listen(PORT, () => {
             console.log(`📡 Servidor corriendo en el puerto ${PORT}`);
         });
+        
     } catch (error) {
-        console.error('❌ Error crítico al iniciar:', error);
-        process.exit(1);
+        // Si la base de datos falla al conectar, imprimimos el error completo pero NO cerramos con process.exit(1)
+        console.error('❌ ERROR CRÍTICO DE CONEXIÓN O ARRANQUE:', error);
     }
 }
 
