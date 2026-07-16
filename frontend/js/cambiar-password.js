@@ -12,11 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const passwordNueva = document.getElementById('pass-nueva').value.trim();
         const passwordRepetir = document.getElementById('pass-repetir').value.trim();
 
-        // Ocultar alertas previas
         alertMessage.className = 'alert d-none small text-center';
         alertMessage.textContent = '';
 
-        // Validaciones en cliente
         if (!passwordActual || !passwordNueva || !passwordRepetir) {
             mostrarAlerta('Por favor, complete todos los campos.', 'danger');
             return;
@@ -44,9 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const usuario = JSON.parse(usuarioRaw);
-            const id_usuario = usuario.id || usuario.usuarioId; // Mapeo exacto para el backend
+            const id_usuario = usuario.id || usuario.usuarioId;
 
-            // 🟢 Usamos POST y los nombres de campos que el controlador backend procesa
             const respuesta = await fetch('/api/auth/cambiar-password', {
                 method: 'POST',
                 headers: {
@@ -72,13 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(resultado.mensaje || 'Error al actualizar la contraseña.');
             }
 
-            // ÉXITO: Actualizamos el estado en sessionStorage
             usuario.requiereCambioPass = false;
             sessionStorage.setItem('usuario', JSON.stringify(usuario));
 
             mostrarAlerta('¡Contraseña actualizada con éxito! Redirigiendo al sistema...', 'success');
 
-            // 🟢 Redirección definitiva al panel principal del sistema
             setTimeout(() => {
                 window.location.replace('/sistema');
             }, 1500);
@@ -87,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al cambiar contraseña:", error);
             mostrarAlerta(error.message, 'danger');
             btnSubmit.disabled = false;
-            btnSubmit.innerHTML = `<i class="bi bi-check-circle"></i> Actualizar Contraseña`;
+            btnSubmit.innerHTML = `Actualizar Contraseña`;
         }
     });
 
