@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioRaw = sessionStorage.getItem('usuario');
 
     if (!token || !usuarioRaw) {
-        window.location.href = 'login.html'; 
+        window.location.href = '/login'; 
         return;
     }
 
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alertMessage.textContent = '¡Contraseña actualizada con éxito!';
 
             setTimeout(() => {
-                window.location.href = '../../index.html';
+                window.location.href = '/sistema';
             }, 1500);
 
         } catch (error) {
