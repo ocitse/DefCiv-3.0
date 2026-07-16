@@ -1,13 +1,19 @@
-import express from 'express';
-import { registrar, login, cambiarPassword } from '../controllers/authcontroller.js';
-import { verificarToken } from '../middleware/auth.js'; // 👈 Importamos el validador
+import jwt from 'jsonwebtoken';
 
-const router = express.Router();
+export const verificarToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-router.post('/register', registrar);      
-router.post('/login', login);             
+    if (!token) {
+        return res.status(401).json({ mensaje: 'Acceso denegado. Token no proporcionado.' });
+    }
 
-// 🟢 Protegemos la ruta de cambiar contraseña exigiendo el token
-router.post('/cambiar-password', verificarToken, cambiarPassword); 
-
-export default router;
+    try {
+        const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_defensa_civil';
+        const decodificado = jwt.verify(token, JWT_SECRET);
+        req.user = decodificado; 
+        next();
+    } catch (error) {
+        return res.status(403).json({ mensaje: 'Token inválido o expirado.' });
+    }
+};
