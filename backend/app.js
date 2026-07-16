@@ -33,8 +33,11 @@ app.use(express.json());
 app.use(express.static(projectRoot));
 app.use(express.static(path.join(projectRoot, 'frontend')));
 app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
+
 // Mapeo directo para carpetas comunes por si el navegador las busca sueltas
 app.use('/js', express.static(path.join(projectRoot, 'frontend', 'js')));
+app.use('/css', express.static(path.join(projectRoot, 'frontend', 'css')));
+app.use('/img', express.static(path.join(projectRoot, 'frontend', 'img')));
 
 // ==========================================
 // 🌐 RUTAS DE VISTAS (FRONTEND)
