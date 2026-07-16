@@ -103,6 +103,10 @@ async function crearAdminPorDefecto() {
     }
 }
 
+app.get('/cambiar-password', (req, res) => {
+    res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'cambiar-password.html'));
+});
+
 async function iniciarServidor() {
     try {
         console.log('🔄 Intentando conectar a la base de datos...');
