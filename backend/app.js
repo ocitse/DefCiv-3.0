@@ -28,10 +28,13 @@ app.use(cors());
 app.use(express.json());
 
 // ==========================================
-// 📂 ARCHIVOS ESTÁTICOS
+// 📂 ARCHIVOS ESTÁTICOS (Bloque único y unificado)
 // ==========================================
 app.use(express.static(projectRoot));
+app.use(express.static(path.join(projectRoot, 'frontend')));
 app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
+// Mapeo directo para carpetas comunes por si el navegador las busca sueltas
+app.use('/js', express.static(path.join(projectRoot, 'frontend', 'js')));
 
 // ==========================================
 // 🌐 RUTAS DE VISTAS (FRONTEND)
@@ -66,12 +69,11 @@ app.use('/api/usuarios', usuarioroutes);
 app.use('/api/relevadores', relevadorroutes);
 app.use('/api/solicitudes', solicitudroutes);
 
-// Ruta por defecto (Raíz) -> Envía al portal o login según prefieras
+// Ruta por defecto (Raíz)
 app.get('/', (req, res) => {
     const portalPath = path.join(projectRoot, 'portal.html');
     res.sendFile(portalPath, (err) => {
         if (err) {
-            // Si portal.html no existe en la raíz, redirigimos de forma segura al login
             res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'login.html'));
         }
     });
