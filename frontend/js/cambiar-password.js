@@ -3,14 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertMessage = document.getElementById('alert-message');
     const btnSubmit = document.getElementById('btn-submit');
     
-    // Elementos dinámicos del DOM
     const iconoHeader = document.getElementById('icono-header');
     const tituloHeader = document.getElementById('titulo-header');
     const descripcionHeader = document.getElementById('descripcion-header');
     const labelPassActual = document.getElementById('label-pass-actual');
     const contenedorVolver = document.getElementById('contenedor-volver');
 
-    // 🔒 1. CONTROL DE SEGURIDAD INTERNO
     const token = sessionStorage.getItem('token');
     const usuarioRaw = sessionStorage.getItem('usuario');
 
@@ -21,17 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const usuarioLogueado = JSON.parse(usuarioRaw);
 
-    // 🎨 2. ADAPTAR VISTA SEGÚN EL ESTADO (Obligatorio vs Voluntario)
     if (!usuarioLogueado.requiereCambioPass) {
-        // Modo Voluntario
         iconoHeader.className = 'bi bi-key-fill text-primary';
         tituloHeader.textContent = 'Cambiar Contraseña';
         descripcionHeader.textContent = 'Ingresa tu contraseña actual y la nueva clave que deseas utilizar.';
         labelPassActual.textContent = 'Contraseña Actual';
-        contenedorVolver.classList.remove('d-none'); // Muestra la opción de volver al index
+        contenedorVolver.classList.remove('d-none');
         btnSubmit.className = 'btn btn-primary w-100 text-white fw-bold';
     } else {
-        // Modo Obligatorio (Primera vez)
         iconoHeader.className = 'bi bi-shield-lock text-warning';
         tituloHeader.textContent = 'Actualización Obligatoria';
         descripcionHeader.textContent = 'Por seguridad, debes cambiar tu contraseña predeterminada antes de ingresar al sistema.';
@@ -40,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.className = 'btn btn-warning w-100 text-white fw-bold';
     }
 
-    // 📩 3. MANEJO DEL FORMULARIO
     changeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -69,16 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Actualizando...`;
 
-            // 🟢 Petición corregida enviando token y el método correcto (PUT)
+            // 🟢 Usamos exactamente id_usuario tal como lo espera authcontroller.js
             const respuesta = await fetch('/api/auth/cambiar-password', {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    userId: usuarioLogueado.id || usuarioLogueado.usuarioId,
-                    id_usuario: usuarioLogueado.id || usuarioLogueado.usuarioId, // Compatibilidad para ambos nombres de campo
+                    id_usuario: usuarioLogueado.id || usuarioLogueado.usuarioId,
                     passwordActual,
                     passwordNueva
                 })
@@ -90,13 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(resultado.mensaje || 'Error al intentar cambiar la contraseña.');
             }
 
-            // ÉXITO: Actualizamos el estado de la sesión
             usuarioLogueado.requiereCambioPass = false;
             sessionStorage.setItem('usuario', JSON.stringify(usuarioLogueado));
 
             alertMessage.classList.remove('d-none');
             alertMessage.classList.add('alert-success');
-            alertMessage.textContent = '¡Contraseña actualizada con éxito! Redirigiendo...';
+            alertMessage.textContent = '¡Contraseña actualizada con éxito! Redirigiendo al sistema...';
 
             setTimeout(() => {
                 window.location.replace('/sistema');
