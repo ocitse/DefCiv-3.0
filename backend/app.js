@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
+import { QueryTypes } from 'sequelize';
 import sequelize from './config/database.js';
 
 import relevamiento from './models/relevamiento.js';
@@ -81,6 +82,26 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+// Función para verificar y crear la tabla relevadores si no existe
+async function asegurarTablaRelevadores() {
+    try {
+        await sequelize.query(`
+            CREATE TABLE IF NOT EXISTS relevadores (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(150) NOT NULL,
+                dni VARCHAR(20) NOT NULL UNIQUE,
+                email VARCHAR(150),
+                activo TINYINT DEFAULT 1,
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `, { type: QueryTypes.RAW });
+        console.log('✅ Verificación/Creación de la tabla "relevadores" completada.');
+    } catch (error) {
+        console.error('⚠️ Aviso al verificar la tabla relevadores:', error.message);
+    }
+}
+
 // Función para crear un administrador si la tabla está vacía
 async function crearAdminPorDefecto() {
     try {
@@ -121,6 +142,9 @@ async function iniciarServidor() {
         
         await sequelize.sync();
         console.log('✅ Sincronización de modelos completada.');
+
+        // Asegurar que la tabla relevadores exista antes de que operen las rutas
+        await asegurarTablaRelevadores();
 
         await crearAdminPorDefecto();
 
