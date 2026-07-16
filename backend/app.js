@@ -80,22 +80,22 @@ async function crearAdminPorDefecto() {
         if (totalUsuarios === 0) {
             console.log('⚠️ No hay usuarios en la BD. Creando administrador por defecto...');
             
-            const dniAdmin = '00000000';
+            const passwordPlana = '123456'; // Contraseña inicial temporal
             const salt = await bcrypt.genSalt(10);
-            const passwordEncriptada = await bcrypt.hash(dniAdmin, salt);
+            const passwordEncriptada = await bcrypt.hash(passwordPlana, salt);
 
             await usuario.create({
-                username: 'admin',
-                dni: dniAdmin,
-                apellido: 'Sistema',
-                nombres: 'Administrador',
-                email: 'admin@defensacivil.com',
-                celular: '0000000000',
-                password: passwordEncriptada,
-                rol: 'Administrador' // Coincide exactamente con el ENUM de tu modelo ('Administrador')
+                username: 'admin',                // El login busca exactamente esto
+                dni: '00000000',                  // Obligatorio por el modelo
+                apellido: 'Sistema',              // Obligatorio por el modelo
+                nombres: 'Administrador',         // Obligatorio por el modelo
+                email: 'admin@defensacivil.com',  // Opcional/Único
+                celular: '0000000000',            // Obligatorio por el modelo
+                password: passwordEncriptada,     // Encriptado con bcryptjs como lo hace el controller
+                rol: 'Administrador'              // Coincide con el ENUM del modelo
             });
             
-            console.log('✅ ¡Administrador creado con éxito!');
+            console.log('✅ ¡Administrador por defecto creado con éxito!');
         }
     } catch (error) {
         console.error('❌ Error al intentar crear el admin por defecto:', error);
