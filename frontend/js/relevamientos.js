@@ -2,6 +2,7 @@
 import { Storage } from './storage.js'; // Ajustá la ruta según tu proyecto
 import { departamentosYLocalidades } from './ubicaciones.js';
 import { mostrarNotificacion } from './ui.js'; // Ajustá la ruta según tu proyecto
+import { cargarVistaDinamica } from './utils.js';
 
 // ID del contenedor principal en tu index.html donde se renderiza todo
 const CONTENEDOR_APP = 'contenedor-principal'; 
@@ -16,33 +17,33 @@ let idRelevamientoActivo = null; // Guarda el ID del relevamiento que se está e
 /**
  * 🌀 FUNCIÓN NÚCLEO: Carga un archivo HTML de forma asrincrónica e inyecta su contenido
  */
-async function cargarVistaDinamica(rutaHtml, callback) {
+/*async function cargarVistaDinamica(rutaHtml, callback) {
     try {
         const respuesta = await fetch(rutaHtml);
         if (!respuesta.ok) throw new Error(`No se pudo cargar la página: ${rutaHtml}`);
         
         const htmlTexto = await respuesta.text();
         
-        // 🛠️ CORRECCIÓN DE CONTENEDOR (Intenta buscar por ID, si no, busca por la Clase)
-        let contenedor = document.getElementById(CONTENEDOR_APP);
-        if (!contenedor) {
-            contenedor = document.querySelector('.content-principal');
-        }
+        // Apuntamos directamente al contenedor real de tu index.html
+        const contenedor = document.querySelector('.content-principal');
         
         if (contenedor) {
             contenedor.innerHTML = htmlTexto;
         } else {
-            console.warn("No se encontró ningún contenedor válido para inyectar la vista.");
+            console.warn("No se encontró el contenedor .content-principal en el DOM.");
         }
 
-        // Si se cargó con éxito el esqueleto HTML, ejecutamos su lógica específica
+        // Ejecutamos la lógica específica de la vista cargada
         if (callback) callback();
+        
     } catch (error) {
         console.error("Error crítico en ruteo dinámico:", error);
-        mostrarNotificacion("Error al cargar la interfaz visual.", "error");
+        if (typeof mostrarNotificacion === 'function') {
+            mostrarNotificacion("Error al cargar la interfaz visual.", "error");
+        }
     }
 }
-
+*/
 // =========================================================================
 // 🌐 NIVEL 1: GESTIÓN DE RELEVAMIENTOS GENERALES
 // =========================================================================
@@ -59,7 +60,7 @@ export function verListaRelevamientos() {
         btnMenu.classList.add('active');
     }
 
-    cargarVistaDinamica('frontend/pages/tabla-relevamientos.html', () => {
+    cargarVistaDinamica('/frontend/pages/tabla-relevamientos.html', () => {
         const tbody = document.getElementById('tabla-relevamientos-body');
         if (!tbody) return;
 
@@ -204,7 +205,7 @@ export function guardarEstadoTerreno(idRelevamiento) {
  * Muestra el formulario para configurar un Nuevo Relevamiento (Jefe)
  */
 export function mostrarFormularioNuevoRelevamiento() {
-    cargarVistaDinamica('frontend/pages/form-relevamiento.html', () => {
+    cargarVistaDinamica('/frontend/pages/form-relevamiento.html', () => {
         // 1. Aquí se cargarían los selects de Departamentos y Localidades de Santiago del Estero
         cargarDesplegablesUbicacion();
         cargarDesplegableRelevadores();
@@ -289,7 +290,7 @@ function guardarRelevamientoGeneral(e) {
 export function ingresarARelevamiento(idRelevamiento) {
     idRelevamientoActivo = idRelevamiento;
 
-    cargarVistaDinamica('frontend/pages/tabla-familias.html', () => {
+    cargarVistaDinamica('/frontend/pages/tabla-familias.html', () => {
         const data = Storage.getData();
         const rel = data.relevamientos.find(r => r.id_relevamiento === idRelevamiento);
         
@@ -371,7 +372,7 @@ export function mostrarFormularioNuevaFamilia() {
     listaTemporalMedicamentos = [];
     listaTemporalMateriales = [];
 
-    cargarVistaDinamica('frontend/pages/form-familia.html', () => {
+    cargarVistaDinamica('/frontend/pages/form-familia.html', () => {
         // Inicializamos las cajitas visuales de las listas (para que digan "Ninguno agregado")
         renderizarListaVisual('med', listaTemporalMedicamentos);
         renderizarListaVisual('mat', listaTemporalMateriales);
@@ -706,7 +707,7 @@ async function cargarDesplegableRelevadores() {
  * Abre el formulario de Relevamiento en modo EDICIÓN precargando sus datos
  */
 export function editarRelevamientoGeneral(idRelevamiento) {
-    cargarVistaDinamica('frontend/pages/form-relevamiento.html', () => {
+    cargarVistaDinamica('/frontend/pages/form-relevamiento.html', () => {
         const data = Storage.getData();
         const rel = data.relevamientos.find(r => r.id_relevamiento === idRelevamiento);
 
@@ -750,7 +751,7 @@ export function editarRelevamientoGeneral(idRelevamiento) {
  * Abre el formulario familiar en modo EDICIÓN recuperando el JSON atómico
  */
 export function editarDatosFamilia(idFamilia) {
-    cargarVistaDinamica('frontend/pages/form-familia.html', () => {
+    cargarVistaDinamica('/frontend/pages/form-familia.html', () => {
         const data = Storage.getData();
         const rel = data.relevamientos.find(r => r.id_relevamiento === idRelevamientoActivo);
         const fam = rel?.familias?.find(f => f.id_familia === idFamilia);
@@ -843,7 +844,7 @@ export function eliminarFamiliar(idFamilia) {
  * Inicializa y renderiza el Panel Principal (Dashboard) calculando métricas reales
  */
 export function verPanelPrincipal() {
-    cargarVistaDinamica('frontend/pages/panel-principal.html', () => {
+    cargarVistaDinamica('/frontend/pages/panel-principal.html', () => {
         const data = Storage.getData();
         const relevamientos = data.relevamientos || [];
 

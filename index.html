@@ -124,9 +124,9 @@
         </div>
     </nav>
 
-    <div class="main-content-wrapper">
-        <div class="content-principal p-3" style="padding-top: 20px;">
-        </div>
+    <div class="main-content-wrapper" style="margin-left: 280px;">
+        <main id="app-container" class="content-principal p-3" style="padding-top: 20px;">
+            </main>
     </div>
 </body>
 
@@ -168,6 +168,9 @@
             } catch (e) {
                 console.error("Error al parsear el usuario:", e);
             }
+            // --- DISPARADOR INICIAL DEL PANEL PRINCIPAL ---
+        // Aquí es donde la aplicación arranca mostrando el dashboard por defecto
+        verPanelPrincipal();
 
             const realizarSalida = (e) => {
                 e.preventDefault();
