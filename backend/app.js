@@ -28,13 +28,10 @@ app.use(cors());
 app.use(express.json());
 
 // ==========================================
-// 📂 ARCHIVOS ESTÁTICOS (Bloque único y unificado)
+// 📂 ARCHIVOS ESTÁTICOS (Único bloque ordenado al inicio)
 // ==========================================
-app.use(express.static(projectRoot));
 app.use(express.static(path.join(projectRoot, 'frontend')));
 app.use('/frontend', express.static(path.join(projectRoot, 'frontend')));
-
-// Mapeo directo para carpetas comunes por si el navegador las busca sueltas
 app.use('/js', express.static(path.join(projectRoot, 'frontend', 'js')));
 app.use('/css', express.static(path.join(projectRoot, 'frontend', 'css')));
 app.use('/img', express.static(path.join(projectRoot, 'frontend', 'img')));
@@ -57,9 +54,6 @@ app.get('/cambiar-password', (req, res) => {
 app.get('/cambiar-password.html', (req, res) => {
     res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'cambiar-password.html'));
 });
-
-app.use('/js', express.static(path.join(projectRoot, 'frontend', 'js')));
-app.use('/css', express.static(path.join(projectRoot, 'frontend', 'css')));
 
 // ==========================================
 // 🔌 API ROUTES
