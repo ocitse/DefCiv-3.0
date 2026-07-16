@@ -87,13 +87,13 @@ async function asegurarTablaRelevadores() {
     try {
         await sequelize.query(`
             CREATE TABLE IF NOT EXISTS relevadores (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 nombre VARCHAR(150) NOT NULL,
                 dni VARCHAR(20) NOT NULL UNIQUE,
                 email VARCHAR(150),
-                activo TINYINT DEFAULT 1,
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                activo SMALLINT DEFAULT 1,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `, { type: QueryTypes.RAW });
         console.log('✅ Verificación/Creación de la tabla "relevadores" completada.');
