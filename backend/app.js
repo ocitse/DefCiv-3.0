@@ -44,7 +44,7 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/sistema', (req, res) => {
-    res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'panel-principal.html'));
+    res.sendFile(path.join(projectRoot, 'index.html'));
 });
 
 app.get('/cambiar-password', (req, res) => {
