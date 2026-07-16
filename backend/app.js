@@ -73,6 +73,8 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Función para crear un administrador si la tabla está vacía
+import bcrypt from 'bcryptjs';
+
 async function crearAdminPorDefecto() {
     try {
         const totalUsuarios = await usuario.count();
@@ -92,7 +94,7 @@ async function crearAdminPorDefecto() {
                 email: 'admin@defensacivil.com',  // Opcional/Único
                 celular: '0000000000',            // Obligatorio por el modelo
                 password: passwordEncriptada,     // Encriptado con bcryptjs como lo hace el controller
-                rol: 'Administrador'              // Coincide con el ENUM del modelo
+                rol: 'Administrador'              // Coincide exactamente con el ENUM del modelo
             });
             
             console.log('✅ ¡Administrador por defecto creado con éxito!');
@@ -101,7 +103,6 @@ async function crearAdminPorDefecto() {
         console.error('❌ Error al intentar crear el admin por defecto:', error);
     }
 }
-
 async function iniciarServidor() {
     try {
         await sequelize.authenticate();
