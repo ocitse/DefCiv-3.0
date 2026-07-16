@@ -55,6 +55,9 @@ app.get('/cambiar-password.html', (req, res) => {
     res.sendFile(path.join(projectRoot, 'frontend', 'pages', 'cambiar-password.html'));
 });
 
+app.use('/js', express.static(path.join(projectRoot, 'frontend', 'js')));
+app.use('/css', express.static(path.join(projectRoot, 'frontend', 'css')));
+
 // ==========================================
 // 🔌 API ROUTES
 // ==========================================
