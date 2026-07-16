@@ -104,6 +104,28 @@ async function asegurarTablaRelevadores() {
     }
 }
 
+// Agrega esta función junto a las demás funciones de inicialización en index.js
+async function asegurarTablaProvisiones() {
+    try {
+        await sequelize.query(`
+            CREATE TABLE IF NOT EXISTS provisiones (
+                id SERIAL PRIMARY KEY,
+                solicitud_id INT,
+                detalle TEXT NOT NULL,
+                destino VARCHAR(250) NOT NULL,
+                estado VARCHAR(50) DEFAULT 'Enviado',
+                observaciones TEXT,
+                fecha_cierre TIMESTAMP,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `, { type: QueryTypes.RAW });
+        console.log('✅ Verificación/Creación de la tabla "provisiones" completada.');
+    } catch (error) {
+        console.error('⚠️ Aviso al verificar la tabla provisiones:', error.message);
+    }
+}
+
 // Función para crear un administrador si la tabla está vacía
 async function crearAdminPorDefecto() {
     try {
@@ -149,6 +171,8 @@ async function iniciarServidor() {
         await asegurarTablaRelevadores();
 
         await crearAdminPorDefecto();
+
+        await asegurarTablaProvisiones();
 
         app.listen(PORT, () => {
             console.log(`📡 Servidor corriendo en el puerto ${PORT}`);
