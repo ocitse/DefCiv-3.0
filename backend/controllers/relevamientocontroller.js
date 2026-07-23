@@ -43,3 +43,52 @@ export const crearrelevamiento = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al guardar el relevamiento.' });
     }
 };
+
+// 3. OBTENER UN RELEVAMIENTO POR SU ID
+export const obtenerRelevamientoPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rel = await relevamiento.findByPk(id);
+
+        if (!rel) {
+            return res.status(404).json({ mensaje: 'No se encontró el relevamiento.' });
+        }
+
+        res.json(rel);
+    } catch (error) {
+        console.error('Error al obtener el relevamiento por ID:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al buscar el relevamiento.' });
+    }
+};
+
+// 4. ACTUALIZAR UN RELEVAMIENTO EXISTENTE
+export const actualizarRelevamiento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { departamento, localidad, tipo_evento, relevador_assigned, urgencia_general, barrio, solicitante } = req.body;
+
+        const rel = await relevamiento.findByPk(id);
+        if (!rel) {
+            return res.status(404).json({ mensaje: 'No se encontró el relevamiento a actualizar.' });
+        }
+
+        await rel.update({
+            departamento,
+            localidad,
+            tipo_evento,
+            relevador_asignado: relevador_assigned,
+            urgencia_general,
+            barrio,
+            solicitante
+        });
+
+        res.json({
+            mensaje: 'Relevamiento actualizado con éxito.',
+            data: rel
+        });
+    } catch (error) {
+        console.error('Error al actualizar relevamiento:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al actualizar el relevamiento.' });
+    }
+};
+

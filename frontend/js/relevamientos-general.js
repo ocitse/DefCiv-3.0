@@ -65,98 +65,125 @@ async function cargarDesplegableRelevadores() {
 }
 
 export function editarRelevamientoGeneral(idRelevamiento) {
-    cargarVistaDinamica('/frontend/pages/form-relevamiento.html', () => {
-        const data = Storage.getData();
-        const rel = data.relevamientos.find(r => r.id_relevamiento === idRelevamiento);
+    cargarVistaDinamica('/frontend/pages/form-relevamiento.html', async () => {
+        try {
+            // Consultamos directamente al endpoint para obtener el relevamiento específico
+            const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`);
+            const rel = await respuesta.json();
 
-        if (!rel) {
-            mostrarNotificacion("No se encontró el relevamiento a editar.", "error");
-            verListaRelevamientos();
-            return;
-        }
-
-        const titulo = document.getElementById('titulo-form-relevamiento');
-        if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Configuración de Relevamiento`;
-
-        document.getElementById('r_id_edicion').value = rel.id_relevamiento;
-
-        cargarDesplegablesUbicacion();
-        cargarDesplegableRelevadores();
-
-        document.getElementById('r_barrio').value = rel.barrio;
-        document.getElementById('r_tipo_evento').value = rel.tipo_evento;
-        document.getElementById('r_solicitante').value = rel.solicitante;
-        document.getElementById('r_urgencia').value = rel.urgencia_general;
-        
-        document.getElementById('r_departamento').value = rel.id_departamento;
-        document.getElementById('r_localidad').value = rel.id_localidad;
-        document.getElementById('r_relevador').value = rel.id_relevador;
-
-        const form = document.getElementById('form-nuevo-relevamiento');
-        if (form) {
-            form.addEventListener('submit', guardarRelevamientoGeneral);
-        }
-    });
-}
-
-export function verPanelPrincipal() {
-    cargarVistaDinamica('/frontend/pages/panel-principal.html', () => {
-        const data = Storage.getData();
-        const relevamientos = data.relevamientos || [];
-
-        const nuevos = relevamientos.filter(r => r.estado === 'Nuevo' || !r.familias || r.familias.length === 0).length;
-        
-        let totalFamilias = 0;
-        relevamientos.forEach(r => {
-            if (r.familias) totalFamilias += r.familias.length;
-        });
-
-        if (document.getElementById('dash-relevamientos-nuevos')) {
-            document.getElementById('dash-relevamientos-nuevos').innerText = nuevos;
-            document.getElementById('dash-familias-asistidas').innerText = totalFamilias;
-            
-            document.getElementById('dash-solicitudes-pendientes').innerText = relevamientos.length; 
-            document.getElementById('dash-ordenes-aprobadas').innerText = Math.floor(totalFamilias * 0.7); 
-            document.getElementById('dash-entregas-reportes').innerText = relevamientos.length;
-        }
-
-        const tbodyDash = document.getElementById('dash-tabla-emergencias');
-        if (tbodyDash) {
-            if (relevamientos.length === 0) {
-                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay incidentes reportados</td></tr>`;
+            if (!respuesta.ok || !rel) {
+                mostrarNotificacion("No se encontró el relevamiento a editar.", "error");
+                // Asegurate de tener definida o importar la función que lista los relevamientos
+                // verListaRelevamientos(); 
                 return;
             }
+
+            const titulo = document.getElementById('titulo-form-relevamiento');
+            if (titulo) {
+                titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Configuración de Relevamiento`;
+            }
+
+            document.getElementById('r_id_edicion').value = rel.id_relevamiento || rel.id;
+
+            cargarDesplegablesUbicacion();
+            await cargarDesplegableRelevadores(); // Esperamos a que carguen los selectores
+
+            document.getElementById('r_barrio').value = rel.barrio || '';
+            document.getElementById('r_tipo_evento').value = rel.tipo_evento || '';
+            document.getElementById('r_solicitante').value = rel.solicitante || '';
+            document.getElementById('r_urgencia').value = rel.urgencia_general || '';
             
-            const ultimos = relevamientos.slice(-4).reverse();
-            tbodyDash.innerHTML = ultimos.map(r => `
-                <tr>
-                    <td><strong>${r.departamento}</strong> (${r.localidad})</td>
-                    <td>${r.tipo_evento}</td>
-                    <td><small>${r.relevador_asignado}</small></td>
-                    <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
-                </tr>
-            `).join('');
+            document.getElementById('r_departamento').value = rel.id_departamento || rel.departamento || '';
+            document.getElementById('r_localidad').value = rel.id_localidad || rel.localidad || '';
+            document.getElementById('r_relevador').value = rel.id_relevador || rel.relevador_assigned || '';
+
+            const form = document.getElementById('form-nuevo-relevamiento');
+            if (form) {
+                form.removeEventListener('submit', guardarRelevamientoGeneral);
+                form.addEventListener('submit', guardarRelevamientoGeneral);
+            }
+        } catch (error) {
+            console.error("Error al obtener los datos para la edición:", error);
+            mostrarNotificacion("Error al cargar los datos del relevamiento.", "error");
         }
     });
 }
 
-export function cargarTablaRelevamientos() {
+export async function verPanelPrincipal() {
+    cargarVistaDinamica('./frontend/pages/panel-principal.html', async () => {
+        try {
+            const respuesta = await fetch('/api/relevamientos');
+            const relevamientos = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(relevamientos.mensaje || 'Error al obtener los datos del panel.');
+            }
+
+            const listaRelevamientos = relevamientos || [];
+
+            const nuevos = listaRelevamientos.filter(r => r.estado === 'Nuevo' || !r.familias || r.familias.length === 0).length;
+            
+            let totalFamilias = 0;
+            listaRelevamientos.forEach(r => {
+                if (r.familias) totalFamilias += r.familias.length;
+            });
+
+            if (document.getElementById('dash-relevamientos-nuevos')) {
+                document.getElementById('dash-relevamientos-nuevos').innerText = nuevos;
+                document.getElementById('dash-familias-asistidas').innerText = totalFamilias;
+                
+                document.getElementById('dash-solicitudes-pendientes').innerText = listaRelevamientos.length; 
+                document.getElementById('dash-ordenes-aprobadas').innerText = Math.floor(totalFamilias * 0.7); 
+                document.getElementById('dash-entregas-reportes').innerText = listaRelevamientos.length;
+            }
+
+            const tbodyDash = document.getElementById('dash-tabla-emergencias');
+            if (tbodyDash) {
+                if (listaRelevamientos.length === 0) {
+                    tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay incidentes reportados</td></tr>`;
+                    return;
+                }
+                
+                const ultimos = listaRelevamientos.slice(-4).reverse();
+                tbodyDash.innerHTML = ultimos.map(r => `
+                    <tr>
+                        <td><strong>${r.departamento}</strong> (${r.localidad})</td>
+                        <td>${r.tipo_evento}</td>
+                        <td><small>${r.relevador_asignado || r.relevador_assigned || 'N/D'}</small></td>
+                        <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
+                    </tr>
+                `).join('');
+            }
+        } catch (error) {
+            console.error("Error al cargar los datos del panel principal:", error);
+        }
+    });
+}
+
+export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
-    try {
-        const data = Storage.getData();
-        const relevamientos = data.relevamientos || [];
+    // Mostramos un mensaje de carga mientras se conecta con la API
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
-        if (relevamientos.length === 0) {
+    try {
+        const respuesta = await fetch('/api/relevamientos');
+        const relevamientos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(relevamientos.mensaje || 'Error al obtener los datos.');
+        }
+
+        if (!relevamientos || relevamientos.length === 0) {
             tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No hay relevamientos registrados.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = relevamientos.map(r => `
             <tr>
-                <td>${r.id_relevamiento}</td>
-                <td>${r.fecha || 'N/D'}</td>
+                <td>${r.id_relevamiento || r.id}</td>
+                <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D'}</td>
                 <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
                 <td>${r.barrio || ''}</td>
                 <td>${r.tipo_evento || ''}</td>
@@ -164,7 +191,7 @@ export function cargarTablaRelevamientos() {
                 <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="window.verListaRelevamientos('${r.id_relevamiento}')" title="Ver detalle">
+                    <button class="btn btn-sm btn-outline-primary" onclick="window.verListaRelevamientos('${r.id_relevamiento || r.id}')" title="Ver detalle">
                         <i class="bi bi-eye"></i>
                     </button>
                 </td>
@@ -173,7 +200,7 @@ export function cargarTablaRelevamientos() {
 
     } catch (error) {
         console.error("Error al cargar la tabla de relevamientos:", error);
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al cargar los datos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al conectar con el servidor.</td></tr>`;
     }
 }
 
@@ -190,9 +217,54 @@ export function mostrarFormularioNuevoRelevamiento() {
         const form = document.getElementById('form-nuevo-relevamiento');
         if (form) {
             form.reset();
+            // Asignamos el evento submit para que Guarde/Cree en la BD
+            form.removeEventListener('submit', guardarRelevamientoGeneral);
+            form.addEventListener('submit', guardarRelevamientoGeneral);
         }
 
         cargarDesplegablesUbicacion();
         cargarDesplegableRelevadores();
     });
+}
+async function guardarRelevamientoGeneral(event) {
+    event.preventDefault();
+
+    const idEdicion = document.getElementById('r_id_edicion').value;
+    
+    const datosFormulario = {
+        departamento: document.getElementById('r_departamento').value,
+        localidad: document.getElementById('r_localidad').value,
+        tipo_evento: document.getElementById('r_tipo_evento').value,
+        relevador_assigned: document.getElementById('r_relevador').value,
+        urgencia_general: document.getElementById('r_urgencia').value,
+        barrio: document.getElementById('r_barrio').value,
+        solicitante: document.getElementById('r_solicitante').value
+    };
+
+    // Determinamos la URL y el método HTTP (POST para nuevo, PUT para actualizar)
+    const url = idEdicion ? `/api/relevamientos/${idEdicion}` : '/api/relevamientos';
+    const metodo = idEdicion ? 'PUT' : 'POST';
+
+    try {
+        const respuesta = await fetch(url, {
+            method: metodo,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datosFormulario)
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            mostrarNotificacion(resultado.mensaje || 'Operación realizada con éxito.', 'success');
+            // Aquí puedes redirigir a la lista si tienes la función configurada
+            // verListaRelevamientos();
+        } else {
+            mostrarNotificacion(resultado.mensaje || 'Error al procesar la solicitud.', 'error');
+        }
+    } catch (error) {
+        console.error('Error de red al intentar guardar:', error);
+        mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
+    }
 }
