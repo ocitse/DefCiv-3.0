@@ -141,9 +141,9 @@ export function verFichaNecesidades(idFamilia) {
 
 export function verListaRelevamientos(idRelevamiento) {
     window.idRelevamientoActivo = idRelevamiento;
-    cargarVistaDinamica('./frontend/pages/relevamientos-detalle.html', () => {
-        if (typeof inicializarDetalleRelevamiento === 'function') {
-            inicializarDetalleRelevamiento(idRelevamiento);
+    cargarVistaDinamica('./frontend/pages/tabla-relevamientos.html', () => {
+        if (typeof inicializarTablaRelevamiento === 'function') {
+            inicializarTablaRelevamiento(idRelevamiento);
         }
     });
 }
