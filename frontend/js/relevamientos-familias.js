@@ -138,3 +138,12 @@ export function verFichaNecesidades(idFamilia) {
         divTemporal.remove();
     });
 }
+
+export function verListaRelevamientos(idRelevamiento) {
+    window.idRelevamientoActivo = idRelevamiento;
+    cargarVistaDinamica('./vistas/relevamientos-detalle.html', () => {
+        if (typeof inicializarDetalleRelevamiento === 'function') {
+            inicializarDetalleRelevamiento(idRelevamiento);
+        }
+    });
+}
