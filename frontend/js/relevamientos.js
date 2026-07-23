@@ -1,23 +1,37 @@
 // frontend/js/relevamientos.js
 
-// 1. Importamos todas las funciones desde los tres módulos separados
+// 1. Importamos todas las funciones desde los tres módulos separados (incluyendo verListaRelevamientos)
 import { editarRelevamientoGeneral, verPanelPrincipal } from './relevamientos-general.js';
-import { eliminarFamiliar, verFichaNecesidades } from './relevamientos-familias.js';
+import { eliminarFamiliar, verFichaNecesidades, verListaRelevamientos } from './relevamientos-familias.js';
 import { agregarItemLista, eliminarItemLista, guardarDatosFamiliaDefinitivo, editarDatosFamilia } from './relevamientos-form.js';
 
-// 2. Las exponemos al objeto global window para que los eventos inline (onclick) y vistas HTML sigan funcionando sin cambios
+// Re-exportamos todas para que el index o el sistema principal las pueda importar
+export { 
+    editarRelevamientoGeneral, 
+    verPanelPrincipal, 
+    eliminarFamiliar, 
+    verFichaNecesidades, 
+    verListaRelevamientos, 
+    agregarItemLista, 
+    eliminarItemLista, 
+    guardarDatosFamiliaDefinitivo, 
+    editarDatosFamilia 
+};
+
+// 2. Las exponemos al objeto global window para los onclick inline del HTML
 if (typeof window !== 'undefined') {
     window.editarRelevamientoGeneral = editarRelevamientoGeneral;
     window.verPanelPrincipal = verPanelPrincipal;
     
     window.eliminarFamiliar = eliminarFamiliar;
     window.verFichaNecesidades = verFichaNecesidades;
+    window.verListaRelevamientos = verListaRelevamientos;
     
     window.agregarItemLista = agregarItemLista;
     window.eliminarItemLista = eliminarItemLista;
     window.guardarDatosFamiliaDefinitivo = guardarDatosFamiliaDefinitivo;
     window.editarDatosFamilia = editarDatosFamilia;
 
-    // Redirecciones y alias útiles que ya usabas
+    // Redirecciones y alias útiles
     window.regresarAListaFamilias = () => { if (window.idRelevamientoActivo && typeof ingresarARelevamiento === 'function') ingresarARelevamiento(window.idRelevamientoActivo); };
 }
