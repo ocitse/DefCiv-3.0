@@ -170,6 +170,8 @@ async function iniciarServidor() {
         // Asegurar que la tabla relevadores exista antes de que operen las rutas
         await asegurarTablaRelevadores();
 
+        await asegurarColumnasRelevamientos();
+
         await crearAdminPorDefecto();
 
         await asegurarTablaProvisiones();
@@ -182,5 +184,18 @@ async function iniciarServidor() {
         console.error('❌ ERROR CRÍTICO DE CONEXIÓN O ARRANQUE:', error);
     }
 }
-
+// Función para asegurar las columnas nuevas en la tabla relevamientos
+async function asegurarColumnasRelevamientos() {
+    try {
+        await sequelize.query(`
+            ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS codigo_relevamiento VARCHAR(255);
+            ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS prioridad VARCHAR(255) DEFAULT 'Baja';
+            ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS barrio VARCHAR(255);
+            ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS solicitante VARCHAR(255);
+        `, { type: QueryTypes.RAW });
+        console.log('✅ Verificación/Actualización de columnas en la tabla "relevamientos" completada.');
+    } catch (error) {
+        console.error('⚠️ Aviso al verificar columnas de relevamientos:', error.message);
+    }
+}
 iniciarServidor();
