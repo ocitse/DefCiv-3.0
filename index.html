@@ -144,11 +144,12 @@
     
     <script type="module">
         import { cargarModuloUsuarios } from './frontend/js/usuarios.js';
-        import { verPanelPrincipal, verListaRelevamientos } from './frontend/js/relevamientos.js';
+        import { verPanelPrincipal, verListaRelevamientos, editarRelevamientoGeneral } from './frontend/js/relevamientos.js';
         import { verListaSolicitudes } from './frontend/js/solicitudes.js';
         import { cargarVistaRelevadores } from './frontend/js/relevadores.js';
 
         document.addEventListener('DOMContentLoaded', () => {
+            window.editarRelevamientoGeneral = editarRelevamientoGeneral;
             const token = sessionStorage.getItem('token');
             const usuarioRaw = sessionStorage.getItem('usuario');
 

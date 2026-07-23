@@ -191,10 +191,10 @@ export async function cargarTablaRelevamientos() {
                 <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="window.verListaRelevamientos('${r.id_relevamiento || r.id}')" title="Ver detalle">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                </td>
+    <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
+        <i class="bi bi-eye"></i>
+    </button>
+</td>
             </tr>
         `).join('');
 
@@ -212,12 +212,11 @@ export function mostrarFormularioNuevoRelevamiento() {
         }
 
         const idEdicion = document.getElementById('r_id_edicion');
-        if (idEdicion) idEdicion.value = '';
+        if (idEdicion) idEdicion.value = ''; // <-- Vital para que no se duplique
 
         const form = document.getElementById('form-nuevo-relevamiento');
         if (form) {
             form.reset();
-            // Asignamos el evento submit para que Guarde/Cree en la BD
             form.removeEventListener('submit', guardarRelevamientoGeneral);
             form.addEventListener('submit', guardarRelevamientoGeneral);
         }
@@ -226,6 +225,7 @@ export function mostrarFormularioNuevoRelevamiento() {
         cargarDesplegableRelevadores();
     });
 }
+
 async function guardarRelevamientoGeneral(event) {
     event.preventDefault();
 
@@ -241,7 +241,6 @@ async function guardarRelevamientoGeneral(event) {
         solicitante: document.getElementById('r_solicitante').value
     };
 
-    // Determinamos la URL y el método HTTP (POST para nuevo, PUT para actualizar)
     const url = idEdicion ? `/api/relevamientos/${idEdicion}` : '/api/relevamientos';
     const metodo = idEdicion ? 'PUT' : 'POST';
 
@@ -258,8 +257,13 @@ async function guardarRelevamientoGeneral(event) {
 
         if (respuesta.ok) {
             mostrarNotificacion(resultado.mensaje || 'Operación realizada con éxito.', 'success');
-            // Aquí puedes redirigir a la lista si tienes la función configurada
-            // verListaRelevamientos();
+            
+            // Limpiamos el formulario y el ID de edición para evitar duplicados
+            document.getElementById('form-nuevo-relevamiento').reset();
+            document.getElementById('r_id_edicion').value = '';
+
+            // Redirigimos al listado principal (Asegurate de llamar a tu función que muestra la tabla/lista)
+            cargarTablaRelevamientos(); 
         } else {
             mostrarNotificacion(resultado.mensaje || 'Error al procesar la solicitud.', 'error');
         }
