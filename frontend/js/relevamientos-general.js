@@ -1,4 +1,4 @@
-import { cargarVistaDinamica, mostrarNotificacion } from './ui.js';
+import { cargarVistaDinamica, mostrarNotificacion } from './utils.js';
 import { departamentosYLocalidades } from './ubicaciones.js';
 
 function getBadgeUrgencia(urgencia) {
