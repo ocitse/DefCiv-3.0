@@ -1,6 +1,7 @@
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { departamentosYLocalidades } from './ubicaciones.js';
+import { Storage } from './storage.js'; // Ajusta la ruta si se llama diferente o está en otra carpeta
 
 function getBadgeUrgencia(urgencia) {
     if (urgencia === 'Alta') return 'bg-danger';
