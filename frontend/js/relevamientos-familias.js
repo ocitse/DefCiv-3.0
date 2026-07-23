@@ -1,4 +1,5 @@
-import { cargarVistaDinamica, mostrarNotificacion } from './ui.js';
+import { cargarVistaDinamica } from './utils.js';
+import { mostrarNotificacion } from './ui.js'; // (si también usas notificaciones en este módulo)
 
 export function eliminarFamiliar(idFamilia) {
     if (!confirm("¿Está seguro de que desea eliminar esta familia del registro de asistencia? Esta acción no se puede deshacer.")) {
