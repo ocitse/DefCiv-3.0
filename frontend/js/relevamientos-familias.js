@@ -1,5 +1,6 @@
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js'; // (si también usas notificaciones en este módulo)
+import { cargarTablaRelevamientos } from './relevamientos-general.js'; // <-- Agregá esta línea
 
 export function eliminarFamiliar(idFamilia) {
     if (!confirm("¿Está seguro de que desea eliminar esta familia del registro de asistencia? Esta acción no se puede deshacer.")) {
@@ -142,8 +143,10 @@ export function verFichaNecesidades(idFamilia) {
 export function verListaRelevamientos(idRelevamiento) {
     window.idRelevamientoActivo = idRelevamiento;
     cargarVistaDinamica('./frontend/pages/tabla-relevamientos.html', () => {
-        if (typeof inicializarTablaRelevamiento === 'function') {
-            inicializarTablaRelevamiento(idRelevamiento);
+        if (typeof cargarTablaRelevamientos === 'function') {
+            cargarTablaRelevamientos();
+        } else {
+            console.error("No se encontró la función cargarTablaRelevamientos");
         }
     });
 }

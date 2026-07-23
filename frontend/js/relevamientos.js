@@ -1,12 +1,13 @@
 // frontend/js/relevamientos.js
 
 // 1. Importamos todas las funciones desde los tres módulos separados (incluyendo verListaRelevamientos)
-import { editarRelevamientoGeneral, verPanelPrincipal } from './relevamientos-general.js';
+import { cargarTablaRelevamientos, editarRelevamientoGeneral, verPanelPrincipal } from './relevamientos-general.js';
 import { eliminarFamiliar, verFichaNecesidades, verListaRelevamientos } from './relevamientos-familias.js';
 import { agregarItemLista, eliminarItemLista, guardarDatosFamiliaDefinitivo, editarDatosFamilia } from './relevamientos-form.js';
 
 // Re-exportamos todas para que el index o el sistema principal las pueda importar
 export { 
+    cargarTablaRelevamientos,
     editarRelevamientoGeneral, 
     verPanelPrincipal, 
     eliminarFamiliar, 
@@ -20,6 +21,7 @@ export {
 
 // 2. Las exponemos al objeto global window para los onclick inline del HTML
 if (typeof window !== 'undefined') {
+    window.cargarTablaRelevamientos = cargarTablaRelevamientos;
     window.editarRelevamientoGeneral = editarRelevamientoGeneral;
     window.verPanelPrincipal = verPanelPrincipal;
     

@@ -139,3 +139,40 @@ export function verPanelPrincipal() {
         }
     });
 }
+
+export function cargarTablaRelevamientos() {
+    const tbody = document.getElementById('tabla-relevamientos-body');
+    if (!tbody) return;
+
+    try {
+        const data = Storage.getData();
+        const relevamientos = data.relevamientos || [];
+
+        if (relevamientos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No hay relevamientos registrados.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = relevamientos.map(r => `
+            <tr>
+                <td>${r.id_relevamiento}</td>
+                <td>${r.fecha || 'N/D'}</td>
+                <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
+                <td>${r.barrio || ''}</td>
+                <td>${r.tipo_evento || ''}</td>
+                <td>${r.solicitante || ''}</td>
+                <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
+                <td class="text-center">${r.familias ? r.familias.length : 0}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary" onclick="window.verListaRelevamientos('${r.id_relevamiento}')" title="Ver detalle">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error("Error al cargar la tabla de relevamientos:", error);
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al cargar los datos.</td></tr>`;
+    }
+}
