@@ -1,10 +1,22 @@
 // backend/controllers/relevamientocontroller.js
 import relevamiento from '../models/relevamiento.js';
 
+// Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-CEN-001-26)
+const generarCodigoRelevamiento = async (departamento, localidad) => {
+    const anioActual = '26'; // Año actual del proyecto
+    const dptoPrefix = departamento ? departamento.substring(0, 3).toUpperCase() : 'DEP';
+    const locPrefix = localidad ? localidad.substring(0, 3).toUpperCase() : 'LOC';
+    
+    // Contamos cuántos registros hay para calcular el próximo número correlativo
+    const totalRegistros = await relevamiento.count();
+    const correlativo = String(totalRegistros + 1).padStart(3, '0');
+    
+    return `${dptoPrefix}-${locPrefix}-${correlativo}-${anioActual}`;
+};
+
 // 1. OBTENER TODOS LOS RELEVAMIENTOS
 export const obtenerrelevamientos = async (req, res) => {
     try {
-        // .findAll() es el equivalente a "SELECT * FROM relevamientos"
         const relevamientos = await relevamiento.findAll();
         res.json(relevamientos);
     } catch (error) {
@@ -16,22 +28,38 @@ export const obtenerrelevamientos = async (req, res) => {
 // 2. CREAR UN NUEVO RELEVAMIENTO
 export const crearrelevamiento = async (req, res) => {
     try {
-        // Desestructuramos los datos que vienen desde el formulario del frontend
-        const { departamento, localidad, tipo_evento, relevador_assigned, urgencia_general } = req.body;
+        const { 
+            departamento, 
+            localidad, 
+            barrio, 
+            tipo_evento, 
+            otro_evento, 
+            solicitante, 
+            relevador_asignado, 
+            prioridad 
+        } = req.body;
 
-        // Validamos que los campos obligatorios existan
-        if (!departamento || !localidad || !tipo_evento || !relevador_assigned) {
+        // Validamos campos obligatorios básicos
+        if (!departamento || !localidad || !tipo_evento || !solicitante || !relevador_asignado) {
             return res.status(400).json({ mensaje: 'Todos los campos obligatorios deben ser completados.' });
         }
 
-        // .create() inserta el registro de manera nativa en MySQL
+        // Si seleccionó "Otro" en el evento, usamos el valor del input adicional
+        const eventoFinal = tipo_evento === 'Otro' && otro_evento ? otro_evento : tipo_evento;
+
+        // Generamos el código visible automático
+        const codigo_relevamiento = await generarCodigoRelevamiento(departamento, localidad);
+
         const nuevorelevamiento = await relevamiento.create({
+            codigo_relevamiento,
             departamento,
             localidad,
-            tipo_evento,
-            relevador_asignado: relevador_assigned, // Mapeamos al nombre de la columna en la BD
-            urgencia_general,
-            estado: 'Nuevo' // Estado inicial por defecto
+            barrio: barrio || null,
+            tipo_evento: eventoFinal,
+            solicitante,
+            relevador_asignado,
+            prioridad: prioridad || 'Baja', // Por defecto Baja como pediste
+            estado: 'nuevo'
         });
 
         res.status(201).json({
@@ -65,21 +93,36 @@ export const obtenerRelevamientoPorId = async (req, res) => {
 export const actualizarRelevamiento = async (req, res) => {
     try {
         const { id } = req.params;
-        const { departamento, localidad, tipo_evento, relevador_assigned, urgencia_general, barrio, solicitante } = req.body;
+        const { 
+            departamento, 
+            localidad, 
+            barrio, 
+            tipo_evento, 
+            otro_evento, 
+            solicitante, 
+            relevador_asignado, 
+            prioridad, 
+            estado,
+            observaciones 
+        } = req.body;
 
         const rel = await relevamiento.findByPk(id);
         if (!rel) {
             return res.status(404).json({ mensaje: 'No se encontró el relevamiento a actualizar.' });
         }
 
+        const eventoFinal = tipo_evento === 'Otro' && otro_evento ? otro_evento : tipo_evento;
+
         await rel.update({
-            departamento,
-            localidad,
-            tipo_evento,
-            relevador_asignado: relevador_assigned,
-            urgencia_general,
-            barrio,
-            solicitante
+            departamento: departamento || rel.departamento,
+            localidad: localidad || rel.localidad,
+            barrio: barrio !== undefined ? barrio : rel.barrio,
+            tipo_evento: eventoFinal || rel.tipo_evento,
+            solicitante: solicitante || rel.solicitante,
+            relevador_asignado: relevador_asignado || rel.relevador_asignado,
+            prioridad: prioridad || rel.prioridad,
+            estado: estado || rel.estado,
+            observaciones: observaciones !== undefined ? observaciones : rel.observaciones
         });
 
         res.json({
@@ -91,4 +134,3 @@ export const actualizarRelevamiento = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al actualizar el relevamiento.' });
     }
 };
-
