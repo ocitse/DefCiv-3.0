@@ -1,7 +1,7 @@
 // frontend/js/relevamientos.js
 
-// 1. Importamos todas las funciones desde los tres módulos separados (incluyendo verListaRelevamientos)
-import { cargarTablaRelevamientos, editarRelevamientoGeneral, verPanelPrincipal } from './relevamientos-general.js';
+// 1. Importamos todas las funciones desde los tres módulos separados (incluyendo mostrarFormularioNuevoRelevamiento)
+import { cargarTablaRelevamientos, editarRelevamientoGeneral, verPanelPrincipal, mostrarFormularioNuevoRelevamiento } from './relevamientos-general.js';
 import { eliminarFamiliar, verFichaNecesidades, verListaRelevamientos } from './relevamientos-familias.js';
 import { agregarItemLista, eliminarItemLista, guardarDatosFamiliaDefinitivo, editarDatosFamilia } from './relevamientos-form.js';
 
@@ -10,6 +10,7 @@ export {
     cargarTablaRelevamientos,
     editarRelevamientoGeneral, 
     verPanelPrincipal, 
+    mostrarFormularioNuevoRelevamiento,
     eliminarFamiliar, 
     verFichaNecesidades, 
     verListaRelevamientos, 
@@ -24,6 +25,7 @@ if (typeof window !== 'undefined') {
     window.cargarTablaRelevamientos = cargarTablaRelevamientos;
     window.editarRelevamientoGeneral = editarRelevamientoGeneral;
     window.verPanelPrincipal = verPanelPrincipal;
+    window.mostrarFormularioNuevoRelevamiento = mostrarFormularioNuevoRelevamiento;
     
     window.eliminarFamiliar = eliminarFamiliar;
     window.verFichaNecesidades = verFichaNecesidades;

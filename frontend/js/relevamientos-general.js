@@ -176,3 +176,23 @@ export function cargarTablaRelevamientos() {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al cargar los datos.</td></tr>`;
     }
 }
+
+export function mostrarFormularioNuevoRelevamiento() {
+    cargarVistaDinamica('./frontend/pages/form-relevamiento.html', () => {
+        const titulo = document.getElementById('titulo-form-relevamiento');
+        if (titulo) {
+            titulo.innerHTML = `<i class="bi bi-plus-circle-fill text-primary me-2"></i> Nuevo Relevamiento`;
+        }
+
+        const idEdicion = document.getElementById('r_id_edicion');
+        if (idEdicion) idEdicion.value = '';
+
+        const form = document.getElementById('form-nuevo-relevamiento');
+        if (form) {
+            form.reset();
+        }
+
+        cargarDesplegablesUbicacion();
+        cargarDesplegableRelevadores();
+    });
+}
