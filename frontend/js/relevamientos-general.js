@@ -74,7 +74,7 @@ export function editarRelevamientoGeneral(idRelevamiento) {
             if (!respuesta.ok || !rel) {
                 mostrarNotificacion("No se encontró el relevamiento a editar.", "error");
                 // Asegurate de tener definida o importar la función que lista los relevamientos
-                // verListaRelevamientos(); 
+                verListaRelevamientos(); 
                 return;
             }
 
@@ -262,8 +262,13 @@ async function guardarRelevamientoGeneral(event) {
             document.getElementById('form-nuevo-relevamiento').reset();
             document.getElementById('r_id_edicion').value = '';
 
-            // Redirigimos al listado principal (Asegurate de llamar a tu función que muestra la tabla/lista)
-            cargarTablaRelevamientos(); 
+            // CAMBIAR ESTO: En lugar de cargar la tabla sola, volvemos a la vista del listado de relevamientos
+            if (typeof verListaRelevamientos === 'function') {
+                verListaRelevamientos();
+            } else {
+                // Alternativa por si se importa desde otro módulo
+                cargarTablaRelevamientos(); 
+            }
         } else {
             mostrarNotificacion(resultado.mensaje || 'Error al procesar la solicitud.', 'error');
         }
