@@ -3,9 +3,9 @@ import { mostrarNotificacion } from './ui.js';
 import { departamentosYLocalidades } from './ubicaciones.js';
 import { Storage } from './storage.js'; // Ajusta la ruta si se llama diferente o está en otra carpeta
 
-function getBadgeUrgencia(urgencia) {
-    if (urgencia === 'Alta') return 'bg-danger';
-    if (urgencia === 'Media') return 'bg-warning text-dark';
+function getBadgePrioridad(prioridad) {
+    if (prioridad === 'Alta') return 'bg-danger';
+    if (prioridad === 'Media') return 'bg-warning text-dark';
     return 'bg-success';
 }
 
@@ -88,13 +88,19 @@ export function editarRelevamientoGeneral(idRelevamiento) {
             cargarDesplegablesUbicacion();
             await cargarDesplegableRelevadores(); // Esperamos a que carguen los selectores
 
+            // CORREGIDO: Seteamos departamento y forzamos onchange para que carguen las localidades correspondientes
+            const selectDep = document.getElementById('r_departamento');
+            if (selectDep) {
+                selectDep.value = rel.departamento || '';
+                if (selectDep.onchange) selectDep.onchange({ target: selectDep });
+            }
+
             // 2. Asignar el resto de los campos correctamente alineados con los nombres del backend
             document.getElementById('r_localidad').value = rel.localidad || '';
             document.getElementById('r_barrio').value = rel.barrio || '';
             document.getElementById('r_tipo_evento').value = rel.tipo_evento || '';
             document.getElementById('r_solicitante').value = rel.solicitante || '';
-            document.getElementById('r_urgencia').value = rel.urgencia_general || '';
-            document.getElementById('r_urgencia').value = rel.urgencia_general || '';
+            document.getElementById('r_prioridad').value = rel.prioridad || 'Baja'; // CORREGIDO: Apunta a 'prioridad'
             document.getElementById('r_relevador').value = rel.relevador_asignado || ''; // <-- Corregido para leer relevador_asignado
 
             const form = document.getElementById('form-nuevo-relevamiento');
@@ -131,7 +137,6 @@ export async function verPanelPrincipal() {
             if (document.getElementById('dash-relevamientos-nuevos')) {
                 document.getElementById('dash-relevamientos-nuevos').innerText = nuevos;
                 document.getElementById('dash-familias-asistidas').innerText = totalFamilias;
-                
                 document.getElementById('dash-solicitudes-pendientes').innerText = listaRelevamientos.length; 
                 document.getElementById('dash-ordenes-aprobadas').innerText = Math.floor(totalFamilias * 0.7); 
                 document.getElementById('dash-entregas-reportes').innerText = listaRelevamientos.length;
@@ -150,7 +155,7 @@ export async function verPanelPrincipal() {
                         <td><strong>${r.departamento}</strong> (${r.localidad})</td>
                         <td>${r.tipo_evento}</td>
                         <td><small>${r.relevador_asignado || r.relevador_assigned || 'N/D'}</small></td>
-                        <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
+                        <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
                     </tr>
                 `).join('');
             }
@@ -187,7 +192,7 @@ export async function cargarTablaRelevamientos() {
                 <td>${r.barrio || ''}</td>
                 <td>${r.tipo_evento || ''}</td>
                 <td>${r.solicitante || ''}</td>
-                <td><span class="badge ${getBadgeUrgencia(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
+                <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
@@ -236,7 +241,6 @@ async function guardarRelevamientoGeneral(event) {
         barrio: document.getElementById('r_barrio')?.value || '',
         tipo_evento: document.getElementById('r_tipo_evento').value,
         solicitante: document.getElementById('r_solicitante')?.value || '',
-        urgencia_general: document.getElementById('r_urgencia').value,
         prioridad: document.getElementById('r_prioridad')?.value || 'Baja',
         relevador_asignado: document.getElementById('r_relevador').value // <-- Cambiado de relevador_assigned a relevador_asignado
     };
