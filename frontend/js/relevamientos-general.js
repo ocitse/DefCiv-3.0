@@ -193,6 +193,7 @@ export async function cargarTablaRelevamientos() {
                 <td>${r.tipo_evento || ''}</td>
                 <td>${r.solicitante || ''}</td>
                 <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
+                <td>${r.relevador_asignado || 'Sin asignar'}</td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
@@ -204,7 +205,7 @@ export async function cargarTablaRelevamientos() {
 
     } catch (error) {
         console.error("Error al cargar la tabla de relevamientos:", error);
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al conectar con el servidor.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger py-4">Error al conectar con el servidor.</td></tr>`;
     }
 }
 
