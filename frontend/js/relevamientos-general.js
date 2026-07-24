@@ -233,12 +233,12 @@ async function guardarRelevamientoGeneral(event) {
     const datosFormulario = {
         departamento: document.getElementById('r_departamento').value,
         localidad: document.getElementById('r_localidad').value,
-        barrio: document.getElementById('r_barrio').value,
+        barrio: document.getElementById('r_barrio')?.value || '',
         tipo_evento: document.getElementById('r_tipo_evento').value,
-        solicitante: document.getElementById('r_solicitante').value,
+        solicitante: document.getElementById('r_solicitante')?.value || '',
         urgencia_general: document.getElementById('r_urgencia').value,
-        prioridad: document.getElementById('r_prioridad') ? document.getElementById('r_prioridad').value : 'Baja',
-        relevador_assigned: document.getElementById('r_relevador').value
+        prioridad: document.getElementById('r_prioridad')?.value || 'Baja',
+        relevador_asignado: document.getElementById('r_relevador').value // <-- Cambiado de relevador_assigned a relevador_asignado
     };
     console.log("Enviando datos al backend:", JSON.stringify(datosFormulario));
 
