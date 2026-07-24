@@ -88,14 +88,14 @@ export function editarRelevamientoGeneral(idRelevamiento) {
             cargarDesplegablesUbicacion();
             await cargarDesplegableRelevadores(); // Esperamos a que carguen los selectores
 
+            // 2. Asignar el resto de los campos correctamente alineados con los nombres del backend
+            document.getElementById('r_localidad').value = rel.localidad || '';
             document.getElementById('r_barrio').value = rel.barrio || '';
             document.getElementById('r_tipo_evento').value = rel.tipo_evento || '';
             document.getElementById('r_solicitante').value = rel.solicitante || '';
             document.getElementById('r_urgencia').value = rel.urgencia_general || '';
-            
-            document.getElementById('r_departamento').value = rel.id_departamento || rel.departamento || '';
-            document.getElementById('r_localidad').value = rel.id_localidad || rel.localidad || '';
-            document.getElementById('r_relevador').value = rel.id_relevador || rel.relevador_assigned || '';
+            document.getElementById('r_prioridad').value = rel.prioridad || 'Baja'; // <-- Agregado para que tome la prioridad
+            document.getElementById('r_relevador').value = rel.relevador_asignado || ''; // <-- Corregido para leer relevador_asignado
 
             const form = document.getElementById('form-nuevo-relevamiento');
             if (form) {
