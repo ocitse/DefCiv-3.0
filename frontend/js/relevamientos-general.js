@@ -271,6 +271,7 @@ async function guardarRelevamientoGeneral(event) {
                 cargarTablaRelevamientos(); 
             }
         } else {
+            console.log("Detalle del error del backend:", resultado);
             mostrarNotificacion(resultado.mensaje || 'Error al procesar la solicitud.', 'error');
         }
     } catch (error) {
