@@ -240,6 +240,7 @@ async function guardarRelevamientoGeneral(event) {
         prioridad: document.getElementById('r_prioridad') ? document.getElementById('r_prioridad').value : 'Baja',
         relevador_assigned: document.getElementById('r_relevador').value
     };
+    console.log("Enviando datos al backend:", JSON.stringify(datosFormulario));
 
     const url = idEdicion ? `/api/relevamientos/${idEdicion}` : '/api/relevamientos';
     const metodo = idEdicion ? 'PUT' : 'POST';
