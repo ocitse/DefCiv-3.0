@@ -271,8 +271,8 @@ async function guardarRelevamientoGeneral(event) {
                 cargarTablaRelevamientos(); 
             }
         } else {
-            console.log("Detalle del error del backend:", resultado);
-            mostrarNotificacion(resultado.mensaje || 'Error al procesar la solicitud.', 'error');
+            console.warn("Detalle del error del backend:", resultado);
+            mostrarNotificacion(resultado.mensaje || resultado.error || 'Error al procesar la solicitud.', 'error');
         }
     } catch (error) {
         console.error('Error de red al intentar guardar:', error);
