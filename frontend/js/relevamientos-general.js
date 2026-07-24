@@ -233,11 +233,12 @@ async function guardarRelevamientoGeneral(event) {
     const datosFormulario = {
         departamento: document.getElementById('r_departamento').value,
         localidad: document.getElementById('r_localidad').value,
-        tipo_evento: document.getElementById('r_tipo_evento').value,
-        relevador_assigned: document.getElementById('r_relevador').value,
-        urgencia_general: document.getElementById('r_urgencia').value,
         barrio: document.getElementById('r_barrio').value,
-        solicitante: document.getElementById('r_solicitante').value
+        tipo_evento: document.getElementById('r_tipo_evento').value,
+        solicitante: document.getElementById('r_solicitante').value,
+        urgencia_general: document.getElementById('r_urgencia').value,
+        prioridad: document.getElementById('r_prioridad') ? document.getElementById('r_prioridad').value : 'Baja',
+        relevador_assigned: document.getElementById('r_relevador').value
     };
 
     const url = idEdicion ? `/api/relevamientos/${idEdicion}` : '/api/relevamientos';
