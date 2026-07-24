@@ -187,7 +187,7 @@ export async function cargarTablaRelevamientos() {
                 <td>${r.barrio || ''}</td>
                 <td>${r.tipo_evento || ''}</td>
                 <td>${r.solicitante || ''}</td>
-                <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
+                <td><span class="badge ${getBadgeUrgencia(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
