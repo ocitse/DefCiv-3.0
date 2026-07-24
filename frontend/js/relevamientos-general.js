@@ -164,7 +164,6 @@ export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
-    // Mostramos un mensaje de carga mientras se conecta con la API
     tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
@@ -182,7 +181,7 @@ export async function cargarTablaRelevamientos() {
 
         tbody.innerHTML = relevamientos.map(r => `
             <tr>
-                <td>${r.id_relevamiento || r.id}</td>
+                <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
                 <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D'}</td>
                 <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
                 <td>${r.barrio || ''}</td>
@@ -191,10 +190,10 @@ export async function cargarTablaRelevamientos() {
                 <td><span class="badge ${getBadgeUrgencia(r.urgencia_general)}">${r.urgencia_general}</span></td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
-    <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
-        <i class="bi bi-eye"></i>
-    </button>
-</td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
 

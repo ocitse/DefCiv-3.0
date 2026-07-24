@@ -1,6 +1,5 @@
 import { mostrarNotificacion } from './ui.js';
 
-let listaTemporalMedicamentos = [];
 let listaTemporalMateriales = [];
 
 function renderizarListaVisual(tipo, arreglo) {
@@ -38,13 +37,8 @@ export function agregarItemLista(tipo) {
 
     const nuevoItem = { nombre, cantidad };
 
-    if (tipo === 'med') {
-        listaTemporalMedicamentos.push(nuevoItem);
-        renderizarListaVisual('med', listaTemporalMedicamentos);
-    } else {
-        listaTemporalMateriales.push(nuevoItem);
-        renderizarListaVisual('mat', listaTemporalMateriales);
-    }
+    listaTemporalMateriales.push(nuevoItem);
+    renderizarListaVisual('mat', listaTemporalMateriales);
 
     inputItem.value = "";
     inputCant.value = "";
@@ -52,13 +46,8 @@ export function agregarItemLista(tipo) {
 }
 
 export function eliminarItemLista(tipo, index) {
-    if (tipo === 'med') {
-        listaTemporalMedicamentos.splice(index, 1);
-        renderizarListaVisual('med', listaTemporalMedicamentos);
-    } else {
-        listaTemporalMateriales.splice(index, 1);
-        renderizarListaVisual('mat', listaTemporalMateriales);
-    }
+    listaTemporalMateriales.splice(index, 1);
+    renderizarListaVisual('mat', listaTemporalMateriales);
 }
 
 export function guardarDatosFamiliaDefinitivo(e) {
@@ -108,7 +97,6 @@ export function guardarDatosFamiliaDefinitivo(e) {
                 ropa_cant: parseInt(document.getElementById('f_need_ropa').value) || 0,
                 colchones_cant: parseInt(document.getElementById('f_need_colchones').value) || 0,
                 
-                medicamentos_lista: listaTemporalMedicamentos || [],
                 materiales_lista: listaTemporalMateriales || []
             },
             observaciones: document.getElementById('f_observaciones').value.trim()
