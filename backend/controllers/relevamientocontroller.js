@@ -1,5 +1,6 @@
 // backend/controllers/relevamientocontroller.js
 import relevamiento from '../models/relevamiento.js';
+import Relevador from '../models/relevador.js';
 
 // Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-CEN-001-26)
 const generarCodigoRelevamiento = async (departamento, localidad) => {
@@ -11,13 +12,20 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
     const totalRegistros = await relevamiento.count();
     const correlativo = String(totalRegistros + 1).padStart(3, '0');
     
-    return `${dptoPrefix}-${locPrefix}-${correlativo}-${anioActual}`;
+    return `${dptoPrefix}${locPrefix}${correlativo}-${anioActual}`;
 };
 
 // 1. OBTENER TODOS LOS RELEVAMIENTOS
 export const obtenerrelevamientos = async (req, res) => {
     try {
-        const relevamientos = await relevamiento.findAll();
+        const relevamientos = await relevamiento.findAll({
+            include: [{
+                model: Relevador,
+                as: 'relevador', // Asegurate de que el alias coincida con el que definiste en la asociación del modelo
+                attributes: ['nombre'] // Traemos solamente el nombre
+            }],
+            order: [['createdAt', 'DESC']]
+        });
         res.json(relevamientos);
     } catch (error) {
         console.error('Error al obtener relevamientos:', error);
