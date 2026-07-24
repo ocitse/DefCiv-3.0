@@ -94,7 +94,7 @@ export function editarRelevamientoGeneral(idRelevamiento) {
             document.getElementById('r_tipo_evento').value = rel.tipo_evento || '';
             document.getElementById('r_solicitante').value = rel.solicitante || '';
             document.getElementById('r_urgencia').value = rel.urgencia_general || '';
-            document.getElementById('r_prioridad').value = rel.prioridad || 'Baja'; // <-- Agregado para que tome la prioridad
+            document.getElementById('r_urgencia').value = rel.urgencia_general || '';
             document.getElementById('r_relevador').value = rel.relevador_asignado || ''; // <-- Corregido para leer relevador_asignado
 
             const form = document.getElementById('form-nuevo-relevamiento');
