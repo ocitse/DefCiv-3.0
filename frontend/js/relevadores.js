@@ -19,7 +19,7 @@ export async function cargarVistaRelevadores() {
 
         tbody.innerHTML = lista.map(rev => `
             <tr>
-                <td>#${rev.id}</td>
+                <td><span class="badge bg-dark">${rev.codigo_relevador}</span></td>
                 <td class="fw-semibold">${rev.nombre}</td>
                 <td>${rev.dni || '-'}</td>
                 <td>${rev.email || '-'}</td>
@@ -87,6 +87,8 @@ export async function guardarNuevoRelevador() {
     const nombreInput = document.getElementById('rev-nombre');
     const dniInput = document.getElementById('rev-dni');
     const emailInput = document.getElementById('rev-email');
+    const telefonoInput = document.getElementById('rev-telefono');
+    const zonaInput = document.getElementById('rev-zona');
     
     // Buscar el botón de guardar en el modal para bloquearlo momentáneamente
     const btnGuardar = document.querySelector('#modalNuevoRelevador .btn-primary');
@@ -96,6 +98,8 @@ export async function guardarNuevoRelevador() {
     const nombre = nombreInput.value.trim();
     const dni = dniInput.value.trim();
     const email = emailInput ? emailInput.value.trim() : '';
+    const telefono = telefonoInput ? telefonoInput.value.trim() : '';
+    const zona_asignada = zonaInput ? zonaInput.value.trim() : '';
 
     if (!nombre || !dni) {
         mostrarNotificacion("Complete los campos obligatorios (Nombre y DNI).", "error");
@@ -111,7 +115,7 @@ export async function guardarNuevoRelevador() {
         const respuesta = await fetch('/api/relevadores', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, dni, email })
+            body: JSON.stringify({ nombre, dni, email, telefono, zona_asignada })
         });
         const resultado = await respuesta.json();
 

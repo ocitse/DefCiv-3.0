@@ -4,6 +4,22 @@ import sequelize from '../config/database.js';
 
 const router = express.Router();
 
+// Función auxiliar para generar el código del relevador
+function generarCodigoOperario(nombreCompleto, dni) {
+    const partes = nombreCompleto.trim().split(/\s+/);
+    const nombre = partes[0] || '';
+    const apellido = partes.length > 1 ? partes[partes.length - 1] : '';
+
+    const inicialApellido = apellido.charAt(0).toUpperCase();
+    const inicialNombre = nombre.charAt(0).toUpperCase();
+    const ultimosDni = dni.slice(-4);
+
+    return `${inicialApellido}${inicialNombre}${ultimosDni}`;
+}
+
+
+
+
 // GET /api/relevadores - Listar relevadores activos (Para selectores/desplegables)
 router.get('/', async (req, res) => {
     try {
