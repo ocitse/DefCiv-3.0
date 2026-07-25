@@ -4,6 +4,16 @@ import sequelize from '../config/database.js';
 
 const router = express.Router();
 
+// Autoejecución al cargar el módulo para asegurar que la columna exista en Render (PostgreSQL)
+(async () => {
+    try {
+        await sequelize.query('ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS codigo_relevador VARCHAR(20);');
+        console.log('✅ Verificación de esquema: columna codigo_relevador asegurada.');
+    } catch (e) {
+        // Ignora si ya existe o si la tabla todavía se está creando
+    }
+})();
+
 // Función auxiliar para generar el código del relevador
 function generarCodigoOperario(nombreCompleto, dni) {
     const partes = nombreCompleto.trim().split(/\s+/);
@@ -16,9 +26,6 @@ function generarCodigoOperario(nombreCompleto, dni) {
 
     return `${inicialApellido}${inicialNombre}${ultimosDni}`;
 }
-
-
-
 
 // GET /api/relevadores - Listar relevadores activos (Para selectores/desplegables)
 router.get('/', async (req, res) => {
@@ -87,10 +94,13 @@ router.post('/', async (req, res) => {
             });
         }
 
+        // Generar el código de forma automática
+        const codigo_relevador = generarCodigoOperario(nombre, dni);
+
         const resultado = await sequelize.query(
-            'INSERT INTO relevadores (nombre, dni, email, activo) VALUES (?, ?, ?, 1)',
+            'INSERT INTO relevadores (codigo_relevador, nombre, dni, email, activo) VALUES (?, ?, ?, ?, 1)',
             { 
-                replacements: [nombre, dni, email || null],
+                replacements: [codigo_relevador, nombre, dni, email || null],
                 type: QueryTypes.INSERT 
             }
         );
@@ -104,7 +114,8 @@ router.post('/', async (req, res) => {
         console.error('Error al insertar el relevador:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Error al registrar el relevador en la base de datos' 
+            message: 'Error al registrar el relevador en la base de datos',
+            detalle: error.message
         });
     }
 });
