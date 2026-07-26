@@ -167,17 +167,16 @@ async function iniciarServidor() {
         await sequelize.authenticate();
         console.log('✅ Conexión a la base de datos establecida.');
         
+        // Asegurar que la tabla relevadores exista antes de que operen las rutas
+        await asegurarTablaRelevadores();
+        await asegurarColumnasRelevamientos();
+        await crearAdminPorDefecto();
+        await asegurarTablaProvisiones();
+
         await sequelize.sync();
         console.log('✅ Sincronización de modelos completada.');
 
-        // Asegurar que la tabla relevadores exista antes de que operen las rutas
-        await asegurarTablaRelevadores();
-
-        await asegurarColumnasRelevamientos();
-
         await crearAdminPorDefecto();
-
-        await asegurarTablaProvisiones();
 
         app.listen(PORT, () => {
             console.log(`📡 Servidor corriendo en el puerto ${PORT}`);
