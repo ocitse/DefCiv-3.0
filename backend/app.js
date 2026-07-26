@@ -97,8 +97,11 @@ async function asegurarTablaRelevadores() {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- Agregamos la columna telefono si todavía no existe en la base de datos de Render
+            ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(50);
         `, { type: QueryTypes.RAW });
-        console.log('✅ Verificación/Creación de la tabla "relevadores" completada.');
+        console.log('✅ Verificación/Creación de la tabla "relevadores" y sus columnas completada.');
     } catch (error) {
         console.error('⚠️ Aviso al verificar la tabla relevadores:', error.message);
     }
