@@ -19,6 +19,11 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 export const obtenerrelevamientos = async (req, res) => {
     try {
         const relevamientos = await relevamiento.findAll({
+            include: [{
+                model: Relevador,
+                as: 'relevador',
+                attributes: ['nombre']
+            }],
             order: [['createdAt', 'DESC']]
         });
         res.json(relevamientos);
