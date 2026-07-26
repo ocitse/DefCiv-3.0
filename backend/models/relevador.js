@@ -41,8 +41,8 @@ const Relevador = sequelize.define('Relevador', {
 }, {
     tableName: 'relevadores',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 });
 
 export default Relevador;
