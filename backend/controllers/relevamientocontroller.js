@@ -19,11 +19,6 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 export const obtenerrelevamientos = async (req, res) => {
     try {
         const relevamientos = await relevamiento.findAll({
-            include: [{
-                model: Relevador,
-                as: 'relevador', // Asegurate de que el alias coincida con el que definiste en la asociación del modelo
-                attributes: ['nombre'] // Traemos solamente el nombre
-            }],
             order: [['createdAt', 'DESC']]
         });
         res.json(relevamientos);

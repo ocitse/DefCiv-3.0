@@ -15,7 +15,7 @@ const router = express.Router();
 })();
 
 // Función auxiliar para generar el código del relevador
-function generarCodigoOperario(nombreCompleto, dni) {
+function generarCodigoRelevador(nombreCompleto, dni) {
     const partes = nombreCompleto.trim().split(/\s+/);
     const nombre = partes[0] || '';
     const apellido = partes.length > 1 ? partes[partes.length - 1] : '';
