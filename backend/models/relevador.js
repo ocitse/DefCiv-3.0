@@ -40,9 +40,10 @@ const Relevador = sequelize.define('Relevador', {
     }
 }, {
     tableName: 'relevadores',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    timestamps: false  // <-- Apaga los timestamps por completo para que no busque columnas que no existen
+    //timestamps: true,
+    //createdAt: 'created_at',
+    //updatedAt: 'updated_at'
 });
 
 export default Relevador;
