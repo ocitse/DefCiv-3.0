@@ -15,48 +15,49 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
     return `${dptoPrefix}${locPrefix}${correlativo}-${anioActual}`;
 };
 
-// 1. OBTENER TODOS LOS RELEVAMIENTOS (Con limpieza automática de datos sucios en BD)
+// 1. OBTENER TODOS LOS RELEVAMIENTOS Y LIMPIAR DATOS SUCIOS
 export const obtenerrelevamientos = async (req, res) => {
     try {
-        // Traemos todos los relevadores para tener el mapa ID <-> Nombre
+        // Traemos todos los relevadores para armar los diccionarios de mapeo
         const relevadores = await Relevador.findAll();
         const mapaNombreAId = {};
         const mapaIdANombre = {};
 
         relevadores.forEach(rev => {
-            mapaNombreAId[rev.nombre.trim().toLowerCase()] = rev.id;
-            mapaIdANombre[rev.id] = rev.nombre;
+            if (rev.nombre) {
+                mapaNombreAId[rev.nombre.trim().toLowerCase()] = String(rev.id);
+                mapaIdANombre[String(rev.id)] = rev.nombre;
+            }
         });
 
-        // Traemos los relevamientos
-        const relevamientos = await relevamiento.findAll({
+        // Traemos los relevamientos ordenados
+        const listaRelevamientos = await relevamiento.findAll({
             order: [['createdAt', 'DESC']]
         });
 
-        // Limpieza de datos sucios: si algún registro tiene un nombre en texto en lugar de ID, lo actualizamos en la BD
-        for (let rel of relevamientos) {
-            const valorActual = String(rel.relevador_asignado || '').trim();
-            
-            // Si el valor actual es un nombre (ej: "Juan Pérez") y no un número de ID
+        const relevamientosFinales = [];
+
+        for (let rel of listaRelevamientos) {
+            let relJSON = rel.toJSON();
+            let valorActual = String(relJSON.relevador_asignado || '').trim();
+
+            // Si el valor guardado es un nombre en texto, lo convertimos al ID correspondiente para limpiar la BD
             if (isNaN(valorActual) && mapaNombreAId[valorActual.toLowerCase()]) {
                 const idCorrespondiente = mapaNombreAId[valorActual.toLowerCase()];
-                // Actualizamos directamente en la base de datos para limpiar la tabla
-                rel.relevador_asignado = String(idCorrespondiente);
-                await rel.save();
+                rel.relevador_asignado = idCorrespondiente;
+                await rel.save(); // Limpieza permanente en la base de datos
+                relJSON.relevador_asignado = mapaIdANombre[idCorrespondiente];
+            } else {
+                // Si ya es un ID o un número, lo traducimos directamente a su nombre legible
+                relJSON.relevador_asignado = mapaIdANombre[valorActual] || valorActual || 'Sin asignar';
             }
-        }
 
-        // Volvemos a consultar ya limpios o mapeamos directamente para devolver los nombres al frontend
-        const relevamientosFinales = relevamientos.map(rel => {
-            const relJSON = rel.toJSON();
-            const idRev = relJSON.relevador_asignado;
-            relJSON.relevador_asignado = mapaIdANombre[idRev] || idRev; // Reemplaza el ID por el nombre humano para la vista
-            return relJSON;
-        });
+            relevamientosFinales.push(relJSON);
+        }
 
         res.json(relevamientosFinales);
     } catch (error) {
-        console.error('Error al obtener y limpiar relevamientos:', error);
+        console.error('Error detallado al obtener y limpiar relevamientos:', error);
         res.status(500).json({ mensaje: 'Error en el servidor al obtener los datos.' });
     }
 };
