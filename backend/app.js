@@ -87,6 +87,7 @@ const PORT = process.env.PORT || 3000;
 // Función para verificar y crear la tabla relevadores si no existe
 async function asegurarTablaRelevadores() {
     try {
+        // 1. Creamos la tabla base si no existe
         await sequelize.query(`
             CREATE TABLE IF NOT EXISTS relevadores (
                 id SERIAL PRIMARY KEY,
@@ -97,13 +98,16 @@ async function asegurarTablaRelevadores() {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+        `, { type: QueryTypes.RAW });
 
-            -- Agregamos la columna telefono si todavía no existe en la base de datos de Render
+        // 2. Nos aseguramos de agregar la columna telefono de forma independiente
+        await sequelize.query(`
             ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(50);
         `, { type: QueryTypes.RAW });
-        console.log('✅ Verificación/Creación de la tabla "relevadores" y sus columnas completada.');
+
+        console.log('✅ Verificación y actualización de la tabla "relevadores" completada.');
     } catch (error) {
-        console.error('⚠️ Aviso al verificar la tabla relevadores:', error.message);
+        console.error('⚠️ Error al asegurar la tabla relevadores:', error.message);
     }
 }
 
