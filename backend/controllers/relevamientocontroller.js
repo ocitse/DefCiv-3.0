@@ -22,26 +22,27 @@ export const obtenerrelevamientos = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        // Buscamos todos los relevadores para armar un diccionario rápido (id -> nombre)
+        // Buscamos todos los relevadores para armar un diccionario seguro (id -> nombre)
         const relevadores = await Relevador.findAll();
         const mapaRelevadores = {};
         relevadores.forEach(rev => {
-            mapaRelevadores[rev.id] = rev.nombre;
+            mapaRelevadores[String(rev.id)] = rev.nombre;
+            mapaRelevadores[rev.nombre] = rev.nombre; // Por si ya guardaba el nombre
         });
 
-        // Mapeamos los relevamientos para inyectar el nombre real del relevador
+        // Mapeamos de forma segura para que nunca rompa si hay valores nulos o mixtos
         const relevamientosConNombre = relevamientos.map(rel => {
             const relJSON = rel.toJSON();
-            const idRev = relJSON.relevador_asignado;
+            const valorAsignado = String(relJSON.relevador_asignado || '');
             
-            // Si el ID existe en nuestro diccionario, ponemos su nombre. Si no, queda como estaba.
-            relJSON.relevador_asignado = mapaRelevadores[idRev] || idRev;
+            // Si coincide con un ID o con un nombre existente, lo reemplaza; si no, muestra el valor original o 'Sin asignar'
+            relJSON.relevador_asignado = mapaRelevadores[valorAsignado] || relJSON.relevador_asignado || 'Sin asignar';
             return relJSON;
         });
 
         res.json(relevamientosConNombre);
     } catch (error) {
-        console.error('Error al obtener relevamientos:', error);
+        console.error('Error detallado al obtener relevamientos:', error);
         res.status(500).json({ mensaje: 'Error en el servidor al obtener los datos.' });
     }
 };
