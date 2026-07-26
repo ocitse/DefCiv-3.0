@@ -18,36 +18,34 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 // 1. OBTENER TODOS LOS RELEVAMIENTOS Y LIMPIAR DATOS SUCIOS
 export const obtenerrelevamientos = async (req, res) => {
     try {
-        // 1. Obtenemos todos los relevamientos y los relevadores en paralelo de forma limpia
         const [listaRelevamientos, relevadores] = await Promise.all([
             relevamiento.findAll({ order: [['createdAt', 'DESC']] }),
             Relevador.findAll()
         ]);
 
-        // 2. Creamos un mapa rápido de ID -> Nombre
         const mapaRelevadores = {};
         relevadores.forEach(rev => {
             if (rev && rev.id) {
                 mapaRelevadores[String(rev.id)] = rev.nombre;
-                // Si el nombre también viene guardado por las dudas, lo mapeamos a sí mismo
                 mapaRelevadores[String(rev.nombre).trim()] = rev.nombre;
             }
         });
 
-        // 3. Mapeamos la respuesta para el frontend sin alterar la base de datos
         const relevamientosFinales = listaRelevamientos.map(rel => {
             const relJSON = rel.toJSON();
             const asignado = String(relJSON.relevador_asignado || '').trim();
-
-            // Si el valor coincide con un ID o con un nombre, devolvemos el nombre legible
             relJSON.relevador_asignado = mapaRelevadores[asignado] || (asignado !== '' ? asignado : 'Sin asignar');
-            
             return relJSON;
         });
 
         return res.status(200).json(relevamientosFinales);
     } catch (error) {
-        console.error('Error al obtener relevamientos:', error);
+        // CAMBIO AQUÍ: Imprimimos el error completo con sus detalles y SQL en la consola de Render
+        console.error('❌ ERROR DETALLADO EN OBTENER RELEVAMIENTOS:', {
+            mensaje: error.message,
+            sql: error.sql,
+            parent: error.parent?.message
+        });
         return res.status(500).json({ mensaje: 'Error en el servidor al obtener los datos.' });
     }
 };
