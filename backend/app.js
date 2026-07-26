@@ -191,16 +191,34 @@ async function iniciarServidor() {
         console.error('❌ ERROR CRÍTICO DE CONEXIÓN O ARRANQUE:', error);
     }
 }
-// Función para asegurar las columnas nuevas en la tabla relevamientos
+// Función para asegurar las columnas y campos de fecha en la tabla relevamientos
 async function asegurarColumnasRelevamientos() {
     try {
         await sequelize.query(`
+            CREATE TABLE IF NOT EXISTS relevamientos (
+                id SERIAL PRIMARY KEY,
+                codigo_relevamiento VARCHAR(255),
+                departamento VARCHAR(255),
+                localidad VARCHAR(255),
+                barrio VARCHAR(255),
+                tipo_evento VARCHAR(255),
+                solicitante VARCHAR(255),
+                relevador_asignado VARCHAR(255),
+                prioridad VARCHAR(255) DEFAULT 'Baja',
+                estado VARCHAR(50) DEFAULT 'nuevo',
+                observaciones TEXT,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS codigo_relevamiento VARCHAR(255);
             ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS prioridad VARCHAR(255) DEFAULT 'Baja';
             ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS barrio VARCHAR(255);
             ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS solicitante VARCHAR(255);
+            ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+            ALTER TABLE relevamientos ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
         `, { type: QueryTypes.RAW });
-        console.log('✅ Verificación/Actualización de columnas en la tabla "relevamientos" completada.');
+        console.log('✅ Verificación/Actualización completa de la tabla "relevamientos" y sus columnas.');
     } catch (error) {
         console.error('⚠️ Aviso al verificar columnas de relevamientos:', error.message);
     }
