@@ -36,12 +36,8 @@ const Relevamiento = sequelize.define('Relevamiento', {
         allowNull: false // Quién realiza el pedido/reclamo
     },
     relevador_asignado: {
-        type: DataTypes.INTEGER, // Cambiado a INTEGER para relacionarlo con el ID del relevador
-        allowNull: false,
-        references: {
-            model: Relevador,
-            key: 'id'
-        }
+        type: DataTypes.STRING(150),
+        allowNull: false // Para filtrar rápidamente por operador
     },
     prioridad: {
         type: DataTypes.ENUM('Baja', 'Media', 'Alta', 'Urgente'),
