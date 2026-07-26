@@ -100,12 +100,13 @@ async function asegurarTablaRelevadores() {
             );
         `, { type: QueryTypes.RAW });
 
-        // 2. Nos aseguramos de agregar la columna telefono de forma independiente
+        // 2. Nos aseguramos de agregar las columnas faltantes de forma independiente
         await sequelize.query(`
             ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(50);
+            ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS zona_asignada VARCHAR(100);
         `, { type: QueryTypes.RAW });
 
-        console.log('✅ Verificación y actualización de la tabla "relevadores" completada.');
+        console.log('✅ Verificación y actualización de la tabla "relevadores" y sus columnas completada.');
     } catch (error) {
         console.error('⚠️ Error al asegurar la tabla relevadores:', error.message);
     }
