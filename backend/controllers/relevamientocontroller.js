@@ -19,14 +19,27 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 export const obtenerrelevamientos = async (req, res) => {
     try {
         const relevamientos = await relevamiento.findAll({
-            include: [{
-                model: Relevador,
-                as: 'relevador',
-                attributes: ['nombre']
-            }],
             order: [['createdAt', 'DESC']]
         });
-        res.json(relevamientos);
+
+        // Buscamos todos los relevadores para armar un diccionario rápido (id -> nombre)
+        const relevadores = await Relevador.findAll();
+        const mapaRelevadores = {};
+        relevadores.forEach(rev => {
+            mapaRelevadores[rev.id] = rev.nombre;
+        });
+
+        // Mapeamos los relevamientos para inyectar el nombre real del relevador
+        const relevamientosConNombre = relevamientos.map(rel => {
+            const relJSON = rel.toJSON();
+            const idRev = relJSON.relevador_asignado;
+            
+            // Si el ID existe en nuestro diccionario, ponemos su nombre. Si no, queda como estaba.
+            relJSON.relevador_asignado = mapaRelevadores[idRev] || idRev;
+            return relJSON;
+        });
+
+        res.json(relevamientosConNombre);
     } catch (error) {
         console.error('Error al obtener relevamientos:', error);
         res.status(500).json({ mensaje: 'Error en el servidor al obtener los datos.' });
