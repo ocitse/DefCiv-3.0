@@ -13,14 +13,15 @@ export async function cargarVistaRelevadores() {
         const lista = resultado.data || [];
 
         if (lista.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">No hay relevadores registrados.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No hay relevadores registrados.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = lista.map(rev => `
             <tr>
                 <td><span class="badge bg-dark">${rev.codigo_relevador || 'null'}</span></td>
-                <td class="fw-semibold">${rev.nombre}</td>
+                <td class="fw-semibold">${rev.apellido || '-'}</td>
+                <td>${rev.nombre || '-'}</td>
                 <td>${rev.dni || '-'}</td>
                 <td>${rev.email || '-'}</td>
                 <td>${rev.telefono || '-'}</td>
@@ -30,7 +31,7 @@ export async function cargarVistaRelevadores() {
                     </span>
                 </td>
                 <td class="text-center">
-                    <button class="btn btn-outline-primary btn-sm me-1" onclick="abrirModalEditarRelevador(${rev.id}, '${rev.nombre}', '${rev.dni}', '${rev.email || ''}', '${rev.telefono || ''}')" title="Editar">
+                    <button class="btn btn-outline-primary btn-sm me-1" onclick="abrirModalEditarRelevador(${rev.id}, '${rev.apellido || ''}', '${rev.nombre || ''}', '${rev.dni || ''}', '${rev.email || ''}', '${rev.telefono || ''}')" title="Editar">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-outline-secondary btn-sm" onclick="cambiarEstadoRelevador(${rev.id}, ${rev.activo ? 0 : 1})" title="Cambiar Estado">
@@ -91,13 +92,20 @@ export function abrirModalNuevoRelevador() {
 }
 
 /**
- * Abre el modal para editar un relevador existente cargando todos sus datos (incluido el teléfono)
+ * Abre el modal para editar un relevador existente cargando apellido, nombre, DNI, email y teléfono
  */
-export function abrirModalEditarRelevador(id, nombre, dni, email, telefono) {
+export function abrirModalEditarRelevador(id, apellido, nombre, dni, email, telefono) {
     const elModal = document.getElementById('modalNuevoRelevador');
     if (elModal && typeof bootstrap !== 'undefined') {
         document.getElementById('rev-id').value = id;
-        document.getElementById('rev-nombre').value = nombre || '';
+        
+        // Verificamos si en tu HTML tenés inputs separados para apellido y nombre, o un solo input general
+        const inputApellido = document.getElementById('rev-apellido');
+        const inputNombre = document.getElementById('rev-nombre');
+        
+        if (inputApellido) inputApellido.value = apellido || '';
+        if (inputNombre) inputNombre.value = nombre || '';
+
         document.getElementById('rev-dni').value = dni || '';
         document.getElementById('rev-email').value = (email && email !== 'null') ? email : '';
         document.getElementById('rev-telefono').value = (telefono && telefono !== 'null') ? telefono : '';
@@ -111,25 +119,25 @@ export function abrirModalEditarRelevador(id, nombre, dni, email, telefono) {
 }
 
 /**
- * Guarda o actualiza un relevador conectando directamente con el botón del modal
+ * Guarda o actualiza un relevador enviando apellido y nombre por separado
  */
 export async function guardarRelevador() {
     const idInput = document.getElementById('rev-id');
+    const apellidoInput = document.getElementById('rev-apellido');
     const nombreInput = document.getElementById('rev-nombre');
     const dniInput = document.getElementById('rev-dni');
     const emailInput = document.getElementById('rev-email');
     const telefonoInput = document.getElementById('rev-telefono');
 
-    if (!nombreInput || !dniInput) return;
-
     const id = idInput ? idInput.value.trim() : '';
-    const nombre = nombreInput.value.trim();
-    const dni = dniInput.value.trim();
+    const apellido = apellidoInput ? apellidoInput.value.trim() : '';
+    const nombre = nombreInput ? nombreInput.value.trim() : '';
+    const dni = dniInput ? dniInput.value.trim() : '';
     const email = emailInput ? emailInput.value.trim() : '';
     const telefono = telefonoInput ? telefonoInput.value.trim() : '';
 
-    if (!nombre || !dni) {
-        mostrarNotificacion("Complete los campos obligatorios (Nombre y DNI).", "error");
+    if (!apellido || !nombre || !dni) {
+        mostrarNotificacion("Complete los campos obligatorios (Apellido, Nombre y DNI).", "error");
         return;
     }
 
@@ -140,7 +148,7 @@ export async function guardarRelevador() {
         const respuesta = await fetch(url, {
             method: metodo,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, dni, email, telefono })
+            body: JSON.stringify({ apellido, nombre, dni, email, telefono })
         });
         const resultado = await respuesta.json();
 
