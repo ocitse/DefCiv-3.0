@@ -27,7 +27,7 @@ function generarCodigoRelevador(apellido, nombre, dni) {
 router.get('/', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, codigo_relevador, apellido, nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY nombre ASC',
+            'SELECT id, codigo_relevador, apellido, nombre, CONCAT(apellido, ", ", nombre) AS nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY apellido ASC, nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
 router.get('/admin', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, codigo_relevador, apellido, nombre, dni, email, telefono, activo FROM relevadores ORDER BY nombre ASC',
+            'SELECT id, codigo_relevador, apellido, nombre, CONCAT(apellido, ", ", nombre) AS nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY apellido ASC, nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
