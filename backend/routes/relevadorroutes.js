@@ -14,7 +14,7 @@ const router = express.Router();
     }
 })();
 
-// Función auxiliar para generar el código del relevador
+// Función auxiliar para generar el código del relevador (Ej: PM3654)
 function generarCodigoRelevador(nombreCompleto, dni) {
     const partes = nombreCompleto.trim().split(/\s+/);
     const nombre = partes[0] || '';
@@ -31,7 +31,7 @@ function generarCodigoRelevador(nombreCompleto, dni) {
 router.get('/', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, nombre, dni, email FROM relevadores WHERE activo = 1 ORDER BY nombre ASC',
+            'SELECT id, codigo_relevador, nombre, dni, email FROM relevadores WHERE activo = 1 ORDER BY nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
 router.get('/admin', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, nombre, dni, email, activo FROM relevadores ORDER BY nombre ASC',
+            'SELECT id, codigo_relevador, nombre, dni, email, activo FROM relevadores ORDER BY nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
@@ -71,7 +71,7 @@ router.get('/admin', async (req, res) => {
 
 // POST /api/relevadores - Registrar un nuevo relevador
 router.post('/', async (req, res) => {
-    const { nombre, dni, email } = req.body;
+    const { nombre, dni, email, telefono } = req.body;
 
     if (!nombre || !dni) {
         return res.status(400).json({ 
@@ -94,13 +94,13 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // Generar el código de forma automática
-        const codigo_relevador = generarCodigoOperario(nombre, dni);
+        // Generar el código de forma automática llamando a la función correcta
+        const codigo_relevador = generarCodigoRelevador(nombre, dni);
 
         const resultado = await sequelize.query(
-            'INSERT INTO relevadores (codigo_relevador, nombre, dni, email, activo) VALUES (?, ?, ?, ?, 1)',
+            'INSERT INTO relevadores (codigo_relevador, nombre, dni, email, telefono, activo) VALUES (?, ?, ?, ?, ?, 1)',
             { 
-                replacements: [codigo_relevador, nombre, dni, email || null],
+                replacements: [codigo_relevador, nombre, dni, email || null, telefono || null],
                 type: QueryTypes.INSERT 
             }
         );
@@ -111,7 +111,7 @@ router.post('/', async (req, res) => {
             id: resultado[0] 
         });
     } catch (error) {
-        console.error('Error al insertar el relevador:', error);
+        console.error('❌ ERROR AL INSERTAR RELEVADOR:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Error al registrar el relevador en la base de datos',
@@ -139,11 +139,11 @@ router.put('/:id/estado', async (req, res) => {
             message: 'Estado del relevador actualizado con éxito'
         });
     } catch (error) {
-        console.error('❌ ERROR REAL AL INSERTAR RELEVADOR:', error); // <--- Cambia esto
+        console.error('❌ ERROR AL ACTUALIZAR ESTADO:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Error al registrar el relevador en la base de datos',
-            detalle: error.message // <--- Esto te devolverá el mensaje exacto de MySQL
+            message: 'Error al actualizar el estado del relevador',
+            detalle: error.message 
         });
     }
 });
