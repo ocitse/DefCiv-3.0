@@ -78,7 +78,6 @@ export function abrirModalNuevoRelevador() {
         const form = document.getElementById('form-nuevo-relevador');
         if (form) form.reset();
         
-        // Limpiamos el ID oculto para indicar que es un registro NUEVO
         const inputId = document.getElementById('rev-id');
         if (inputId) inputId.value = '';
 
@@ -91,16 +90,15 @@ export function abrirModalNuevoRelevador() {
 }
 
 /**
- * Abre el modal para editar un relevador existente (¡Esto faltaba!)
+ * Abre el modal para editar un relevador existente cargando todos sus datos (incluido el teléfono)
  */
 export function abrirModalEditarRelevador(id, nombre, dni, email, telefono) {
     const elModal = document.getElementById('modalNuevoRelevador');
     if (elModal && typeof bootstrap !== 'undefined') {
-        // Cargamos los datos en el formulario
         document.getElementById('rev-id').value = id;
-        document.getElementById('rev-nombre').value = nombre;
-        document.getElementById('rev-dni').value = dni;
-        document.getElementById('rev-email').value = email !== 'null' ? email : '';
+        document.getElementById('rev-nombre').value = nombre || '';
+        document.getElementById('rev-dni').value = dni || '';
+        document.getElementById('rev-email').value = (email && email !== 'null') ? email : '';
         document.getElementById('rev-telefono').value = (telefono && telefono !== 'null') ? telefono : '';
         
         const tituloTexto = document.getElementById('modalTituloTexto');
@@ -112,14 +110,22 @@ export function abrirModalEditarRelevador(id, nombre, dni, email, telefono) {
 }
 
 /**
- * Guarda o actualiza un relevador (Detecta automáticamente si es POST o PUT según el ID)
+ * Guarda o actualiza un relevador conectando directamente con el botón del modal
  */
-export async function guardarNuevoRelevador() {
-    const id = document.getElementById('rev-id').value.trim();
-    const nombre = document.getElementById('rev-nombre').value.trim();
-    const dni = document.getElementById('rev-dni').value.trim();
-    const email = document.getElementById('rev-email').value.trim();
-    const telefono = document.getElementById('rev-telefono').value.trim();
+export async function guardarRelevador() {
+    const idInput = document.getElementById('rev-id');
+    const nombreInput = document.getElementById('rev-nombre');
+    const dniInput = document.getElementById('rev-dni');
+    const emailInput = document.getElementById('rev-email');
+    const telefonoInput = document.getElementById('rev-telefono');
+
+    if (!nombreInput || !dniInput) return;
+
+    const id = idInput ? idInput.value.trim() : '';
+    const nombre = nombreInput.value.trim();
+    const dni = dniInput.value.trim();
+    const email = emailInput ? emailInput.value.trim() : '';
+    const telefono = telefonoInput ? telefonoInput.value.trim() : '';
 
     if (!nombre || !dni) {
         mostrarNotificacion("Complete los campos obligatorios (Nombre y DNI).", "error");
@@ -135,19 +141,20 @@ export async function guardarNuevoRelevador() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, dni, email, telefono })
         });
-        
         const resultado = await respuesta.json();
 
         if (respuesta.ok || resultado.success) {
             mostrarNotificacion(id ? "Relevador actualizado correctamente." : "Relevador guardado correctamente.");
             
-            // Cerrar el modal de manera segura con Bootstrap
             const elModal = document.getElementById('modalNuevoRelevador');
-            const modalInstance = bootstrap.Modal.getInstance(elModal) || new bootstrap.Modal(elModal);
-            modalInstance.hide();
+            if (elModal && typeof bootstrap !== 'undefined') {
+                const modalInstance = bootstrap.Modal.getInstance(elModal);
+                if (modalInstance) modalInstance.hide();
+            }
 
-            // Limpiar formulario y recargar tabla
-            document.getElementById('form-nuevo-relevador').reset();
+            const form = document.getElementById('form-nuevo-relevador');
+            if (form) form.reset();
+
             cargarVistaRelevadores(); 
         } else {
             mostrarNotificacion(resultado.mensaje || resultado.message || "Error al procesar el relevador.", "error");
@@ -158,11 +165,11 @@ export async function guardarNuevoRelevador() {
     }
 }
 
-// Vinculación global para los botones del DOM / onclick
+// Vinculación global para que el HTML reconozca las funciones por onclick
 if (typeof window !== 'undefined') {
     window.cargarVistaRelevadores = cargarVistaRelevadores;
     window.cambiarEstadoRelevador = cambiarEstadoRelevador;
     window.abrirModalNuevoRelevador = abrirModalNuevoRelevador;
     window.abrirModalEditarRelevador = abrirModalEditarRelevador;
-    window.guardarNuevoRelevador = guardarNuevoRelevador;
+    window.guardarRelevador = guardarRelevador;
 }
