@@ -15,7 +15,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>ID</th>
+                            <th>Código</th>
                             <th>Nombre y Apellido</th>
                             <th>DNI</th>
                             <th>Email</th>
@@ -31,16 +31,22 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Único para Nuevo / Editar Relevador -->
 <div class="modal fade" id="modalNuevoRelevador" tabindex="-1" aria-labelledby="modalNuevoRelevadorLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="modalNuevoRelevadorLabel"><i class="bi bi-person-plus-fill me-2 text-primary"></i>Registrar Nuevo Relevador</h5>
+                <h5 class="modal-title fw-bold" id="modalNuevoRelevadorLabel">
+                    <i class="bi bi-person-plus-fill me-2 text-primary"></i><span id="modalTituloTexto">Registrar Nuevo Relevador</span>
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="form-nuevo-relevador">
-                    <div class="mb-3">
+                    <!-- Campo oculto para almacenar el ID en modo Edición -->
+                    <input type="hidden" id="rev-id">
+
                     <div class="mb-3">
                         <label for="rev-nombre" class="form-label small fw-semibold">Nombre y Apellido *</label>
                         <input type="text" class="form-control form-control-sm" id="rev-nombre" required>
@@ -61,7 +67,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="guardarNuevoRelevador()">Guardar Relevador</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="guardarRelevador()">Guardar Relevador</button>
             </div>
         </div>
     </div>

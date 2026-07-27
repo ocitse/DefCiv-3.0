@@ -33,6 +33,14 @@ export async function cargarVistaRelevadores() {
                         <i class="bi ${rev.activo ? 'bi-toggle-on text-success' : 'bi-toggle-off text-muted'} fs-5"></i>
                     </button>
                 </td>
+                <td class="text-center">
+    <button class="btn btn-outline-primary btn-sm me-1" onclick="abrirModalEditarRelevador(${rev.id}, '${rev.nombre}', '${rev.dni}', '${rev.email || ''}', '${rev.telefono || ''}')" title="Editar">
+        <i class="bi bi-pencil"></i>
+    </button>
+    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarEstadoRelevador(${rev.id}, ${rev.activo ? 0 : 1})" title="Cambiar Estado">
+        <i class="bi ${rev.activo ? 'bi-toggle-on text-success' : 'bi-toggle-off text-muted'} fs-5"></i>
+    </button>
+</td>
             </tr>
         `).join('');
 

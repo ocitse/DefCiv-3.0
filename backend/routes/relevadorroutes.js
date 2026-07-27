@@ -148,4 +148,52 @@ router.put('/:id/estado', async (req, res) => {
     }
 });
 
+// PUT /api/relevadores/:id - Actualizar datos de un relevador (y autogenerar código si es null)
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nombre, dni, email, telefono } = req.body;
+
+    if (!nombre || !dni) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'El nombre y el DNI son obligatorios' 
+        });
+    }
+
+    try {
+        // Consultamos si ya tiene un código asignado
+        const actual = await sequelize.query(
+            'SELECT codigo_relevador FROM relevadores WHERE id = ?',
+            { replacements: [id], type: QueryTypes.SELECT }
+        );
+
+        let codigo_relevador = actual[0]?.codigo_relevador;
+
+        // Si es un registro viejo y no tiene código, se lo generamos al vuelo
+        if (!codigo_relevador) {
+            codigo_relevador = generarCodigoRelevador(nombre, dni);
+        }
+
+        await sequelize.query(
+            'UPDATE relevadores SET codigo_relevador = ?, nombre = ?, dni = ?, email = ?, telefono = ? WHERE id = ?',
+            { 
+                replacements: [codigo_relevador, nombre, dni, email || null, telefono || null, id],
+                type: QueryTypes.UPDATE 
+            }
+        );
+
+        res.json({
+            success: true,
+            message: 'Relevador actualizado con éxito'
+        });
+    } catch (error) {
+        console.error('❌ ERROR AL ACTUALIZAR RELEVADOR:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error al actualizar el relevador',
+            detalle: error.message 
+        });
+    }
+});
+
 export default router;
