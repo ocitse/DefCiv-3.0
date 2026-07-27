@@ -31,7 +31,7 @@ function generarCodigoRelevador(nombreCompleto, dni) {
 router.get('/', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, codigo_relevador, nombre, dni, email FROM relevadores WHERE activo = 1 ORDER BY nombre ASC',
+            'SELECT id, codigo_relevador, nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
 router.get('/admin', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, codigo_relevador, nombre, dni, email, activo FROM relevadores ORDER BY nombre ASC',
+            'SELECT id, codigo_relevador, nombre, dni, email, telefono, activo FROM relevadores ORDER BY nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
@@ -81,7 +81,6 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        // Verificar si ya existe un relevador con el mismo DNI
         const existente = await sequelize.query(
             'SELECT id FROM relevadores WHERE dni = ?',
             { replacements: [dni], type: QueryTypes.SELECT }
@@ -94,7 +93,6 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // Generar el código de forma automática llamando a la función correcta
         const codigo_relevador = generarCodigoRelevador(nombre, dni);
 
         const resultado = await sequelize.query(
@@ -161,7 +159,6 @@ router.put('/:id', async (req, res) => {
     }
 
     try {
-        // Consultamos si ya tiene un código asignado
         const actual = await sequelize.query(
             'SELECT codigo_relevador FROM relevadores WHERE id = ?',
             { replacements: [id], type: QueryTypes.SELECT }
@@ -169,7 +166,6 @@ router.put('/:id', async (req, res) => {
 
         let codigo_relevador = actual[0]?.codigo_relevador;
 
-        // Si es un registro viejo y no tiene código, se lo generamos al vuelo
         if (!codigo_relevador) {
             codigo_relevador = generarCodigoRelevador(nombre, dni);
         }
