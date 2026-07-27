@@ -115,21 +115,11 @@ export function abrirModalEditarRelevador(id, nombre, dni, email, telefono) {
  * Guarda o actualiza un relevador (Detecta automáticamente si es POST o PUT según el ID)
  */
 export async function guardarNuevoRelevador() {
-    const idInput = document.getElementById('rev-id');
-    const nombreInput = document.getElementById('rev-nombre');
-    const dniInput = document.getElementById('rev-dni');
-    const emailInput = document.getElementById('rev-email');
-    const telefonoInput = document.getElementById('rev-telefono');
-    
-    const btnGuardar = document.querySelector('#modalNuevoRelevador .btn-primary');
-
-    if (!nombreInput || !dniInput) return;
-
-    const id = idInput ? idInput.value : '';
-    const nombre = nombreInput.value.trim();
-    const dni = dniInput.value.trim();
-    const email = emailInput ? emailInput.value.trim() : '';
-    const telefono = telefonoInput ? telefonoInput.value.trim() : '';
+    const id = document.getElementById('rev-id').value.trim();
+    const nombre = document.getElementById('rev-nombre').value.trim();
+    const dni = document.getElementById('rev-dni').value.trim();
+    const email = document.getElementById('rev-email').value.trim();
+    const telefono = document.getElementById('rev-telefono').value.trim();
 
     if (!nombre || !dni) {
         mostrarNotificacion("Complete los campos obligatorios (Nombre y DNI).", "error");
@@ -137,12 +127,6 @@ export async function guardarNuevoRelevador() {
     }
 
     try {
-        if (btnGuardar) {
-            btnGuardar.disabled = true;
-            btnGuardar.textContent = 'Guardando...';
-        }
-
-        // Definimos URL y método dependiendo de si hay un ID oculto (Edición vs Creación)
         const url = id ? `/api/relevadores/${id}` : '/api/relevadores';
         const metodo = id ? 'PUT' : 'POST';
 
@@ -151,20 +135,19 @@ export async function guardarNuevoRelevador() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, dni, email, telefono })
         });
+        
         const resultado = await respuesta.json();
 
         if (respuesta.ok || resultado.success) {
             mostrarNotificacion(id ? "Relevador actualizado correctamente." : "Relevador guardado correctamente.");
             
+            // Cerrar el modal de manera segura con Bootstrap
             const elModal = document.getElementById('modalNuevoRelevador');
-            if (elModal && typeof bootstrap !== 'undefined') {
-                const modalInstance = bootstrap.Modal.getInstance(elModal);
-                if (modalInstance) modalInstance.hide();
-            }
+            const modalInstance = bootstrap.Modal.getInstance(elModal) || new bootstrap.Modal(elModal);
+            modalInstance.hide();
 
-            const form = document.getElementById('form-nuevo-relevador');
-            if (form) form.reset();
-
+            // Limpiar formulario y recargar tabla
+            document.getElementById('form-nuevo-relevador').reset();
             cargarVistaRelevadores(); 
         } else {
             mostrarNotificacion(resultado.mensaje || resultado.message || "Error al procesar el relevador.", "error");
@@ -172,11 +155,6 @@ export async function guardarNuevoRelevador() {
     } catch (error) {
         console.error("Error al procesar relevador:", error);
         mostrarNotificacion("Error de conexión con el servidor.", "error");
-    } finally {
-        if (btnGuardar) {
-            btnGuardar.disabled = false;
-            btnGuardar.textContent = 'Guardar Relevador';
-        }
     }
 }
 
