@@ -1,4 +1,3 @@
-// backend/models/relevador.js
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
@@ -14,11 +13,11 @@ const Relevador = sequelize.define('Relevador', {
         allowNull: false
     },
     apellido: {
-        tyope: DataTypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     nombre: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     dni: {
@@ -32,10 +31,6 @@ const Relevador = sequelize.define('Relevador', {
     },
     telefono: {
         type: DataTypes.STRING(50),
-        allowNull: true
-    },
-    zona_asignada: {
-        type: DataTypes.STRING(100),
         allowNull: true
     },
     activo: {
