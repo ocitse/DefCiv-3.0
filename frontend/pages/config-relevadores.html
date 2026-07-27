@@ -16,7 +16,8 @@
                     <thead class="table-light">
                         <tr>
                             <th>Código</th>
-                            <th>Nombre y Apellido</th>
+                            <th>Apellido</th>
+                            <th>Nombre</th>
                             <th>DNI</th>
                             <th>Email</th>
                             <th>Teléfono</th>
@@ -49,7 +50,11 @@
                     <input type="hidden" id="rev-id">
 
                     <div class="mb-3">
-                        <label for="rev-nombre" class="form-label small fw-semibold">Nombre y Apellido *</label>
+                        <label for="rev-apellido" class="form-label small fw-semibold">Apellido *</label>
+                        <input type="text" class="form-control form-control-sm" id="rev-apellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rev-nombre" class="form-label small fw-semibold">Nombre *</label>
                         <input type="text" class="form-control form-control-sm" id="rev-nombre" required>
                     </div>
                     <div class="mb-3">

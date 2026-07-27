@@ -13,6 +13,10 @@ const Relevador = sequelize.define('Relevador', {
         unique: true,
         allowNull: false
     },
+    apellido: {
+        tyope: DataTypes.STRING(100),
+        allowNull: false
+    },
     nombre: {
         type: DataTypes.STRING(150),
         allowNull: false
