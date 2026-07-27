@@ -156,7 +156,7 @@ export async function verPanelPrincipal() {
                         <td><strong>${r.departamento}</strong> (${r.localidad})</td>
                         <td>${r.tipo_evento}</td>
                         <td><small>${r.relevador_asignado || r.relevador_assigned || 'N/D'}</small></td>
-                        <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
+                        <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
                     </tr>
                 `).join('');
             }
@@ -194,7 +194,7 @@ export async function cargarTablaRelevamientos() {
                 <td>${r.tipo_evento || ''}</td>
                 <td>${r.solicitante || ''}</td>
                 <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
-                <td>${r.relevador_asignado || 'Sin asignar'}</td>
+                <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary" onclick="window.editarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Ver detalle / Editar">
