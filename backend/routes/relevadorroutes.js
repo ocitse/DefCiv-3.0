@@ -4,21 +4,23 @@ import sequelize from '../config/database.js';
 
 const router = express.Router();
 
-// Autoejecución al cargar el módulo para asegurar que la columna exista en Render (PostgreSQL)
+// Autoejecución al cargar el módulo para asegurar que las columnas existan en Render (PostgreSQL)
 (async () => {
     try {
         await sequelize.query('ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS codigo_relevador VARCHAR(20);');
-        console.log('✅ Verificación de esquema: columna codigo_relevador asegurada.');
+        await sequelize.query('ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS apellido VARCHAR(100);');
+        await sequelize.query('ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS nombre VARCHAR(100);');
+        console.log('✅ Verificación de esquema: columnas de relevadores aseguradas.');
     } catch (e) {
-        // Ignora si ya existe o si la tabla todavía se está creando
+        // Ignora si ya existen
     }
 })();
 
 // Función auxiliar para generar el código del relevador (Ej: PM3654)
 function generarCodigoRelevador(apellido, nombre, dni) {
-    const inicialApellido = apellido.charAt(0).toUpperCase();
-    const inicialNombre = nombre.charAt(0).toUpperCase();
-    const ultimosDni = dni.slice(-4);
+    const inicialApellido = apellido ? apellido.trim().charAt(0).toUpperCase() : 'X';
+    const inicialNombre = nombre ? nombre.trim().charAt(0).toUpperCase() : 'X';
+    const ultimosDni = dni ? dni.slice(-4) : '0000';
 
     return `${inicialApellido}${inicialNombre}${ultimosDni}`;
 }
@@ -27,13 +29,19 @@ function generarCodigoRelevador(apellido, nombre, dni) {
 router.get('/', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, codigo_relevador, apellido, nombre, CONCAT(apellido, ", ", nombre) AS nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY apellido ASC, nombre ASC',
+            'SELECT id, codigo_relevador, apellido, nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY apellido ASC, nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
+        // Mapeamos para que el frontend reciba también la propiedad "nombre" unificada si la necesita
+        const formateados = relevadores.map(r => ({
+            ...r,
+            nombreCompleto: `${r.apellido}, ${r.nombre}`
+        }));
+
         res.json({
             success: true,
-            data: relevadores
+            data: formateados
         });
     } catch (error) {
         console.warn('⚠️ Aviso: La tabla relevadores aún no existe o está vacía:', error.message);
@@ -48,7 +56,7 @@ router.get('/', async (req, res) => {
 router.get('/admin', async (req, res) => {
     try {
         const relevadores = await sequelize.query(
-            'SELECT id, codigo_relevador, apellido, nombre, CONCAT(apellido, ", ", nombre) AS nombre, dni, email, telefono FROM relevadores WHERE activo = 1 ORDER BY apellido ASC, nombre ASC',
+            'SELECT id, codigo_relevador, apellido, nombre, dni, email, telefono, activo FROM relevadores ORDER BY apellido ASC, nombre ASC',
             { type: QueryTypes.SELECT }
         );
         
@@ -69,10 +77,10 @@ router.get('/admin', async (req, res) => {
 router.post('/', async (req, res) => {
     const { apellido, nombre, dni, email, telefono } = req.body;
 
-    if (!nombre || !dni) {
+    if (!apellido || !nombre || !dni) {
         return res.status(400).json({ 
             success: false, 
-            message: 'El Apellido, Nombre y el DNI son obligatorios' 
+            message: 'El Apellido, el Nombre y el DNI son obligatorios' 
         });
     }
 
@@ -89,10 +97,11 @@ router.post('/', async (req, res) => {
             });
         }
 
-        const codigo_relevador = generarCodigoRelevador(nombre, dni);
+        // CORREGIDO: Se pasan los tres parámetros correctos
+        const codigo_relevador = generarCodigoRelevador(apellido, nombre, dni);
 
         const resultado = await sequelize.query(
-            'INSERT INTO relevadores (codigo_relevador, apellido, nombre, dni, email, telefono, activo) VALUES (?, ?, ?, ?, ?, 1)',
+            'INSERT INTO relevadores (codigo_relevador, apellido, nombre, dni, email, telefono, activo) VALUES (?, ?, ?, ?, ?, ?, 1)',
             { 
                 replacements: [codigo_relevador, apellido, nombre, dni, email || null, telefono || null],
                 type: QueryTypes.INSERT 
@@ -142,15 +151,15 @@ router.put('/:id/estado', async (req, res) => {
     }
 });
 
-// PUT /api/relevadores/:id - Actualizar datos de un relevador (y autogenerar código si es null)
+// PUT /api/relevadores/:id - Actualizar datos de un relevador
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { apellido, nombre, dni, email, telefono } = req.body;
 
-    if (!nombre || !dni) {
+    if (!apellido || !nombre || !dni) {
         return res.status(400).json({ 
             success: false, 
-            message: 'El Apellido, Nombre y el DNI son obligatorios' 
+            message: 'El Apellido, el Nombre y el DNI son obligatorios' 
         });
     }
 
@@ -163,11 +172,12 @@ router.put('/:id', async (req, res) => {
         let codigo_relevador = actual[0]?.codigo_relevador;
 
         if (!codigo_relevador) {
-            codigo_relevador = generarCodigoRelevador(nombre, dni);
+            codigo_relevador = generarCodigoRelevador(apellido, nombre, dni);
         }
 
+        // CORREGIDO: Sintaxis SQL limpia con comas separando cada columna
         await sequelize.query(
-            'UPDATE relevadores SET codigo_relevador = ?, apellido = ?nombre = ?, dni = ?, email = ?, telefono = ? WHERE id = ?',
+            'UPDATE relevadores SET codigo_relevador = ?, apellido = ?, nombre = ?, dni = ?, email = ?, telefono = ? WHERE id = ?',
             { 
                 replacements: [codigo_relevador, apellido, nombre, dni, email || null, telefono || null, id],
                 type: QueryTypes.UPDATE 
