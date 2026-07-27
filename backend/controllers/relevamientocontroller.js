@@ -40,13 +40,12 @@ export const obtenerrelevamientos = async (req, res) => {
 
         return res.status(200).json(relevamientosFinales);
     } catch (error) {
-        // CAMBIO AQUÍ: Imprimimos el error completo con sus detalles y SQL en la consola de Render
-        console.error('❌ ERROR DETALLADO EN OBTENER RELEVAMIENTOS:', {
-            mensaje: error.message,
-            sql: error.sql,
-            parent: error.parent?.message
+        console.error('🔥 ERROR CRudo EN /api/relevamientos:', error);
+        return res.status(500).json({ 
+            mensaje: 'Error en el servidor al obtener los datos.',
+            errorReal: error.message,
+            stack: error.stack 
         });
-        return res.status(500).json({ mensaje: 'Error en el servidor al obtener los datos.' });
     }
 };
 
