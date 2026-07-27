@@ -84,6 +84,8 @@ export function abrirModalNuevoRelevador() {
  * Guarda un nuevo relevador consumiendo la API POST de forma segura contra doble clic
  */
 export async function guardarNuevoRelevador() {
+    // 1. Agregamos la captura del input del código
+    const codigoInput = document.getElementById('rev-codigo');
     const nombreInput = document.getElementById('rev-nombre');
     const dniInput = document.getElementById('rev-dni');
     const emailInput = document.getElementById('rev-email');
@@ -93,16 +95,20 @@ export async function guardarNuevoRelevador() {
     // Buscar el botón de guardar en el modal para bloquearlo momentáneamente
     const btnGuardar = document.querySelector('#modalNuevoRelevador .btn-primary');
 
-    if (!nombreInput || !dniInput) return;
+    // Validación básica del DOM
+    if (!nombreInput || !dniInput || !codigoInput) return;
 
+    // 2. Extraemos los valores
+    const codigo_relevador = codigoInput.value.trim();
     const nombre = nombreInput.value.trim();
     const dni = dniInput.value.trim();
     const email = emailInput ? emailInput.value.trim() : '';
     const telefono = telefonoInput ? telefonoInput.value.trim() : '';
     const zona_asignada = zonaInput ? zonaInput.value.trim() : '';
 
-    if (!nombre || !dni) {
-        mostrarNotificacion("Complete los campos obligatorios (Nombre y DNI).", "error");
+    // 3. Validamos que los campos obligatorios de la BD no estén vacíos
+    if (!codigo_relevador || !nombre || !dni) {
+        mostrarNotificacion("Complete los campos obligatorios (Código, Nombre y DNI).", "error");
         return;
     }
 
@@ -112,14 +118,17 @@ export async function guardarNuevoRelevador() {
             btnGuardar.textContent = 'Guardando...';
         }
 
+        // 4. Agregamos codigo_relevador al payload que se envía al servidor
         const respuesta = await fetch('/api/relevadores', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, dni, email, telefono, zona_asignada })
+            body: JSON.stringify({ codigo_relevador, nombre, dni, email, telefono, zona_asignada })
         });
         const resultado = await respuesta.json();
 
-        if (resultado.success) {
+        // El backend de Render te está devolviendo { mensaje: '...' } o { success: true/false }? 
+        // Si tu backend devuelve "mensaje", lo adaptamos así:
+        if (respuesta.ok || resultado.success) {
             mostrarNotificacion("Relevador guardado correctamente.");
             
             const elModal = document.getElementById('modalNuevoRelevador');
@@ -133,7 +142,7 @@ export async function guardarNuevoRelevador() {
 
             cargarVistaRelevadores(); 
         } else {
-            mostrarNotificacion(resultado.message || "Error al registrar el relevador.", "error");
+            mostrarNotificacion(resultado.mensaje || resultado.message || "Error al registrar el relevador.", "error");
         }
     } catch (error) {
         console.error("Error al registrar relevador:", error);
