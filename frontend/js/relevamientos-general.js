@@ -53,7 +53,8 @@ async function cargarDesplegableRelevadores() {
             resultado.data.forEach(rev => {
                 const option = document.createElement('option');
                 option.value = rev.id; 
-                option.textContent = rev.nombre;
+                // CORREGIDO: Muestra Apellido y Nombre ordenados
+                option.textContent = `${rev.apellido}, ${rev.nombre}`;
                 select.appendChild(option);
             });
         } else {
