@@ -13,7 +13,7 @@ export async function cargarVistaRelevadores() {
         const lista = resultado.data || [];
 
         if (lista.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No hay relevadores registrados.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">No hay relevadores registrados.</td></tr>`;
             return;
         }
 
@@ -23,6 +23,7 @@ export async function cargarVistaRelevadores() {
                 <td class="fw-semibold">${rev.nombre}</td>
                 <td>${rev.dni || '-'}</td>
                 <td>${rev.email || '-'}</td>
+                <td>${rev.telefono || '-'}</td>
                 <td class="text-center">
                     <span class="badge ${rev.activo ? 'bg-success' : 'bg-secondary'}">
                         ${rev.activo ? 'Activo' : 'Inactivo'}
