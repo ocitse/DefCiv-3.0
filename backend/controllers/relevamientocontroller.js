@@ -26,8 +26,10 @@ export const obtenerrelevamientos = async (req, res) => {
         const mapaRelevadores = {};
         relevadores.forEach(rev => {
             if (rev && rev.id) {
-                mapaRelevadores[String(rev.id)] = rev.nombre;
-                mapaRelevadores[String(rev.nombre).trim()] = rev.nombre;
+                // CORREGIDO: Combinamos apellido y nombre para que se muestre prolijo en la tabla
+                const nombreCompleto = `${rev.apellido}, ${rev.nombre}`;
+                mapaRelevadores[String(rev.id)] = nombreCompleto;
+                mapaRelevadores[String(rev.nombre).trim()] = nombreCompleto;
             }
         });
 
