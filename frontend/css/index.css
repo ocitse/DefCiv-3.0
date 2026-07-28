@@ -120,3 +120,33 @@
 html {
     font-size: 12px; /* Reduce la base predeterminada de Bootstrap (16px) a 14px, achicando textos, paddings y márgenes proporcionalmente en cascada */
 }
+/* ========================================================
+   4. 📐 COMPRESIÓN GLOBAL DE COMPONENTES (Modo Compacto)
+   ======================================================== */
+
+/* Reduce drásticamente el espacio interno de las tarjetas para que no ocupen tanta altura */
+.card {
+    margin-bottom: 0.75rem !important;
+}
+
+.card-body {
+    padding: 1rem !important;
+}
+
+/* Hace que las tablas respiren mejor y ocupen menos espacio vertical */
+.table th, 
+.table td {
+    padding: 0.4rem 0.6rem !important;
+    vertical-align: middle !important;
+}
+
+/* Reduce el margen de los títulos internos de las vistas */
+h5, .h5, h4, .h4 {
+    margin-bottom: 0.75rem !important;
+}
+
+/* Ajusta los formularios para que los inputs no sean tan altos */
+.form-control, .form-select {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.95rem;
+}
