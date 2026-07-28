@@ -9,7 +9,22 @@ export async function ingresarARelevamiento(idRelevamiento) {
     // Cargamos la estructura HTML de la tabla de familias
     cargarVistaDinamica('./frontend/pages/tabla-familias.html', async () => {
         try {
-            // Consultamos al backend las familias asociadas a este relevamiento
+            // 1. Consultamos los datos generales del relevamiento para el "Contexto Territorial"
+            const respuestaRel = await fetch(`/api/relevamientos/${idRelevamiento}`);
+            if (respuestaRel.ok) {
+                const rel = await respuestaRel.json();
+                const contenedorContexto = document.getElementById('contexto-relevamiento-activo');
+                if (contenedorContexto) {
+                    contenedorContexto.innerHTML = `
+                        <div class="col-md-3"><strong>Código:</strong> ${rel.codigo_relevamiento || 'N/D'}</div>
+                        <div class="col-md-3"><strong>Depto / Loc:</strong> ${rel.departamento || 'N/D'} / ${rel.localidad || 'N/D'}</div>
+                        <div class="col-md-3"><strong>Barrio:</strong> ${rel.barrio || 'N/D'}</div>
+                        <div class="col-md-3"><strong>Evento:</strong> ${rel.tipo_evento || 'N/D'}</div>
+                    `;
+                }
+            }
+
+            // 2. Consultamos al backend las familias asociadas a este relevamiento
             const respuesta = await fetch(`/api/familias?id_relevamiento=${idRelevamiento}`);
             
             if (!respuesta.ok) {
@@ -57,13 +72,13 @@ function renderizarTablaFamilias(familias) {
             </td>
             <td><span class="badge bg-info text-dark">${fam.estado_asistencia || 'Pendiente'}</span></td>
             <td class="text-center">
-                <button class="btn btn-sm btn-outline-info me-1" onclick="verFichaNecesidades('${fam.id_familia}')" title="Ver Ficha">
+                <button class="btn btn-sm btn-outline-info me-1" onclick="window.verFichaNecesidades('${fam.id_familia}')" title="Ver Ficha">
                     <i class="bi bi-eye"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-warning me-1" onclick="editarDatosFamilia('${fam.id_familia}')" title="Editar">
+                <button class="btn btn-sm btn-outline-warning me-1" onclick="window.editarDatosFamilia('${fam.id_familia}')" title="Editar">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="eliminarFamiliar('${fam.id_familia}')" title="Eliminar">
+                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${fam.id_familia}')" title="Eliminar">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
@@ -84,7 +99,6 @@ function obtenerColorUrgencia(urgencia) {
 // Función disparada por el botón "Agregar Nueva Familia" en tabla-familias.html
 export function mostrarFormularioNuevaFamilia() {
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
-        // Inicializaciones extra del formulario si hacen falta
         const inputId = document.getElementById('f_id_edicion');
         if (inputId) inputId.value = '';
     });
@@ -188,8 +202,7 @@ export async function verFichaNecesidades(idFamilia) {
     }
 }
 
-export function verListaRelevamientos(idRelevamiento) {
-    window.idRelevamientoActivo = idRelevamiento;
+export function verListaRelevamientos() {
     cargarVistaDinamica('./frontend/pages/tabla-relevamientos.html', () => {
         if (typeof cargarTablaRelevamientos === 'function') {
             cargarTablaRelevamientos();
@@ -199,4 +212,9 @@ export function verListaRelevamientos(idRelevamiento) {
     });
 }
 
+// Exposiciones globales para los eventos onclick en el DOM dinámico
 window.ingresarARelevamiento = ingresarARelevamiento;
+window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+window.verListaRelevamientos = verListaRelevamientos;
+window.eliminarFamiliar = eliminarFamiliar;
+window.verFichaNecesidades = verFichaNecesidades;
