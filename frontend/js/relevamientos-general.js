@@ -197,9 +197,14 @@ export async function cargarTablaRelevamientos() {
                 <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias del Relevamiento">
-    <i class="bi bi-eye"></i>
-</button>
+                    <!-- Botón Editar Relevamiento -->
+                    <button class="btn btn-sm btn-outline-warning me-1" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Relevamiento">
+                    <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <!-- Botón Ver Familias (Ojito) -->
+                    <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+                    <i class="bi bi-eye"></i>
+                    </button>
                 </td>
             </tr>
         `).join('');
@@ -285,3 +290,8 @@ async function guardarRelevamientoGeneral(event) {
         mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
     }
 }
+
+// Exposiciones globales necesarias para el manejo modular de la interfaz
+window.editarRelevamiento = editarRelevamientoGeneral;
+window.mostrarFormularioNuevoRelevamiento = mostrarFormularioNuevoRelevamiento;
+window.cargarTablaRelevamientos = cargarTablaRelevamientos;
