@@ -137,3 +137,34 @@ body {
         animation: fadeIn 0.2s;
     }
 }
+/* ========================================================
+   4. 🛡️ FORZAR DISEÑO COMPACTO Y EVITAR DESPROPORCIÓN
+   ======================================================== */
+
+/* Restringe el tamaño exagerado de las tarjetas del panel principal */
+.main-content .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+/* Fuerza a que las tarjetas métricas mantengan un alto razonable y no se estiren */
+.main-content .card {
+    height: auto !important;
+    min-height: unset !important;
+}
+
+/* Controla el tamaño de los números grandes en las métricas */
+.main-content .fs-1, 
+.main-content .display-4, 
+.main-content h2 {
+    font-size: 2.2rem !important;
+    font-weight: 700;
+}
+
+/* Asegura que el contenedor principal respete el margen sin inflarse */
+.content-principal, #app-container {
+    width: 100%;
+    max-width: 1350px;
+}
