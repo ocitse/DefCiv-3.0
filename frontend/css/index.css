@@ -1,16 +1,21 @@
 /* ========================================================
-   1. ESTILOS GENERALES (Para todos los tamaños)
+   1. ESTILOS GENERALES Y CONFIGURACIÓN BASE
    ======================================================== */
-   body { 
+   html {
+    font-size: 13px; /* Base equilibrada para que Bootstrap no renderice componentes gigantes */
+}
+
+body { 
     min-height: 100vh; 
     background-color: #f8f9fa; 
     margin: 0;
-    font-size: 0.92rem; /* Normaliza y reduce levemente la escala general para evitar que todo se vea gigante */
+    font-size: 0.9rem;
 }
 
 /* Compartido por los links del sidebar y del menú móvil */
 .sidebar .nav-link, .navbar-collapse .nav-link { 
     color: rgba(255, 255, 255, 0.75); 
+    padding: 0.5rem 1rem;
 }
 
 .sidebar .nav-link:hover, .sidebar .nav-link.active,
@@ -28,27 +33,41 @@
     color: #fff !important;
 }
 
-/* Estilos del Contenido Principal (Ajustado para mejor densidad visual) */
+/* Estilos del Contenido Principal */
 .main-content {
-    padding: 20px; /* Reducido de 30px a 20px para aprovechar mejor el espacio */
-    max-width: 1500px; /* Evita que las tablas y tarjetas se estiren infinitamente en monitores 4K/ultrawide */
+    padding: 20px;
+    max-width: 1450px;
     margin: 0 auto;
 }
+
 .page-title {
     margin-bottom: 20px;
     color: #343a40;
 }
 
-/* Estilos de la Tarjeta de Perfil */
-.profile-card {
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+/* Tarjetas y Componentes Compactos */
+.card {
+    border-radius: 8px;
     border: 1px solid #dee2e6;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
-.profile-card .card-header {
+
+.card-body {
+    padding: 1rem !important;
+}
+
+.card-header {
     font-weight: bold;
     background-color: #007bff;
     color: white;
+}
+
+/* Tablas compactas */
+.table th, 
+.table td {
+    padding: 0.5rem 0.75rem !important;
+    vertical-align: middle !important;
 }
 
 /* ========================================================
@@ -96,18 +115,20 @@
     
     #sidebar-app, .sidebar {
         display: flex !important;
-        width: 280px;
-        position: fixed; /* Mantiene el sidebar estático a la izquierda */
+        flex-direction: column;
+        width: 240px !important; /* Reducido de 280px a 240px para quitarle peso visual a la barra lateral */
+        position: fixed; 
         top: 0;
         bottom: 0;
         left: 0;
         z-index: 100;
+        background-color: #212529; /* Asegura el fondo oscuro institucional */
     }
 
     .main-content-wrapper { 
         flex: 1; 
-        margin-left: 280px; /* Deja espacio exacto para que el contenido no quede debajo del sidebar */
-        width: calc(100% - 280px);
+        margin-left: 240px !important; /* Sincronizado exactamente con el nuevo ancho del sidebar */
+        width: calc(100% - 240px);
     }
 
     .dropdown-hover:hover .dropdown-menu {
@@ -115,38 +136,4 @@
         margin-top: 0; 
         animation: fadeIn 0.2s;
     }
-}
-/* Escala global reducida para todo el documento */
-html {
-    font-size: 12px; /* Reduce la base predeterminada de Bootstrap (16px) a 14px, achicando textos, paddings y márgenes proporcionalmente en cascada */
-}
-/* ========================================================
-   4. 📐 COMPRESIÓN GLOBAL DE COMPONENTES (Modo Compacto)
-   ======================================================== */
-
-/* Reduce drásticamente el espacio interno de las tarjetas para que no ocupen tanta altura */
-.card {
-    margin-bottom: 0.75rem !important;
-}
-
-.card-body {
-    padding: 1rem !important;
-}
-
-/* Hace que las tablas respiren mejor y ocupen menos espacio vertical */
-.table th, 
-.table td {
-    padding: 0.4rem 0.6rem !important;
-    vertical-align: middle !important;
-}
-
-/* Reduce el margen de los títulos internos de las vistas */
-h5, .h5, h4, .h4 {
-    margin-bottom: 0.75rem !important;
-}
-
-/* Ajusta los formularios para que los inputs no sean tan altos */
-.form-control, .form-select {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.95rem;
 }
