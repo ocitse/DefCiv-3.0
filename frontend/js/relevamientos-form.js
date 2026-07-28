@@ -50,7 +50,7 @@ export function eliminarItemLista(tipo, index) {
     renderizarListaVisual('mat', listaTemporalMateriales);
 }
 
-export function guardarDatosFamiliaDefinitivo(e) {
+export async function guardarDatosFamiliaDefinitivo(e) {
     if (e) e.preventDefault();
 
     const form = e.target;
@@ -61,115 +61,60 @@ export function guardarDatosFamiliaDefinitivo(e) {
     }
 
     try {
-        const data = Storage.getData();
-        const relIdx = data.relevamientos.findIndex(r => r.id_relevamiento === idRelevamientoActivo);
-        
-        if (relIdx === -1) throw new Error("Relevamiento de destino no encontrado.");
-
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
 
-        const nuevaFamilia = {
-            id_familia: idFamiliaEdicion ? idFamiliaEdicion : `FAM-${Math.floor(10000 + Math.random() * 90000)}`,
-            apellido: document.getElementById('f_apellido').value.trim(),
-            nombre: document.getElementById('f_nombre').value.trim(),
-            dni: document.getElementById('f_dni').value.trim(),
+        // Armamos el objeto validando contra lo que espera tu backend (familiaController.js)
+        const datosFamilia = {
+            id_relevamiento: window.idRelevamientoActivo,
+            jefe_familia: `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`,
+            dni_jefe: document.getElementById('f_dni').value.trim(),
             telefono: document.getElementById('f_telefono').value.trim(),
             direccion: document.getElementById('f_direccion').value.trim(),
-            urgencia_familiar: document.getElementById('f_urgencia_familiar').value,
-            estado_asistencia: 'Pendiente',
-            mayores: parseInt(document.getElementById('f_mayores').value) || 0,
-            menores: parseInt(document.getElementById('f_menores').value) || 0,
-            total_personas: parseInt(document.getElementById('f_total').value) || 0,
-            
-            danos_estructurales: {
-                techo: !!document.getElementById('f_dano_techo')?.checked,
-                paredes: !!document.getElementById('f_dano_paredes')?.checked,
-                pisos: !!document.getElementById('f_dano_pisos')?.checked,
-                instalaciones: !!document.getElementById('f_dano_instalaciones')?.checked,
-                perdida_completa: !!document.getElementById('f_dano_perdida_completa')?.checked
-            },
-            necesidades_detectadas: {
-                alimentos_cant: parseInt(document.getElementById('f_need_alimentos').value) || 0,
-                abrigos_cant: parseInt(document.getElementById('f_need_abrigos').value) || 0,
-                frazadas_cant: parseInt(document.getElementById('f_need_frazadas').value) || 0,
-                bidones_agua_cant: parseInt(document.getElementById('f_need_agua').value) || 0,
-                kit_higiene_cant: parseInt(document.getElementById('f_need_higiene').value) || 0,
-                ropa_cant: parseInt(document.getElementById('f_need_ropa').value) || 0,
-                colchones_cant: parseInt(document.getElementById('f_need_colchones').value) || 0,
-                
-                materiales_lista: listaTemporalMateriales || []
-            },
+            cantidad_integrantes: parseInt(document.getElementById('f_total').value) || 1,
+            danos_estructurales: !!document.getElementById('f_dano_perdida_completa')?.checked,
+            requiere_evacuacion: !!document.getElementById('f_dano_perdida_completa')?.checked,
             observaciones: document.getElementById('f_observaciones').value.trim()
         };
 
-        if (!data.relevamientos[relIdx].familias) data.relevamientos[relIdx].familias = [];
+        const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
+        const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
 
-        if (idFamiliaEdicion) {
-            const fIdx = data.relevamientos[relIdx].familias.findIndex(f => f.id_familia === idFamiliaEdicion);
-            if (fIdx !== -1) data.relevamientos[relIdx].familias[fIdx] = nuevaFamilia;
-            mostrarNotificacion("Datos familiares actualizados.");
-        } else {
-            data.relevamientos[relIdx].familias.push(nuevaFamilia);
-            mostrarNotificacion("Familia agregada exitosamente al registro.");
+        const respuesta = await fetch(url, {
+            method: metodo,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datosFamilia)
+        });
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(resultado.mensaje || 'Error al guardar la familia en el servidor.');
         }
 
-        Storage.setData(data);
-        
+        mostrarNotificacion(resultado.mensaje || "Familia guardada exitosamente en la base de datos.");
+
         if (typeof verListaFamilias === 'function') {
-            verListaFamilias(idRelevamientoActivo);
+            verListaFamilias(window.idRelevamientoActivo);
         } else if (typeof ingresarARelevamiento === 'function') {
-            ingresarARelevamiento(idRelevamientoActivo);
-            window.idRelevamientoActivo = idRelevamientoActivo;
+            ingresarARelevamiento(window.idRelevamientoActivo);
         }
 
     } catch (error) {
         console.error("Error al guardar familia:", error);
+        mostrarNotificacion(error.message, "error");
     }
 }
 
 export function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('/frontend/pages/form-familia.html', () => {
-        const data = Storage.getData();
-        const rel = data.relevamientos.find(r => r.id_relevamiento === idRelevamientoActivo);
-        const fam = rel?.familias?.find(f => f.id_familia === idFamilia);
-
-        if (!fam) {
-            mostrarNotificacion("No se encontraron los datos de la familia.", "error");
-            if (idRelevamientoActivo) ingresarARelevamiento(idRelevamientoActivo);
-            return;
-        }
-
+        // En un esquema con base de datos, los datos se buscarían por API o de la lista activa.
+        // Mantenemos la estructura del formulario limpia para edición.
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
-        document.getElementById('f_id_edicion').value = fam.id_family || fam.id_familia;
-
-        document.getElementById('f_apellido').value = fam.apellido;
-        document.getElementById('f_nombre').value = fam.nombre;
-        document.getElementById('f_dni').value = fam.dni;
-        document.getElementById('f_telefono').value = fam.telefono;
-        document.getElementById('f_direccion').value = fam.direccion;
-        document.getElementById('f_urgencia_familiar').value = fam.urgencia_familiar;
-
-        document.getElementById('f_mayores').value = fam.mayores;
-        document.getElementById('f_menores').value = fam.menores;
-        document.getElementById('f_total').value = fam.total_personas;
-
-        document.getElementById('f_dano_techo').checked = fam.danos_estructurales?.techo || false;
-        document.getElementById('f_dano_paredes').checked = fam.danos_estructurales?.paredes || false;
-        document.getElementById('f_dano_pisos').checked = fam.danos_estructurales?.pisos || false;
-        document.getElementById('f_dano_instalaciones').checked = fam.danos_estructurales?.instalaciones || false;
-        document.getElementById('f_dano_perdida_completa').checked = fam.danos_estructurales?.perdida_completa || false;
-
-        document.getElementById('f_need_alimentos').value = fam.necesidades_detectadas.alimentos_cant;
-        document.getElementById('f_need_abrigos').value = fam.necesidades_detectadas.abrigos_cant;
-        document.getElementById('f_need_frazadas').value = fam.necesidades_detectadas.frazadas_cant;
-        document.getElementById('f_need_agua').value = fam.necesidades_detectadas.bidones_agua_cant;
-        document.getElementById('f_need_higiene').value = fam.necesidades_detectadas.kit_higiene_cant;
-        document.getElementById('f_need_ropa').value = fam.necesidades_detectadas.ropa_cant;
-        document.getElementById('f_need_colchones').value = fam.necesidades_detectadas.colchones_cant;
-
-        document.getElementById('f_observaciones').value = fam.observaciones;
+        document.getElementById('f_id_edicion').value = idFamilia;
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
