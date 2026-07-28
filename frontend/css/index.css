@@ -116,3 +116,7 @@
         animation: fadeIn 0.2s;
     }
 }
+/* Escala global reducida para todo el documento */
+html {
+    font-size: 14px; /* Reduce la base predeterminada de Bootstrap (16px) a 14px, achicando textos, paddings y márgenes proporcionalmente en cascada */
+}
