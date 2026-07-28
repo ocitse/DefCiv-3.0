@@ -4,7 +4,8 @@
    body { 
     min-height: 100vh; 
     background-color: #f8f9fa; 
-    margin: 0; 
+    margin: 0;
+    font-size: 0.92rem; /* Normaliza y reduce levemente la escala general para evitar que todo se vea gigante */
 }
 
 /* Compartido por los links del sidebar y del menú móvil */
@@ -27,12 +28,14 @@
     color: #fff !important;
 }
 
-/* Estilos del Contenido Principal */
+/* Estilos del Contenido Principal (Ajustado para mejor densidad visual) */
 .main-content {
-    padding: 30px;
+    padding: 20px; /* Reducido de 30px a 20px para aprovechar mejor el espacio */
+    max-width: 1500px; /* Evita que las tablas y tarjetas se estiren infinitamente en monitores 4K/ultrawide */
+    margin: 0 auto;
 }
 .page-title {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: #343a40;
 }
 
@@ -93,11 +96,18 @@
     
     #sidebar-app, .sidebar {
         display: flex !important;
+        width: 280px;
+        position: fixed; /* Mantiene el sidebar estático a la izquierda */
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
     }
 
     .main-content-wrapper { 
         flex: 1; 
-        margin-left: 280px; 
+        margin-left: 280px; /* Deja espacio exacto para que el contenido no quede debajo del sidebar */
+        width: calc(100% - 280px);
     }
 
     .dropdown-hover:hover .dropdown-menu {
