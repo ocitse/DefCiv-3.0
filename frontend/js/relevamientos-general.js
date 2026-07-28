@@ -197,15 +197,17 @@ export async function cargarTablaRelevamientos() {
                 <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
                 <td class="text-center">${r.familias ? r.familias.length : 0}</td>
                 <td class="text-center">
-                    <!-- Botón Editar Relevamiento -->
-                    <button class="btn btn-sm btn-outline-warning me-1" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Relevamiento">
-                    <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <!-- Botón Ver Familias (Ojito) -->
-                    <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
-                    <i class="bi bi-eye"></i>
-                    </button>
-                </td>
+    <div class="d-flex justify-content-center gap-1">
+        <!-- Botón Editar Relevamiento -->
+        <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Relevamiento">
+            <i class="bi bi-pencil-square"></i>
+        </button>
+        <!-- Botón Ver Familias (Ojito) -->
+        <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+            <i class="bi bi-eye"></i>
+        </button>
+    </div>
+</td>
             </tr>
         `).join('');
 
