@@ -198,3 +198,5 @@ export function verListaRelevamientos(idRelevamiento) {
         }
     });
 }
+
+window.ingresarARelevamiento = ingresarARelevamiento;
