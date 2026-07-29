@@ -64,3 +64,40 @@ export const obtenerFamilias = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.' });
     }
 };
+
+// OBTENER UNA FAMILIA POR SU ID (Para ver la ficha)
+export const obtenerFamiliaPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const familia = await Familia.findByPk(id, {
+            include: [{ model: Relevamiento }]
+        });
+
+        if (!familia) {
+            return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
+        }
+
+        res.json(familia);
+    } catch (error) {
+        console.error('Error al obtener la familia:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
+    }
+};
+
+// ELIMINAR UNA FAMILIA POR SU ID
+export const eliminarFamilia = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const familia = await Familia.findByPk(id);
+
+        if (!familia) {
+            return res.status(404).json({ mensaje: 'La familia que intenta eliminar no existe.' });
+        }
+
+        await familia.destroy();
+        res.json({ mensaje: 'Registro familiar eliminado correctamente.' });
+    } catch (error) {
+        console.error('Error al eliminar familia:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al eliminar la familia.' });
+    }
+};
