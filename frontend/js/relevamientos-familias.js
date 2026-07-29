@@ -115,6 +115,10 @@ export function mostrarFormularioNuevaFamilia() {
             titulo.innerHTML = `<i class="bi bi-people-fill text-warning me-2"></i> Registrar Nueva Familia`;
         }
 
+        if (typeof inicializarCalculoIntegrantes === 'function') {
+            inicializarCalculoIntegrantes();
+        }
+
         // Vincular el evento submit de forma segura para evitar recargas o pantallas en blanco
         const form = document.getElementById('form-nueva-familia');
         if (form) {
