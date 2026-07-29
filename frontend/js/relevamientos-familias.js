@@ -163,6 +163,9 @@ export async function verFichaNecesidades(idFamilia) {
         
         const fam = await respuesta.json();
 
+        // Usamos el ID real de la familia que viene de la BD (ej: fam.id_familia)
+        const idReal = fam.id_familia || idFamilia;
+
         const contenidoModal = `
             <div class="modal fade" id="modalFichaFamilia" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -179,14 +182,14 @@ export async function verFichaNecesidades(idFamilia) {
                                         <p class="mb-1 small"><strong>DNI:</strong> ${fam.dni_jefe || fam.dni || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Teléfono:</strong> ${fam.telefono || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Dirección:</strong> ${fam.direccion || 'No especificado'}</p>
-                                        <p class="mb-0 small"><strong>Integrantes:</strong> Mayores: ${fam.mayores || 1}, Menores: ${fam.menores || 0}</p>
+                                        <p class="mb-0 small"><strong>Integrantes (Total):</strong> <span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span> (Mayores: ${fam.mayores || 0}, Menores: ${fam.menores || 0})</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="p-3 bg-white rounded border shadow-sm">
                                         <h6 class="text-danger fw-bold border-bottom pb-2 mb-2"><i class="bi bi-house-exclamation-fill me-1"></i> Estado de Vivienda</h6>
-                                        <p class="mb-1 small"><strong>Prioridad:</strong> ${fam.urgencia_familiar || 'Normal'}</p>
-                                        <p class="mb-0 small"><strong>Pérdida Total:</strong> ${fam.f_dano_perdida_completa ? 'Sí' : 'No'}</p>
+                                        <p class="mb-1 small"><strong>Prioridad / Urgencia:</strong> ${fam.urgencia_familiar || fam.prioridad || 'Normal'}</p>
+                                        <p class="mb-0 small"><strong>Pérdida Total:</strong> ${fam.f_dano_perdida_completa || fam.danos_estructurales ? 'Sí' : 'No'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -196,8 +199,11 @@ export async function verFichaNecesidades(idFamilia) {
                                 <p class="m-0 small text-dark">${fam.observaciones || 'Sin observaciones registradas.'}</p>
                             </div>
                         </div>
-                        <div class="modal-footer bg-light">
+                        <div class="modal-footer bg-light d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar Ficha</button>
+                            <button type="button" class="btn btn-warning btn-sm fw-bold" id="btn-editar-desde-ficha" data-id="${idReal}">
+                                <i class="bi bi-pencil-square me-1"></i> Editar Ficha
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -215,6 +221,17 @@ export async function verFichaNecesidades(idFamilia) {
         const elementoModal = document.getElementById('modalFichaFamilia');
         const bModal = new bootstrap.Modal(elementoModal);
         bModal.show();
+
+        // Acción del botón Editar Ficha dentro del modal
+        document.getElementById('btn-editar-desde-ficha').addEventListener('click', () => {
+            bModal.hide();
+            divTemporal.remove();
+            if (typeof window.editarDatosFamilia === 'function') {
+                window.editarDatosFamilia(idReal);
+            } else {
+                console.error("La función editarDatosFamilia no está disponible globalmente.");
+            }
+        });
 
         elementoModal.addEventListener('hidden.bs.modal', () => {
             divTemporal.remove();
