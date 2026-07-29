@@ -80,14 +80,14 @@ function renderizarTablaFamilias(familias) {
         <td class="text-center">
             <div class="d-flex justify-content-center gap-1"> <!-- Evita que se acoplen mal -->
                 <button class="btn btn-sm btn-outline-info" onclick="window.verFichaNecesidades('${fam.id_familia}')" title="Ver Ficha">
-                    <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${fam.id_familia}')" title="Editar">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${fam.id_familia}')" title="Eliminar">
-                    <i class="bi bi-trash"></i>
-                </button>
+    <i class="bi bi-eye"></i>
+</button>
+<button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${fam.id_familia}')" title="Editar">
+    <i class="bi bi-pencil"></i>
+</button>
+<button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${fam.id_familia}')" title="Eliminar">
+    <i class="bi bi-trash"></i>
+</button>
             </div>
         </td>
     </tr>
