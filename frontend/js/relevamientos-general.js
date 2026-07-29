@@ -1,3 +1,4 @@
+// frontend/js/relevamientos-general.js
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { departamentosYLocalidades } from './ubicaciones.js';

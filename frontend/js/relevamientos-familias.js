@@ -1,6 +1,8 @@
+// frontend/js/relevamientos-familias.js
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { cargarTablaRelevamientos } from './relevamientos-general.js';
+import { guardarDatosFamiliaDefinitivo } from './relevamientos-form.js';
 
 // Función principal para cargar la vista del relevamiento y sus familias desde el Backend
 export async function ingresarARelevamiento(idRelevamiento) {
@@ -101,6 +103,18 @@ export function mostrarFormularioNuevaFamilia() {
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
         const inputId = document.getElementById('f_id_edicion');
         if (inputId) inputId.value = '';
+
+        const titulo = document.getElementById('titulo-form-familia');
+        if (titulo) {
+            titulo.innerHTML = `<i class="bi bi-people-fill text-warning me-2"></i> Registrar Nueva Familia`;
+        }
+
+        // Vincular el evento submit de forma segura para evitar recargas o pantallas en blanco
+        const form = document.getElementById('form-nueva-familia');
+        if (form) {
+            form.removeEventListener('submit', guardarDatosFamiliaDefinitivo);
+            form.addEventListener('submit', guardarDatosFamiliaDefinitivo);
+        }
     });
 }
 

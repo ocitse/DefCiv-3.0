@@ -1,4 +1,6 @@
+// frontend/js/relevamientos-form.js
 import { mostrarNotificacion } from './ui.js';
+import { cargarVistaDinamica } from './utils.js';
 
 let listaTemporalMateriales = [];
 
