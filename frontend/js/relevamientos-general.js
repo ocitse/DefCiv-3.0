@@ -5,6 +5,7 @@ import { departamentosYLocalidades } from './ubicaciones.js';
 import { Storage } from './storage.js'; // Ajusta la ruta si se llama diferente o está en otra carpeta
 import { verFichaNecesidades } from './relevamientos-familias.js';
 import { editarDatosFamilia } from './relevamientos-form.js';
+import { verListaRelevamientos } from './relevamientos-familias.js';
 
 function getBadgePrioridad(prioridad) {
     if (prioridad === 'Alta') return 'bg-danger';
