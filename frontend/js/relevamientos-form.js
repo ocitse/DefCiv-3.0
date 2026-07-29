@@ -126,82 +126,13 @@ export async function guardarDatosFamiliaDefinitivo(e) {
     }
 }
 
-// 2. Ver Ficha mediante Modal con resumen completo y botón para editar
-export async function verFichaNecesidades(idFamilia) {
-    try {
-        const respuesta = await fetch(`/api/familias/${idFamilia}`);
-        if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
-        
-        const fam = await respuesta.json();
-
-        // Buscar o crear dinámicamente un contenedor modal de Bootstrap en el DOM
-        let modalDiv = document.getElementById('modalFichaFamilia');
-        if (!modalDiv) {
-            modalDiv = document.createElement('div');
-            modalDiv.id = 'modalFichaFamilia';
-            modalDiv.className = 'modal fade';
-            modalDiv.tabIndex = '-1';
-            modalDiv.innerHTML = `
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header bg-info text-dark">
-                            <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i> Ficha Resumen de la Familia</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" id="contenido-ficha-modal">
-                            <!-- Contenido inyectado dinámicamente -->
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-warning" id="btn-editar-desde-ficha">
-                                <i class="bi bi-pencil-square me-1"></i> Editar Ficha
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modalDiv);
-        }
-
-        // Inyectar el resumen completo con todos los datos cargados
-        const cuerpoModal = document.getElementById('contenido-ficha-modal');
-        cuerpoModal.innerHTML = `
-            <div class="row g-3">
-                <div class="col-md-6"><strong>Jefe/a de Familia:</strong> ${fam.jefe_familia || 'N/D'}</div>
-                <div class="col-md-6"><strong>DNI:</strong> ${fam.dni_jefe || fam.dni || 'N/D'}</div>
-                <div class="col-md-6"><strong>Teléfono:</strong> ${fam.telefono || 'N/D'}</div>
-                <div class="col-md-6"><strong>Dirección:</strong> ${fam.direccion || 'N/D'}</div>
-                <div class="col-md-4"><strong>Total Integrantes:</strong> <span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span></div>
-                <div class="col-md-4"><strong>Daños Estructurales:</strong> ${fam.danos_estructurales ? 'Sí' : 'No'}</div>
-                <div class="col-md-4"><strong>Requiere Evacuación:</strong> ${fam.requiere_evacuacion ? 'Sí' : 'No'}</div>
-                <div class="col-12"><strong>Observaciones:</strong> <p class="border p-2 bg-light rounded">${fam.observaciones || 'Sin observaciones'}</p></div>
-            </div>
-        `;
-
-        // Configurar el botón de edición dentro del modal
-        const btnEditarFicha = document.getElementById('btn-editar-desde-ficha');
-        btnEditarFicha.onclick = () => {
-            const modalInstance = bootstrap.Modal.getInstance(modalDiv);
-            if (modalInstance) modalInstance.hide();
-            window.editarDatosFamilia(idFamilia);
-        };
-
-        // Mostrar el modal usando Bootstrap
-        const myModal = new bootstrap.Modal(modalDiv);
-        myModal.show();
-
-    } catch (error) {
-        console.error("Error al abrir ficha:", error);
-        mostrarNotificacion(error.message, "error");
-    }
-}
-
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
-        document.getElementById('f_id_edicion').value = idFamilia;
+        const inputIdEdicion = document.getElementById('f_id_edicion');
+        if (inputIdEdicion) inputIdEdicion.value = idFamilia;
 
         // Inicializar el autocalculo al cargar el formulario de edición
         inicializarCalculoIntegrantes();
@@ -210,7 +141,9 @@ export async function editarDatosFamilia(idFamilia) {
             const respuesta = await fetch(`/api/familias/${idFamilia}`);
             if (respuesta.ok) {
                 const fam = await respuesta.json();
-                document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
+                
+                // Cargar datos básicos y de contacto
+                if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
                 if (fam.jefe_familia) {
                     const partes = fam.jefe_familia.split(',');
                     if (document.getElementById('f_apellido')) document.getElementById('f_apellido').value = partes[0]?.trim() || '';
@@ -218,7 +151,21 @@ export async function editarDatosFamilia(idFamilia) {
                 }
                 if (document.getElementById('f_telefono')) document.getElementById('f_telefono').value = fam.telefono || '';
                 if (document.getElementById('f_direccion')) document.getElementById('f_direccion').value = fam.direccion || '';
+                
+                // Integrantes
                 if (document.getElementById('f_total')) document.getElementById('f_total').value = fam.cantidad_integrantes || fam.total_personas || 1;
+                
+                // Prioridad / Urgencia familiar
+                const selectPrioridad = document.getElementById('urgencia_familiar') || document.getElementById('f_prioridad');
+                if (selectPrioridad) selectPrioridad.value = fam.urgencia_familiar || fam.prioridad || 'Baja';
+
+                // Daños y evacuación (según el checkbox que uses en tu form)
+                const checkDanos = document.getElementById('f_dano_perdida_completa');
+                if (checkDanos) {
+                    checkDanos.checked = Boolean(fam.danos_estructurales || fam.requiere_evacuacion);
+                }
+
+                // Observaciones
                 if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
             }
         } catch (error) {
