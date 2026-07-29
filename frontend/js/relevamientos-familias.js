@@ -2,7 +2,8 @@
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { cargarTablaRelevamientos } from './relevamientos-general.js';
-import { guardarDatosFamiliaDefinitivo } from './relevamientos-form.js';
+import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes } from './relevamientos-form.js';
+
 
 // Función principal para cargar la vista del relevamiento y sus familias desde el Backend
 export async function ingresarARelevamiento(idRelevamiento) {
@@ -104,7 +105,6 @@ function obtenerColorUrgencia(urgencia) {
     }
 }
 
-// Función disparada por el botón "Agregar Nueva Familia" en tabla-familias.html
 export function mostrarFormularioNuevaFamilia() {
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
         const inputId = document.getElementById('f_id_edicion');
@@ -115,11 +115,11 @@ export function mostrarFormularioNuevaFamilia() {
             titulo.innerHTML = `<i class="bi bi-people-fill text-warning me-2"></i> Registrar Nueva Familia`;
         }
 
+        // <-- ESTO FALTABA AL CREAR NUEVA FAMILIA
         if (typeof inicializarCalculoIntegrantes === 'function') {
             inicializarCalculoIntegrantes();
         }
 
-        // Vincular el evento submit de forma segura para evitar recargas o pantallas en blanco
         const form = document.getElementById('form-nueva-familia');
         if (form) {
             form.removeEventListener('submit', guardarDatosFamiliaDefinitivo);

@@ -66,8 +66,12 @@ export function inicializarCalculoIntegrantes() {
         inputTotal.value = mayores + menores;
     };
 
-    inputMayores.addEventListener('input', calcular);
-    inputMenores.addEventListener('input', calcular);
+    // Usar oninput directo previene duplicación de listeners si se llama varias veces
+    inputMayores.oninput = calcular;
+    inputMenores.oninput = calcular;
+    
+    // Calcular por defecto al iniciar
+    calcular();
 }
 
 export async function guardarDatosFamiliaDefinitivo(e) {
