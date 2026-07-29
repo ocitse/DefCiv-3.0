@@ -162,9 +162,26 @@ export async function verFichaNecesidades(idFamilia) {
         if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
         
         const fam = await respuesta.json();
-
-        // Usamos el ID real de la familia que viene de la BD (ej: fam.id_familia)
         const idReal = fam.id_familia || idFamilia;
+
+        // Validamos si tiene materiales solicitados (asumiendo que vienen en un array fam.provisiones o fam.materiales)
+        const listaMateriales = fam.provisiones || fam.materiales || [];
+        let htmlMateriales = '';
+        
+        if (listaMateriales.length > 0) {
+            htmlMateriales = `
+                <ul class="list-group list-group-flush small">
+                    ${listaMateriales.map(m => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-white px-0 py-1">
+                            <span><i class="bi bi-box-seam me-1 text-secondary"></i> ${m.nombre || m.material || 'Material'}</span>
+                            <span class="badge bg-primary rounded-pill">Cant: ${m.cantidad || 1}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        } else {
+            htmlMateriales = `<p class="text-muted small m-0 italic">No se registraron materiales de construcción solicitados.</p>`;
+        }
 
         const contenidoModal = `
             <div class="modal fade" id="modalFichaFamilia" tabindex="-1" aria-hidden="true">
@@ -176,8 +193,9 @@ export async function verFichaNecesidades(idFamilia) {
                         </div>
                         <div class="modal-body p-4 bg-light">
                             <div class="row g-3 mb-3">
+                                <!-- Datos Demográficos -->
                                 <div class="col-md-6">
-                                    <div class="p-3 bg-white rounded border shadow-sm">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-primary fw-bold border-bottom pb-2 mb-2"><i class="bi bi-people-fill me-1"></i> Datos Demográficos</h6>
                                         <p class="mb-1 small"><strong>DNI:</strong> ${fam.dni_jefe || fam.dni || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Teléfono:</strong> ${fam.telefono || 'No especificado'}</p>
@@ -185,15 +203,28 @@ export async function verFichaNecesidades(idFamilia) {
                                         <p class="mb-0 small"><strong>Integrantes (Total):</strong> <span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span> (Mayores: ${fam.mayores || 0}, Menores: ${fam.menores || 0})</p>
                                     </div>
                                 </div>
+                                <!-- Estado de Vivienda y Emergencia -->
                                 <div class="col-md-6">
-                                    <div class="p-3 bg-white rounded border shadow-sm">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-danger fw-bold border-bottom pb-2 mb-2"><i class="bi bi-house-exclamation-fill me-1"></i> Estado de Vivienda</h6>
                                         <p class="mb-1 small"><strong>Prioridad / Urgencia:</strong> ${fam.urgencia_familiar || fam.prioridad || 'Normal'}</p>
-                                        <p class="mb-0 small"><strong>Pérdida Total:</strong> ${fam.f_dano_perdida_completa || fam.danos_estructurales ? 'Sí' : 'No'}</p>
+                                        <p class="mb-1 small"><strong>Daños Estructurales:</strong> <span class="badge bg-${fam.danos_estructurales ? 'danger' : 'success'}">${fam.danos_estructurales ? 'Sí' : 'No'}</span></p>
+                                        <p class="mb-0 small"><strong>Requiere Evacuación:</strong> <span class="badge bg-${fam.requiere_evacuacion ? 'warning text-dark' : 'success'}">${fam.requiere_evacuacion ? 'Sí' : 'No'}</span></p>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Sección de Necesidades y Materiales Solicitados -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-12">
+                                    <div class="p-3 bg-white rounded border shadow-sm">
+                                        <h6 class="text-success fw-bold border-bottom pb-2 mb-2"><i class="bi bi-tools me-1"></i> Materiales / Provisiones Solicitadas</h6>
+                                        ${htmlMateriales}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Observaciones -->
                             <div class="p-3 bg-warning bg-opacity-10 rounded border border-warning-subtle">
                                 <h6 class="fw-bold text-dark mb-1"><i class="bi bi-chat-left-text-fill me-1"></i> Observaciones</h6>
                                 <p class="m-0 small text-dark">${fam.observaciones || 'Sin observaciones registradas.'}</p>
@@ -222,7 +253,6 @@ export async function verFichaNecesidades(idFamilia) {
         const bModal = new bootstrap.Modal(elementoModal);
         bModal.show();
 
-        // Acción del botón Editar Ficha dentro del modal
         document.getElementById('btn-editar-desde-ficha').addEventListener('click', () => {
             bModal.hide();
             divTemporal.remove();
