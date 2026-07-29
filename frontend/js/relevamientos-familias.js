@@ -16,14 +16,18 @@ export async function ingresarARelevamiento(idRelevamiento) {
             if (respuestaRel.ok) {
                 const rel = await respuestaRel.json();
                 const contenedorContexto = document.getElementById('contexto-relevamiento-activo');
-                if (contenedorContexto) {
-                    contenedorContexto.innerHTML = `
-                        <div class="col-md-3"><strong>Código:</strong> ${rel.codigo_relevamiento || 'N/D'}</div>
-                        <div class="col-md-3"><strong>Depto / Loc:</strong> ${rel.departamento || 'N/D'} / ${rel.localidad || 'N/D'}</div>
-                        <div class="col-md-3"><strong>Barrio:</strong> ${rel.barrio || 'N/D'}</div>
-                        <div class="col-md-3"><strong>Evento:</strong> ${rel.tipo_evento || 'N/D'}</div>
-                    `;
-                }
+if (contenedorContexto) {
+    contenedorContexto.innerHTML = `
+        <div class="col-md-3"><strong>Código:</strong> ${rel.codigo_relevamiento || 'N/D'}</div>
+        <div class="col-md-3"><strong>Fecha:</strong> ${rel.createdAt ? new Date(rel.createdAt).toLocaleDateString() : 'N/D'}</div>
+        <div class="col-md-3"><strong>Departamento:</strong> ${rel.departamento || 'N/D'}</div>
+        <div class="col-md-3"><strong>Localidad:</strong> ${rel.localidad || 'N/D'}</div>
+        <div class="col-md-3"><strong>Barrio:</strong> ${rel.barrio || 'N/D'}</div>
+        <div class="col-md-3"><strong>Evento:</strong> ${rel.tipo_evento || 'N/D'}</div>
+        <div class="col-md-3"><strong>Solicitante:</strong> ${rel.solicitante || 'N/D'}</div>
+        <div class="col-md-3"><strong>Prioridad:</strong> ${rel.prioridad || 'N/D'}</div>
+    `;
+}
             }
 
             // 2. Consultamos al backend las familias asociadas a este relevamiento
@@ -62,30 +66,32 @@ function renderizarTablaFamilias(familias) {
     }
 
     tbody.innerHTML = familias.map((fam, index) => `
-        <tr>
-            <td>${index + 1}</td>
-            <td><strong>${fam.dni_jefe || fam.dni || 'N/D'}</strong></td>
-            <td>${fam.apellido && fam.nombre ? `${fam.apellido}, ${fam.nombre}` : (fam.jefe_familia || 'Sin especificar')}</td>
-            <td class="text-center"><span class="badge bg-secondary">${fam.cantidad_integrantes || fam.total_personas || 1}</span></td>
-            <td>
-                <span class="badge bg-${obtenerColorUrgencia(fam.urgencia_familiar)}">
-                    ${fam.urgencia_familiar || 'Normal'}
-                </span>
-            </td>
-            <td><span class="badge bg-info text-dark">${fam.estado_asistencia || 'Pendiente'}</span></td>
-            <td class="text-center">
-                <button class="btn btn-sm btn-outline-info me-1" onclick="window.verFichaNecesidades('${fam.id_familia}')" title="Ver Ficha">
+    <tr>
+        <td>${index + 1}</td> <!-- Número cardinal secuencial -->
+        <td><strong>${fam.dni_jefe || fam.dni || 'N/D'}</strong></td>
+        <td>${fam.jefe_familia || 'Sin especificar'}</td>
+        <td class="text-center"><span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span></td>
+        <td>
+            <span class="badge bg-${obtenerColorUrgencia(fam.urgencia_familiar || fam.prioridad)}">
+                ${fam.urgencia_familiar || fam.prioridad || 'Normal'}
+            </span>
+        </td>
+        <td><span class="badge bg-info text-dark">${fam.estado_asistencia || 'Pendiente'}</span></td>
+        <td class="text-center">
+            <div class="d-flex justify-content-center gap-1"> <!-- Evita que se acoplen mal -->
+                <button class="btn btn-sm btn-outline-info" onclick="window.verFichaNecesidades('${fam.id_familia}')" title="Ver Ficha">
                     <i class="bi bi-eye"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-warning me-1" onclick="window.editarDatosFamilia('${fam.id_familia}')" title="Editar">
+                <button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${fam.id_familia}')" title="Editar">
                     <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${fam.id_familia}')" title="Eliminar">
                     <i class="bi bi-trash"></i>
                 </button>
-            </td>
-        </tr>
-    `).join('');
+            </div>
+        </td>
+    </tr>
+`).join('');
 }
 
 // Función auxiliar para asignar colores a la prioridad

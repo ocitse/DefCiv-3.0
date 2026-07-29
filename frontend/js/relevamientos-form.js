@@ -109,17 +109,37 @@ export async function guardarDatosFamiliaDefinitivo(e) {
     }
 }
 
-export function editarDatosFamilia(idFamilia) {
-    cargarVistaDinamica('/frontend/pages/form-familia.html', () => {
-        // En un esquema con base de datos, los datos se buscarían por API o de la lista activa.
-        // Mantenemos la estructura del formulario limpia para edición.
+export async function editarDatosFamilia(idFamilia) {
+    cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
         document.getElementById('f_id_edicion').value = idFamilia;
 
+        try {
+            const respuesta = await fetch(`/api/familias/${idFamilia}`);
+            if (respuesta.ok) {
+                const fam = await respuesta.json();
+                // Rellenamos los campos con los datos reales de la base de datos
+                document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
+                // Si el jefe viene en formato "Apellido, Nombre", podemos separarlo o cargarlo si tenés inputs separados
+                if (fam.jefe_familia) {
+                    const partes = fam.jefe_familia.split(',');
+                    if (document.getElementById('f_apellido')) document.getElementById('f_apellido').value = partes[0]?.trim() || '';
+                    if (document.getElementById('f_nombre')) document.getElementById('f_nombre').value = partes[1]?.trim() || '';
+                }
+                if (document.getElementById('f_telefono')) document.getElementById('f_telefono').value = fam.telefono || '';
+                if (document.getElementById('f_direccion')) document.getElementById('f_direccion').value = fam.direccion || '';
+                if (document.getElementById('f_total')) document.getElementById('f_total').value = fam.cantidad_integrantes || fam.total_personas || 1;
+                if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
+            }
+        } catch (error) {
+            console.error("Error al cargar datos para editar:", error);
+        }
+
         const form = document.getElementById('form-nueva-familia');
         if (form) {
+            form.removeEventListener('submit', guardarDatosFamiliaDefinitivo);
             form.addEventListener('submit', guardarDatosFamiliaDefinitivo);
         }
     });
