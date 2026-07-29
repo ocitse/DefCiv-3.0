@@ -101,3 +101,25 @@ export const eliminarFamilia = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al eliminar la familia.' });
     }
 };
+
+// ACTUALIZAR UNA FAMILIA POR SU ID
+export const actualizarFamilia = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const familia = await Familia.findByPk(id);
+
+        if (!familia) {
+            return res.status(404).json({ mensaje: 'La familia que intenta actualizar no existe.' });
+        }
+
+        await familia.update(req.body);
+
+        res.json({
+            mensaje: 'Ficha de familia actualizada con éxito.',
+            data: familia
+        });
+    } catch (error) {
+        console.error('Error al actualizar familia:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al actualizar la familia.' });
+    }
+};
