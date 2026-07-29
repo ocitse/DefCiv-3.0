@@ -93,9 +93,30 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             dni_jefe: document.getElementById('f_dni').value.trim(),
             telefono: document.getElementById('f_telefono').value.trim(),
             direccion: document.getElementById('f_direccion').value.trim(),
+            mayores: parseInt(document.getElementById('f_mayores').value) || 1,
+            menores: parseInt(document.getElementById('f_menores').value) || 0,
             cantidad_integrantes: parseInt(document.getElementById('f_total').value) || 1,
+            urgencia_familiar: document.getElementById('f_urgencia_familiar').value,
+            
+            // Daños
+            dano_techo: !!document.getElementById('f_dano_techo')?.checked,
+            dano_paredes: !!document.getElementById('f_dano_paredes')?.checked,
+            dano_pisos: !!document.getElementById('f_dano_pisos')?.checked,
+            dano_instalaciones: !!document.getElementById('f_dano_instalaciones')?.checked,
             danos_estructurales: !!document.getElementById('f_dano_perdida_completa')?.checked,
             requiere_evacuacion: !!document.getElementById('f_dano_perdida_completa')?.checked,
+
+            // Necesidades
+            unidades_alimentarias: parseInt(document.getElementById('f_need_alimentos')?.value) || 0,
+            abrigos: parseInt(document.getElementById('f_need_abrigos')?.value) || 0,
+            frazadas: parseInt(document.getElementById('f_need_frazadas')?.value) || 0,
+            bidones_agua: parseInt(document.getElementById('f_need_agua')?.value) || 0,
+            kits_higiene: parseInt(document.getElementById('f_need_higiene')?.value) || 0,
+            ropa: parseInt(document.getElementById('f_need_ropa')?.value) || 0,
+            colchones: parseInt(document.getElementById('f_need_colchones')?.value) || 0,
+
+            // Materiales y Observaciones
+            materiales: listaTemporalMateriales,
             observaciones: document.getElementById('f_observaciones').value.trim()
         };
 
@@ -104,9 +125,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
         const respuesta = await fetch(url, {
             method: metodo,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datosFamilia)
         });
 
@@ -138,42 +157,59 @@ export async function editarDatosFamilia(idFamilia) {
         const inputIdEdicion = document.getElementById('f_id_edicion');
         if (inputIdEdicion) inputIdEdicion.value = idFamilia;
 
-        // Inicializar el autocalculo al cargar el formulario de edición
         inicializarCalculoIntegrantes();
 
         try {
             const respuesta = await fetch(`/api/familias/${idFamilia}`);
-            if (respuesta.ok) {
-                const fam = await respuesta.json();
-                
-                // Cargar datos básicos y de contacto
-                if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
-                if (fam.jefe_familia) {
-                    const partes = fam.jefe_familia.split(',');
-                    if (document.getElementById('f_apellido')) document.getElementById('f_apellido').value = partes[0]?.trim() || '';
-                    if (document.getElementById('f_nombre')) document.getElementById('f_nombre').value = partes[1]?.trim() || '';
-                }
-                if (document.getElementById('f_telefono')) document.getElementById('f_telefono').value = fam.telefono || '';
-                if (document.getElementById('f_direccion')) document.getElementById('f_direccion').value = fam.direccion || '';
-                
-                // Integrantes
-                if (document.getElementById('f_total')) document.getElementById('f_total').value = fam.cantidad_integrantes || fam.total_personas || 1;
-                
-                // Prioridad / Urgencia familiar
-                const selectPrioridad = document.getElementById('urgencia_familiar') || document.getElementById('f_prioridad');
-                if (selectPrioridad) selectPrioridad.value = fam.urgencia_familiar || fam.prioridad || 'Baja';
-
-                // Daños y evacuación (según el checkbox que uses en tu form)
-                const checkDanos = document.getElementById('f_dano_perdida_completa');
-                if (checkDanos) {
-                    checkDanos.checked = Boolean(fam.danos_estructurales || fam.requiere_evacuacion);
-                }
-
-                // Observaciones
-                if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
+            if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
+            
+            const fam = await respuesta.json();
+            
+            // 1. Datos personales y de contacto
+            if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
+            if (fam.jefe_familia) {
+                const partes = fam.jefe_familia.split(',');
+                if (document.getElementById('f_apellido')) document.getElementById('f_apellido').value = partes[0]?.trim() || '';
+                if (document.getElementById('f_nombre')) document.getElementById('f_nombre').value = partes[1]?.trim() || '';
             }
+            if (document.getElementById('f_telefono')) document.getElementById('f_telefono').value = fam.telefono || '';
+            if (document.getElementById('f_direccion')) document.getElementById('f_direccion').value = fam.direccion || '';
+            
+            // 2. Composición familiar
+            if (document.getElementById('f_mayores')) document.getElementById('f_mayores').value = fam.mayores ?? 1;
+            if (document.getElementById('f_menores')) document.getElementById('f_menores').value = fam.menores ?? 0;
+            if (document.getElementById('f_total')) document.getElementById('f_total').value = fam.cantidad_integrantes || fam.total_personas || 1;
+            
+            // 3. Prioridad de Atención
+            const selectPrioridad = document.getElementById('f_urgencia_familiar');
+            if (selectPrioridad) selectPrioridad.value = fam.urgencia_familiar || fam.prioridad || '';
+
+            // 4. Evaluación de Daños en Vivienda (Switches)
+            if (document.getElementById('f_dano_techo')) document.getElementById('f_dano_techo').checked = Boolean(fam.dano_techo);
+            if (document.getElementById('f_dano_paredes')) document.getElementById('f_dano_paredes').checked = Boolean(fam.dano_paredes);
+            if (document.getElementById('f_dano_pisos')) document.getElementById('f_dano_pisos').checked = Boolean(fam.dano_pisos);
+            if (document.getElementById('f_dano_instalaciones')) document.getElementById('f_dano_instalaciones').checked = Boolean(fam.dano_instalaciones || fam.instalaciones_afectadas);
+            if (document.getElementById('f_dano_perdida_completa')) document.getElementById('f_dano_perdida_completa').checked = Boolean(fam.danos_estructurales || fam.requiere_evacuacion);
+
+            // 5. Necesidades Detectadas (Inputs numéricos)
+            if (document.getElementById('f_need_alimentos')) document.getElementById('f_need_alimentos').value = fam.unidades_alimentarias || fam.alimentos || 0;
+            if (document.getElementById('f_need_abrigos')) document.getElementById('f_need_abrigos').value = fam.abrigos || 0;
+            if (document.getElementById('f_need_frazadas')) document.getElementById('f_need_frazadas').value = fam.frazadas || 0;
+            if (document.getElementById('f_need_agua')) document.getElementById('f_need_agua').value = fam.bidones_agua || fam.agua || 0;
+            if (document.getElementById('f_need_higiene')) document.getElementById('f_need_higiene').value = fam.kits_higiene || 0;
+            if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
+            if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
+
+            // 6. Materiales de Construcción
+            listaTemporalMateriales = fam.provisiones || fam.materiales || [];
+            renderizarListaVisual('mat', listaTemporalMateriales);
+
+            // 7. Observaciones
+            if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
+
         } catch (error) {
             console.error("Error al cargar datos para editar:", error);
+            mostrarNotificacion("Error al recuperar los datos de la ficha.", "error");
         }
 
         const form = document.getElementById('form-nueva-familia');
