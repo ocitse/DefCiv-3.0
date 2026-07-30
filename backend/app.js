@@ -18,6 +18,8 @@ import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
 import solicitudroutes from './routes/solicitudroutes.js';
 import provisionesroutes from './routes/provisionesroutes.js';
+import necesidadFamilia from './models/necesidadFamilia.js';
+
 
 dotenv.config();
 

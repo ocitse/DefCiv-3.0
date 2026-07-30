@@ -200,8 +200,12 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
             if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
 
-            // 6. Materiales de Construcción
-            listaTemporalMateriales = fam.provisiones || fam.materiales || [];
+            // 6. Materiales de Construcción (Mapeando la relación nueva `necesidades`)
+            const materialesBrutos = fam.necesidades || fam.provisiones || fam.materiales || [];
+            listaTemporalMateriales = materialesBrutos.map(m => ({
+                nombre: m.tipo_material || m.nombre,
+                cantidad: m.cantidad || 1
+            }));
             renderizarListaVisual('mat', listaTemporalMateriales);
 
             // 7. Observaciones
