@@ -255,3 +255,4 @@ export function cambiarPasoWizard(paso) {
     // Subir el scroll suavemente al inicio del formulario
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+window.cambiarPasoWizard = cambiarPasoWizard;
