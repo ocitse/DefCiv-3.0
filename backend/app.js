@@ -1,3 +1,4 @@
+// backend/app.js
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -177,6 +178,7 @@ async function iniciarServidor() {
         await asegurarColumnasRelevamientos();
         await crearAdminPorDefecto();
         await asegurarTablaProvisiones();
+        await asegurarTablaFamilias();
 
         await sequelize.sync();
         console.log('✅ Sincronización de modelos completada.');
@@ -221,6 +223,50 @@ async function asegurarColumnasRelevamientos() {
         console.log('✅ Verificación/Actualización completa de la tabla "relevamientos" y sus columnas.');
     } catch (error) {
         console.error('⚠️ Aviso al verificar columnas de relevamientos:', error.message);
+    }
+}
+// Función para verificar y crear/actualizar la tabla familias y sus columnas en PostgreSQL
+async function asegurarTablaFamilias() {
+    try {
+        // 1. Creamos la tabla base con los campos mínimos si no existe
+        await sequelize.query(`
+            CREATE TABLE IF NOT EXISTS familias (
+                id_familia SERIAL PRIMARY KEY,
+                jefe_familia VARCHAR(255),
+                dni_jefe VARCHAR(50),
+                telefono VARCHAR(50),
+                direccion VARCHAR(255),
+                cantidad_integrantes INTEGER DEFAULT 1,
+                danos_estructurales BOOLEAN DEFAULT FALSE,
+                requiere_evacuacion BOOLEAN DEFAULT FALSE,
+                observaciones TEXT,
+                id_relevamiento INTEGER,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `, { type: QueryTypes.RAW });
+
+        // 2. Agregamos de forma segura todas las columnas nuevas del formulario que faltaban
+        await sequelize.query(`
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS mayores INTEGER DEFAULT 1;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS menores INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS urgencia_familiar VARCHAR(50);
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS dano_techo BOOLEAN DEFAULT FALSE;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS dano_paredes BOOLEAN DEFAULT FALSE;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS dano_pisos BOOLEAN DEFAULT FALSE;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS dano_instalaciones BOOLEAN DEFAULT FALSE;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS unidades_alimentarias INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS abrigos INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS frazadas INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS bidones_agua INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS kits_higiene INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS ropa INTEGER DEFAULT 0;
+            ALTER TABLE familias ADD COLUMN IF NOT EXISTS colchones INTEGER DEFAULT 0;
+        `, { type: QueryTypes.RAW });
+
+        console.log('✅ Verificación y actualización de la tabla "familias" y sus columnas completada.');
+    } catch (error) {
+        console.error('⚠️ Aviso al verificar la tabla familias:', error.message);
     }
 }
 iniciarServidor();
