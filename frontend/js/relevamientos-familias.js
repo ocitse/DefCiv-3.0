@@ -164,7 +164,7 @@ export async function verFichaNecesidades(idFamilia) {
         const fam = await respuesta.json();
         const idReal = fam.id_familia || idFamilia;
 
-        // Validamos si tiene materiales solicitados (asumiendo que vienen en un array fam.provisiones o fam.materiales)
+        // 1. Procesar Materiales / Provisiones de Construcción
         const listaMateriales = fam.provisiones || fam.materiales || [];
         let htmlMateriales = '';
         
@@ -180,9 +180,32 @@ export async function verFichaNecesidades(idFamilia) {
                 </ul>
             `;
         } else {
-            htmlMateriales = `<p class="text-muted small m-0 italic">No se registraron materiales de construcción solicitados.</p>`;
+            htmlMateriales = `<p class="text-muted small m-0 fst-italic">No se registraron materiales de construcción solicitados.</p>`;
         }
 
+        // 2. Procesar Asistencia Inmediata (Alimentos, abrigos, frazadas, etc.)
+        const asistencia = [
+            { label: 'Unidades Alimentarias', val: fam.need_alimentos },
+            { label: 'Abrigos', val: fam.need_abrigos },
+            { label: 'Frazadas', val: fam.need_frazadas },
+            { label: 'Bidones de Agua', val: fam.need_agua },
+            { label: 'Kit de Higiene', val: fam.need_higiene },
+            { label: 'Ropa', val: fam.need_ropa },
+            { label: 'Colchones', val: fam.need_colchones }
+        ].filter(item => item.val > 0); // Solo mostramos los que tengan cantidad mayor a 0
+
+        let htmlAsistencia = '';
+        if (asistencia.length > 0) {
+            htmlAsistencia = `
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    ${asistencia.map(a => `<span class="badge bg-success bg-opacity-75 text-white">${a.label}: ${a.val}</span>`).join('')}
+                </div>
+            `;
+        } else {
+            htmlAsistencia = `<p class="text-muted small m-0 fst-italic">No se registraron artículos de asistencia inmediata.</p>`;
+        }
+
+        // 3. Renderizar el HTML completo del Modal
         const contenidoModal = `
             <div class="modal fade" id="modalFichaFamilia" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -203,22 +226,40 @@ export async function verFichaNecesidades(idFamilia) {
                                         <p class="mb-0 small"><strong>Integrantes (Total):</strong> <span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span> (Mayores: ${fam.mayores || 0}, Menores: ${fam.menores || 0})</p>
                                     </div>
                                 </div>
-                                <!-- Estado de Vivienda y Emergencia -->
+                                <!-- Estado de Vivienda y Daños Detallados -->
                                 <div class="col-md-6">
                                     <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-danger fw-bold border-bottom pb-2 mb-2"><i class="bi bi-house-exclamation-fill me-1"></i> Estado de Vivienda</h6>
                                         <p class="mb-1 small"><strong>Prioridad / Urgencia:</strong> ${fam.urgencia_familiar || fam.prioridad || 'Normal'}</p>
-                                        <p class="mb-1 small"><strong>Daños Estructurales:</strong> <span class="badge bg-${fam.danos_estructurales ? 'danger' : 'success'}">${fam.danos_estructurales ? 'Sí' : 'No'}</span></p>
-                                        <p class="mb-0 small"><strong>Requiere Evacuación:</strong> <span class="badge bg-${fam.requiere_evacuacion ? 'warning text-dark' : 'success'}">${fam.requiere_evacuacion ? 'Sí' : 'No'}</span></p>
+                                        <div class="mb-2 small">
+                                            <strong>Daños Registrados:</strong>
+                                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                                <span class="badge bg-${fam.f_dano_techo || fam.dano_techo ? 'danger' : 'secondary'}">Techo</span>
+                                                <span class="badge bg-${fam.f_dano_paredes || fam.dano_paredes ? 'danger' : 'secondary'}">Paredes</span>
+                                                <span class="badge bg-${fam.f_dano_pisos || fam.dano_pisos ? 'danger' : 'secondary'}">Pisos</span>
+                                                <span class="badge bg-${fam.f_dano_instalaciones || fam.dano_instalaciones ? 'danger' : 'secondary'}">Instalaciones</span>
+                                                <span class="badge bg-${fam.f_dano_perdida_completa || fam.dano_perdida_completa ? 'dark text-danger fw-bold' : 'secondary'}">Pérdida Total</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Sección de Necesidades y Materiales Solicitados -->
+                            <!-- Asistencia Inmediata -->
                             <div class="row g-3 mb-3">
                                 <div class="col-md-12">
                                     <div class="p-3 bg-white rounded border shadow-sm">
-                                        <h6 class="text-success fw-bold border-bottom pb-2 mb-2"><i class="bi bi-tools me-1"></i> Materiales / Provisiones Solicitadas</h6>
+                                        <h6 class="text-success fw-bold border-bottom pb-2 mb-2"><i class="bi bi-box-seam me-1"></i> Asistencia Inmediata (Insumos)</h6>
+                                        ${htmlAsistencia}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Materiales / Provisiones Solicitadas -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-12">
+                                    <div class="p-3 bg-white rounded border shadow-sm">
+                                        <h6 class="text-primary fw-bold border-bottom pb-2 mb-2"><i class="bi bi-tools me-1"></i> Materiales de Construcción</h6>
                                         ${htmlMateriales}
                                     </div>
                                 </div>
