@@ -164,10 +164,10 @@ export async function verFichaNecesidades(idFamilia) {
         const fam = await respuesta.json();
         const idReal = fam.id_familia || idFamilia;
 
-        // Nombre y apellido completo del titular
-        const nombreCompleto = `${fam.apellido || ''}, ${fam.nombre || fam.jefe_familia || 'Sin especificar'}`;
+        // Titular de la familia
+        const nombreTitular = fam.jefe_familia || 'Sin especificar';
 
-        // 1. Materiales de Construcción (vienen de la relación 'necesidades' del backend)
+        // 1. Materiales de Construcción (asociados por la relación 'necesidades')
         const listaMateriales = fam.necesidades || [];
         let htmlMateriales = '';
         
@@ -186,16 +186,16 @@ export async function verFichaNecesidades(idFamilia) {
             htmlMateriales = `<p class="text-muted small m-0 fst-italic">No se registraron materiales de construcción solicitados.</p>`;
         }
 
-        // 2. Asistencia Inmediata (mapeando correctamente las columnas need_... de la BD)
+        // 2. Asistencia Inmediata (mapeando las columnas exactas del modelo familia.js)
         const asistencia = [
-            { label: 'Unidades Alimentarias', val: fam.need_alimentos },
-            { label: 'Abrigos', val: fam.need_abrigos },
-            { label: 'Frazadas', val: fam.need_frazadas },
-            { label: 'Bidones de Agua', val: fam.need_agua },
-            { label: 'Kit de Higiene', val: fam.need_higiene },
-            { label: 'Ropa', val: fam.need_ropa },
-            { label: 'Colchones', val: fam.need_colchones }
-        ].filter(item => item.val > 0);
+            { label: 'Unidades Alimentarias', val: fam.unidades_alimentarias },
+            { label: 'Abrigos', val: fam.abrigos },
+            { label: 'Frazadas', val: fam.frazadas },
+            { label: 'Bidones de Agua', val: fam.bidones_agua },
+            { label: 'Kits de Higiene', val: fam.kits_higiene },
+            { label: 'Ropa', val: fam.ropa },
+            { label: 'Colchones', val: fam.colchones }
+        ].filter(item => item.val > 0); // Solo mostramos los que tienen cantidad mayor a 0
 
         let htmlAsistencia = '';
         if (asistencia.length > 0) {
@@ -208,13 +208,13 @@ export async function verFichaNecesidades(idFamilia) {
             htmlAsistencia = `<p class="text-muted small m-0 fst-italic">No se registraron artículos de asistencia inmediata.</p>`;
         }
 
-        // 3. Renderizado del Modal con propiedades sincronizadas
+        // 3. Renderizado del Modal con las propiedades exactas de tu Base de Datos
         const contenidoModal = `
             <div class="modal fade" id="modalFichaFamilia" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content shadow-lg border-0">
                         <div class="modal-header bg-dark text-white">
-                            <h5 class="modal-title"><i class="bi bi-file-earmark-text-fill text-warning me-2"></i> Ficha: ${nombreCompleto}</h5>
+                            <h5 class="modal-title"><i class="bi bi-file-earmark-text-fill text-warning me-2"></i> Ficha: ${nombreTitular}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body p-4 bg-light">
@@ -223,8 +223,8 @@ export async function verFichaNecesidades(idFamilia) {
                                 <div class="col-md-6">
                                     <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-primary fw-bold border-bottom pb-2 mb-2"><i class="bi bi-people-fill me-1"></i> Datos Demográficos</h6>
-                                        <p class="mb-1 small"><strong>Titular:</strong> ${nombreCompleto}</p>
-                                        <p class="mb-1 small"><strong>DNI:</strong> ${fam.dni_jefe || fam.dni || 'No especificado'}</p>
+                                        <p class="mb-1 small"><strong>Jefe de Familia:</strong> ${nombreTitular}</p>
+                                        <p class="mb-1 small"><strong>DNI:</strong> ${fam.dni_jefe || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Teléfono:</strong> ${fam.telefono || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Dirección:</strong> ${fam.direccion || 'No especificado'}</p>
                                         <p class="mb-0 small"><strong>Integrantes (Total):</strong> <span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span> (Mayores: ${fam.mayores || 0}, Menores: ${fam.menores || 0})</p>
@@ -234,7 +234,7 @@ export async function verFichaNecesidades(idFamilia) {
                                 <div class="col-md-6">
                                     <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-danger fw-bold border-bottom pb-2 mb-2"><i class="bi bi-house-exclamation-fill me-1"></i> Estado de Vivienda</h6>
-                                        <p class="mb-1 small"><strong>Prioridad / Urgencia:</strong> ${fam.urgencia_familiar || fam.prioridad || 'Normal'}</p>
+                                        <p class="mb-1 small"><strong>Urgencia Familiar:</strong> ${fam.urgencia_familiar || 'Normal'}</p>
                                         <div class="mb-2 small">
                                             <strong>Daños Registrados:</strong>
                                             <div class="d-flex flex-wrap gap-1 mt-1">
@@ -242,7 +242,8 @@ export async function verFichaNecesidades(idFamilia) {
                                                 <span class="badge bg-${fam.dano_paredes ? 'danger' : 'secondary'}">Paredes</span>
                                                 <span class="badge bg-${fam.dano_pisos ? 'danger' : 'secondary'}">Pisos</span>
                                                 <span class="badge bg-${fam.dano_instalaciones ? 'danger' : 'secondary'}">Instalaciones</span>
-                                                <span class="badge bg-${fam.dano_perdida_completa ? 'dark text-danger fw-bold' : 'secondary'}">Pérdida Total</span>
+                                                <span class="badge bg-${fam.danos_estructurales ? 'dark text-danger fw-bold' : 'secondary'}">Estructurales</span>
+                                                <span class="badge bg-${fam.requiere_evacuacion ? 'warning text-dark fw-bold' : 'secondary'}">Requiere Evacuación</span>
                                             </div>
                                         </div>
                                     </div>
