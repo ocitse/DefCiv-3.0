@@ -223,3 +223,35 @@ export async function editarDatosFamilia(idFamilia) {
         }
     });
 }
+export function cambiarPasoWizard(paso) {
+    // Validar campos obligatorios del paso 1 antes de pasar al paso 2
+    if (paso === 2) {
+        const apellido = document.getElementById('f_apellido').value.trim();
+        const nombre = document.getElementById('f_nombre').value.trim();
+        const dni = document.getElementById('f_dni').value.trim();
+        const direccion = document.getElementById('f_direccion').value.trim();
+
+        if (!apellido || !nombre || !dni || !direccion) {
+            mostrarNotificacion("Por favor, complete los campos obligatorios del Grupo Familiar.", "error");
+            return;
+        }
+    }
+
+    // Ocultar todos los pasos
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('d-none'));
+    
+    // Mostrar el paso seleccionado
+    const pasoActivo = document.getElementById(`step-${paso}`);
+    if (pasoActivo) pasoActivo.classList.remove('d-none');
+
+    // Actualizar la barra de progreso
+    const barra = document.getElementById('wizard-progress-bar');
+    if (barra) {
+        const porcentajes = { 1: '33%', 2: '66%', 3: '100%' };
+        barra.style.width = porcentajes[paso];
+        barra.setAttribute('aria-valuenow', parseInt(porcentajes[paso]));
+    }
+
+    // Subir el scroll suavemente al inicio del formulario
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
