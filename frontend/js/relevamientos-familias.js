@@ -164,8 +164,11 @@ export async function verFichaNecesidades(idFamilia) {
         const fam = await respuesta.json();
         const idReal = fam.id_familia || idFamilia;
 
-        // 1. Procesar Materiales / Provisiones de Construcción
-        const listaMateriales = fam.provisiones || fam.materiales || [];
+        // Nombre y apellido completo del titular
+        const nombreCompleto = `${fam.apellido || ''}, ${fam.nombre || fam.jefe_familia || 'Sin especificar'}`;
+
+        // 1. Materiales de Construcción (vienen de la relación 'necesidades' del backend)
+        const listaMateriales = fam.necesidades || [];
         let htmlMateriales = '';
         
         if (listaMateriales.length > 0) {
@@ -173,7 +176,7 @@ export async function verFichaNecesidades(idFamilia) {
                 <ul class="list-group list-group-flush small">
                     ${listaMateriales.map(m => `
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-white px-0 py-1">
-                            <span><i class="bi bi-box-seam me-1 text-secondary"></i> ${m.nombre || m.material || 'Material'}</span>
+                            <span><i class="bi bi-box-seam me-1 text-secondary"></i> ${m.tipo_material || 'Material'}</span>
                             <span class="badge bg-primary rounded-pill">Cant: ${m.cantidad || 1}</span>
                         </li>
                     `).join('')}
@@ -183,7 +186,7 @@ export async function verFichaNecesidades(idFamilia) {
             htmlMateriales = `<p class="text-muted small m-0 fst-italic">No se registraron materiales de construcción solicitados.</p>`;
         }
 
-        // 2. Procesar Asistencia Inmediata (Alimentos, abrigos, frazadas, etc.)
+        // 2. Asistencia Inmediata (mapeando correctamente las columnas need_... de la BD)
         const asistencia = [
             { label: 'Unidades Alimentarias', val: fam.need_alimentos },
             { label: 'Abrigos', val: fam.need_abrigos },
@@ -192,7 +195,7 @@ export async function verFichaNecesidades(idFamilia) {
             { label: 'Kit de Higiene', val: fam.need_higiene },
             { label: 'Ropa', val: fam.need_ropa },
             { label: 'Colchones', val: fam.need_colchones }
-        ].filter(item => item.val > 0); // Solo mostramos los que tengan cantidad mayor a 0
+        ].filter(item => item.val > 0);
 
         let htmlAsistencia = '';
         if (asistencia.length > 0) {
@@ -205,13 +208,13 @@ export async function verFichaNecesidades(idFamilia) {
             htmlAsistencia = `<p class="text-muted small m-0 fst-italic">No se registraron artículos de asistencia inmediata.</p>`;
         }
 
-        // 3. Renderizar el HTML completo del Modal
+        // 3. Renderizado del Modal con propiedades sincronizadas
         const contenidoModal = `
             <div class="modal fade" id="modalFichaFamilia" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content shadow-lg border-0">
                         <div class="modal-header bg-dark text-white">
-                            <h5 class="modal-title"><i class="bi bi-file-earmark-text-fill text-warning me-2"></i> Ficha: ${fam.apellido || ''} ${fam.nombre || fam.jefe_familia || ''}</h5>
+                            <h5 class="modal-title"><i class="bi bi-file-earmark-text-fill text-warning me-2"></i> Ficha: ${nombreCompleto}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body p-4 bg-light">
@@ -220,13 +223,14 @@ export async function verFichaNecesidades(idFamilia) {
                                 <div class="col-md-6">
                                     <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-primary fw-bold border-bottom pb-2 mb-2"><i class="bi bi-people-fill me-1"></i> Datos Demográficos</h6>
+                                        <p class="mb-1 small"><strong>Titular:</strong> ${nombreCompleto}</p>
                                         <p class="mb-1 small"><strong>DNI:</strong> ${fam.dni_jefe || fam.dni || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Teléfono:</strong> ${fam.telefono || 'No especificado'}</p>
                                         <p class="mb-1 small"><strong>Dirección:</strong> ${fam.direccion || 'No especificado'}</p>
                                         <p class="mb-0 small"><strong>Integrantes (Total):</strong> <span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span> (Mayores: ${fam.mayores || 0}, Menores: ${fam.menores || 0})</p>
                                     </div>
                                 </div>
-                                <!-- Estado de Vivienda y Daños Detallados -->
+                                <!-- Estado de Vivienda -->
                                 <div class="col-md-6">
                                     <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-danger fw-bold border-bottom pb-2 mb-2"><i class="bi bi-house-exclamation-fill me-1"></i> Estado de Vivienda</h6>
@@ -234,11 +238,11 @@ export async function verFichaNecesidades(idFamilia) {
                                         <div class="mb-2 small">
                                             <strong>Daños Registrados:</strong>
                                             <div class="d-flex flex-wrap gap-1 mt-1">
-                                                <span class="badge bg-${fam.f_dano_techo || fam.dano_techo ? 'danger' : 'secondary'}">Techo</span>
-                                                <span class="badge bg-${fam.f_dano_paredes || fam.dano_paredes ? 'danger' : 'secondary'}">Paredes</span>
-                                                <span class="badge bg-${fam.f_dano_pisos || fam.dano_pisos ? 'danger' : 'secondary'}">Pisos</span>
-                                                <span class="badge bg-${fam.f_dano_instalaciones || fam.dano_instalaciones ? 'danger' : 'secondary'}">Instalaciones</span>
-                                                <span class="badge bg-${fam.f_dano_perdida_completa || fam.dano_perdida_completa ? 'dark text-danger fw-bold' : 'secondary'}">Pérdida Total</span>
+                                                <span class="badge bg-${fam.dano_techo ? 'danger' : 'secondary'}">Techo</span>
+                                                <span class="badge bg-${fam.dano_paredes ? 'danger' : 'secondary'}">Paredes</span>
+                                                <span class="badge bg-${fam.dano_pisos ? 'danger' : 'secondary'}">Pisos</span>
+                                                <span class="badge bg-${fam.dano_instalaciones ? 'danger' : 'secondary'}">Instalaciones</span>
+                                                <span class="badge bg-${fam.dano_perdida_completa ? 'dark text-danger fw-bold' : 'secondary'}">Pérdida Total</span>
                                             </div>
                                         </div>
                                     </div>
@@ -255,7 +259,7 @@ export async function verFichaNecesidades(idFamilia) {
                                 </div>
                             </div>
 
-                            <!-- Materiales / Provisiones Solicitadas -->
+                            <!-- Materiales de Construcción -->
                             <div class="row g-3 mb-3">
                                 <div class="col-md-12">
                                     <div class="p-3 bg-white rounded border shadow-sm">
@@ -299,8 +303,6 @@ export async function verFichaNecesidades(idFamilia) {
             divTemporal.remove();
             if (typeof window.editarDatosFamilia === 'function') {
                 window.editarDatosFamilia(idReal);
-            } else {
-                console.error("La función editarDatosFamilia no está disponible globalmente.");
             }
         });
 
