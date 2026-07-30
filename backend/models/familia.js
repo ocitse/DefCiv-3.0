@@ -25,12 +25,41 @@ const familia = sequelize.define('familia', {
         type: DataTypes.STRING(200),
         allowNull: false
     },
+    // Composición familiar
+    mayores: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1
+    },
+    menores: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     cantidad_integrantes: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1
     },
+    urgencia_familiar: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+    },
     // Estado de la vivienda / Daños (Booleanos)
+    dano_techo: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    dano_paredes: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    dano_pisos: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    dano_instalaciones: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     danos_estructurales: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
@@ -39,17 +68,47 @@ const familia = sequelize.define('familia', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    // Necesidades detectadas (Unidades / Cantidades)
+    unidades_alimentarias: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    abrigos: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    frazadas: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    bidones_agua: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    kits_higiene: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    ropa: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    colchones: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     // Observaciones particulares sobre la vulnerabilidad
     observaciones: {
         type: DataTypes.TEXT,
         allowNull: true
     }
 }, {
-    tableName: 'familias'
+    tableName: 'familias',
+    timestamps: true,
+    underscored: true
 });
 
 // 🌟 CONFIGURACIÓN DE LA RELACIÓN (Clave Foránea)
-// Esto le dice a Sequelize: "Creá una columna id_relevamiento en la tabla familias"
 relevamiento.hasMany(familia, { foreignKey: 'id_relevamiento', onDelete: 'CASCADE' });
 familia.belongsTo(relevamiento, { foreignKey: 'id_relevamiento' });
 
