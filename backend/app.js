@@ -181,6 +181,7 @@ async function iniciarServidor() {
         await crearAdminPorDefecto();
         await asegurarTablaProvisiones();
         await asegurarTablaFamilias();
+        await asegurarTablaNecesidadesFamilia();
 
         await sequelize.sync();
         console.log('✅ Sincronización de modelos completada.');
@@ -269,6 +270,24 @@ async function asegurarTablaFamilias() {
         console.log('✅ Verificación y actualización de la tabla "familias" y sus columnas completada.');
     } catch (error) {
         console.error('⚠️ Aviso al verificar la tabla familias:', error.message);
+    }
+}
+// Función para verificar y crear la tabla necesidades_familia si no existe
+async function asegurarTablaNecesidadesFamilia() {
+    try {
+        await sequelize.query(`
+            CREATE TABLE IF NOT EXISTS necesidades_familia (
+                id_necesidad SERIAL PRIMARY KEY,
+                id_familia INTEGER REFERENCES familias(id_familia) ON DELETE CASCADE,
+                tipo_material VARCHAR(100) NOT NULL,
+                cantidad INTEGER NOT NULL DEFAULT 1,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `, { type: QueryTypes.RAW });
+        console.log('✅ Verificación/Creación de la tabla "necesidades_familia" completada.');
+    } catch (error) {
+        console.error('⚠️ Aviso al verificar la tabla necesidades_familia:', error.message);
     }
 }
 iniciarServidor();
