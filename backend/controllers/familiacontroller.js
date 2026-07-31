@@ -72,27 +72,26 @@ export const obtenerFamilias = async (req, res) => {
     }
 };
 
-// OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
-export const obtenerFamiliaPorId = async (req, res) => {
+// 2. OBTENER FAMILIAS (Filtradas por Relevamiento si se provee el ID)
+export const obtenerFamilias = async (req, res) => {
     try {
-        const { id } = req.params;
-        const familia = await Familia.findByPk(id, {
-            include: [{ model: Relevamiento },
-                      { model: necesidadFamilia, as: 'necesidades' }    
+        const { id_relevamiento } = req.query; // O req.params según cómo lo llames desde el frontend
+
+        const filtro = id_relevamiento ? { where: { id_relevamiento } } : {};
+
+        const familias = await Familia.findAll({
+            ...filtro,
+            include: [
+                { model: Relevamiento },
+                { model: necesidadFamilia, as: 'necesidades' }    
             ]
         });
-
-        if (!familia) {
-            return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
-        }
-
-        res.json(familia);
+        res.json(familias);
     } catch (error) {
-        console.error('Error al obtener la familia:', error);
-        res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
+        console.error('Error al obtener familias:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.' });
     }
 };
-
 // ELIMINAR UNA FAMILIA POR SU ID
 export const eliminarFamilia = async (req, res) => {
     try {
