@@ -57,25 +57,10 @@ export const crearFamilia = async (req, res) => {
     }
 };
 
-// 2. OBTENER TODAS LAS FAMILIAS
-export const obtenerFamilias = async (req, res) => {
-    try {
-        const familias = await Familia.findAll({
-            include: [{ model: Relevamiento },
-            { model: necesidadFamilia, as: 'necesidades' }    
-            ]
-        });
-        res.json(familias);
-    } catch (error) {
-        console.error('Error al obtener familias:', error);
-        res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.' });
-    }
-};
-
 // 2. OBTENER FAMILIAS (Filtradas por Relevamiento si se provee el ID)
 export const obtenerFamilias = async (req, res) => {
     try {
-        const { id_relevamiento } = req.query; // O req.params según cómo lo llames desde el frontend
+        const { id_relevamiento } = req.query;
 
         const filtro = id_relevamiento ? { where: { id_relevamiento } } : {};
 
@@ -92,6 +77,28 @@ export const obtenerFamilias = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.' });
     }
 };
+
+// OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
+export const obtenerFamiliaPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const familia = await Familia.findByPk(id, {
+            include: [{ model: Relevamiento },
+                      { model: necesidadFamilia, as: 'necesidades' }    
+            ]
+        });
+
+        if (!familia) {
+            return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
+        }
+
+        res.json(familia);
+    } catch (error) {
+        console.error('Error al obtener la familia:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
+    }
+};
+
 // ELIMINAR UNA FAMILIA POR SU ID
 export const eliminarFamilia = async (req, res) => {
     try {
@@ -109,6 +116,7 @@ export const eliminarFamilia = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al eliminar la familia.' });
     }
 };
+
 // ACTUALIZAR UNA FAMILIA POR SU ID
 export const actualizarFamilia = async (req, res) => {
     try {
