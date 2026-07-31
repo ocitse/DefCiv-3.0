@@ -37,7 +37,7 @@ export function agregarItemLista(tipo) {
         return;
     }
 
-    const nuevoItem = { tipo_material: nombre, cantidad }; // Cambiamos 'nombre' por 'tipo_material'
+    const nuevoItem = { tipo_material: nombre, nombre: nombre, cantidad };
 
     listaTemporalMateriales.push(nuevoItem);
     renderizarListaVisual('mat', listaTemporalMateriales);
