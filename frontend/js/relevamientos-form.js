@@ -37,7 +37,7 @@ export function agregarItemLista(tipo) {
         return;
     }
 
-    const nuevoItem = { nombre, cantidad };
+    const nuevoItem = { tipo_material: nombre, cantidad }; // Cambiamos 'nombre' por 'tipo_material'
 
     listaTemporalMateriales.push(nuevoItem);
     renderizarListaVisual('mat', listaTemporalMateriales);
@@ -116,7 +116,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             colchones: parseInt(document.getElementById('f_need_colchones')?.value) || 0,
 
             // Materiales y Observaciones
-            materiales: listaTemporalMateriales,
+            necesidades: listaTemporalMateriales,
             observaciones: document.getElementById('f_observaciones').value.trim()
         };
 
@@ -200,10 +200,11 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
             if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
 
-            // 6. Materiales de Construcción (Mapeando la relación nueva `necesidades`)
-            const materialesBrutos = fam.necesidades || fam.provisiones || fam.materiales || [];
+            // 6. Materiales de Construcción (Mapeando la relación `necesidades`)
+            const materialesBrutos = fam.necesidades || fam.provisiones || [];
             listaTemporalMateriales = materialesBrutos.map(m => ({
-                nombre: m.tipo_material || m.nombre,
+                tipo_material: m.tipo_material || m.nombre, // Aseguramos que guarde tipo_material
+                nombre: m.tipo_material || m.nombre,         // Y nombre para la visualización
                 cantidad: m.cantidad || 1
             }));
             renderizarListaVisual('mat', listaTemporalMateriales);
