@@ -328,6 +328,7 @@ export async function verFichaNecesidades(idFamilia) {
         mostrarNotificacion(error.message, "error");
     }
 }
+// ... (código existente del archivo) ...
 
 export function verListaRelevamientos() {
     cargarVistaDinamica('./frontend/pages/tabla-relevamientos.html', () => {
@@ -339,9 +340,39 @@ export function verListaRelevamientos() {
     });
 }
 
-// Exposiciones globales para los eventos onclick en el DOM dinámico
+// Función para aplicar filtros de prioridad y zona dinámicamente
+export async function aplicarFiltrosFamilias() {
+    if (!window.idRelevamientoActivo) return;
+
+    const prioridad = document.getElementById('filtroPrioridad').value;
+    const zona = document.getElementById('filtroZona').value;
+    
+    let url = `/api/familias?id_relevamiento=${window.idRelevamientoActivo}`;
+
+    if (prioridad) {
+        url += `&prioridad_familiar=${prioridad}`;
+    }
+    if (zona) {
+        url += `&zona=${encodeURIComponent(zona)}`;
+    }
+
+    try {
+        const respuesta = await fetch(url);
+        if (!respuesta.ok) {
+            throw new Error('Error al filtrar las familias.');
+        }
+        const familiasFiltradas = await respuesta.json();
+        renderizarTablaFamilias(familiasFiltradas);
+    } catch (error) {
+        console.error('Error al aplicar los filtros de familias:', error);
+        mostrarNotificacion("No se pudieron filtrar los registros.", "error");
+    }
+}
+
+// Exposiciones globales para los eventos onclick y onchange en el DOM dinámico
 window.ingresarARelevamiento = ingresarARelevamiento;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
 window.verListaRelevamientos = verListaRelevamientos;
 window.eliminarFamiliar = eliminarFamiliar;
 window.verFichaNecesidades = verFichaNecesidades;
+window.aplicarFiltrosFamilias = aplicarFiltrosFamilias;

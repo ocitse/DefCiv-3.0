@@ -58,14 +58,19 @@ export const crearFamilia = async (req, res) => {
 };
 
 // 2. OBTENER FAMILIAS (Filtradas por Relevamiento si se provee el ID)
+// OBTENER FAMILIAS (Filtradas por Relevamiento y parámetros opcionales)
 export const obtenerFamilias = async (req, res) => {
     try {
-        const { id_relevamiento } = req.query;
+        const { id_relevamiento, prioridad_familiar, zona } = req.query;
 
-        const filtro = id_relevamiento ? { where: { id_relevamiento } } : {};
+        // Construimos un objeto dinámico para el WHERE de Sequelize
+        const whereClause = {};
+        if (id_relevamiento) whereClause.id_relevamiento = id_relevamiento;
+        if (prioridad_familiar) whereClause.prioridad_familiar = prioridad_familiar;
+        if (zona) whereClause.zona = zona;
 
         const familias = await Familia.findAll({
-            ...filtro,
+            where: whereClause,
             include: [
                 { model: Relevamiento },
                 { model: necesidadFamilia, as: 'necesidades' }    
