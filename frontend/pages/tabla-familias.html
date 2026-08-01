@@ -17,20 +17,29 @@
         </div>
     </div>
 
-    <!-- ==================== BARRA DE FILTROS RÁPIDOS ==================== -->
-    <div class="row g-3 mb-4 p-3 bg-light rounded border">
+    <!-- ==================== BARRA DE FILTROS, ORDEN Y PAGINACIÓN LOCAL ==================== -->
+    <div class="row g-3 mb-4 p-3 bg-light rounded border align-items-center">
         <div class="col-md-4">
-            <label for="filtroPrioridad" class="form-label fw-semibold small">Filtrar por Urgencia / Prioridad</label>
-            <select id="filtroPrioridad" class="form-select form-select-sm" onchange="aplicarFiltrosFamilias()">
-                <option value="">Todas las prioridades</option>
-                <option value="Alta">Alta</option>
-                <option value="Media">Media</option>
-                <option value="Baja">Baja</option>
+            <label for="inputBusquedaApellido" class="form-label fw-semibold small">Buscar por Apellido o DNI</label>
+            <input type="text" id="inputBusquedaApellido" class="form-control form-control-sm" placeholder="Ej: Gómez o DNI..." oninput="manejarCambioFiltros()">
+        </div>
+        <div class="col-md-4">
+            <label for="selectOrdenar" class="form-label fw-semibold small">Ordenar listado</label>
+            <select id="selectOrdenar" class="form-select form-select-sm" onchange="manejarCambioFiltros()">
+                <option value="">Orden de alta original (#)</option>
+                <option value="alfabetico">Apellido (A-Z)</option>
+                <option value="urgencia">Urgencia (Alta a Baja)</option>
+                <option value="asistencia">Estado de Asistencia</option>
             </select>
         </div>
-        <div class="col-md-8">
-            <label for="filtroZona" class="form-label fw-semibold small">Filtrar por Dirección o Zona</label>
-            <input type="text" id="filtroZona" class="form-control form-select-sm" placeholder="Buscar por calle, barrio o ubicación..." oninput="aplicarFiltrosFamilias()">
+        <div class="col-md-4">
+            <label for="selectPaginacion" class="form-label fw-semibold small">Mostrar registros</label>
+            <select id="selectPaginacion" class="form-select form-select-sm" onchange="manejarCambioFiltros()">
+                <option value="10">10 por página</option>
+                <option value="20">20 por página</option>
+                <option value="50">50 por página</option>
+                <option value="todos">Todos</option>
+            </select>
         </div>
     </div>
 
@@ -38,7 +47,7 @@
         <table class="table table-striped align-middle border rounded">
             <thead class="table-secondary">
                 <tr>
-                    <th style="width: 5%">#</th>
+                    <th style="width: 5%">Orden</th>
                     <th style="width: 15%">DNI Jefe/a</th>
                     <th style="width: 25%">Apellido y Nombre</th>
                     <th style="width: 15%" class="text-center">Integrantes</th>
@@ -48,7 +57,10 @@
                 </tr>
             </thead>
             <tbody id="tabla-familias-body">
+                <!-- Los registros se cargan dinámicamente aquí -->
                 </tbody>
         </table>
     </div>
+    <!-- Controles de Paginación Local -->
+    <div id="contenedor-paginacion" class="d-flex justify-content-between align-items-center mt-3"></div>
 </div>
