@@ -160,3 +160,23 @@ export const actualizarRelevamiento = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al actualizar el relevamiento.' });
     }
 };
+// 5. ELIMINAR UN RELEVAMIENTO
+export const eliminarRelevamiento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const rel = await relevamiento.findByPk(id);
+        if (!rel) {
+            return res.status(404).json({ mensaje: 'No se encontró el relevamiento a eliminar.' });
+        }
+
+        await rel.destroy();
+
+        return res.status(200).json({ 
+            mensaje: 'Relevamiento eliminado con éxito.' 
+        });
+    } catch (error) {
+        console.error('Error al eliminar relevamiento:', error);
+        return res.status(500).json({ mensaje: 'Error en el servidor al eliminar el relevamiento.' });
+    }
+};

@@ -4,7 +4,8 @@ import {
     obtenerrelevamientos, 
     crearrelevamiento, 
     obtenerRelevamientoPorId, 
-    actualizarRelevamiento 
+    actualizarRelevamiento,
+    eliminarRelevamiento,
 } from '../controllers/relevamientocontroller.js';
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.get('/', obtenerrelevamientos);          // Listar todos: GET /api/releva
 router.get('/:id', obtenerRelevamientoPorId);   // Obtener uno por ID: GET /api/relevamientos/:id
 router.post('/', crearrelevamiento);            // Crear nuevo: POST /api/relevamientos
 router.put('/:id', actualizarRelevamiento);     // Actualizar existente: PUT /api/relevamientos/:id
+router.delete('/relevamientos/:id', eliminarRelevamiento);
 
 export default router;

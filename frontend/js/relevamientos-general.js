@@ -118,6 +118,30 @@ export function editarRelevamientoGeneral(idRelevamiento) {
         }
     });
 }
+export async function eliminarRelevamientoGeneral(idRelevamiento) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este relevamiento y todas sus familias asociadas?')) {
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`, {
+            method: 'DELETE'
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            mostrarNotificacion(resultado.mensaje || 'Relevamiento eliminado con éxito.', 'success');
+            // Recargamos la tabla local para reflejar los cambios al instante
+            cargarTablaRelevamientos();
+        } else {
+            mostrarNotificacion(resultado.mensaje || 'Error al intentar eliminar el relevamiento.', 'error');
+        }
+    } catch (error) {
+        console.error('Error de red al eliminar relevamiento:', error);
+        mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
+    }
+}
 
 export async function verPanelPrincipal() {
     cargarVistaDinamica('./frontend/pages/panel-principal.html', async () => {
@@ -295,6 +319,9 @@ function renderizarFilasRelevamientos(relevamientos) {
                     <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
                         <i class="bi bi-eye"></i>
                     </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
+                    <i class="bi bi-trash"></i>
+                    </button>
                 </div>
             </td>
         </tr>
@@ -410,6 +437,7 @@ async function guardarRelevamientoGeneral(event) {
 
 // Exposiciones globales necesarias
 window.editarRelevamiento = editarRelevamientoGeneral;
+window.eliminarRelevamiento = eliminarRelevamientoGeneral;
 window.mostrarFormularioNuevoRelevamiento = mostrarFormularioNuevoRelevamiento;
 window.cargarTablaRelevamientos = cargarTablaRelevamientos;
 window.manejarCambioFiltrosRelevamientos = manejarCambioFiltrosRelevamientos;
