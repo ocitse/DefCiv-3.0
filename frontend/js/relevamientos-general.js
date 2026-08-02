@@ -2,10 +2,14 @@
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { departamentosYLocalidades } from './ubicaciones.js';
-import { Storage } from './storage.js'; // Ajusta la ruta si se llama diferente o está en otra carpeta
+import { Storage } from './storage.js'; 
 import { verFichaNecesidades } from './relevamientos-familias.js';
 import { editarDatosFamilia } from './relevamientos-form.js';
 import { verListaRelevamientos } from './relevamientos-familias.js';
+
+// Variables globales en memoria para almacenar los relevamientos y la paginación local
+let relevamientosOriginales = [];
+let paginaActualRelevamientos = 1;
 
 function getBadgePrioridad(prioridad) {
     if (prioridad === 'Alta') return 'bg-danger';
@@ -57,7 +61,6 @@ async function cargarDesplegableRelevadores() {
             resultado.data.forEach(rev => {
                 const option = document.createElement('option');
                 option.value = rev.id; 
-                // CORREGIDO: Muestra Apellido y Nombre ordenados
                 option.textContent = `${rev.apellido}, ${rev.nombre}`;
                 select.appendChild(option);
             });
@@ -72,13 +75,11 @@ async function cargarDesplegableRelevadores() {
 export function editarRelevamientoGeneral(idRelevamiento) {
     cargarVistaDinamica('/frontend/pages/form-relevamiento.html', async () => {
         try {
-            // Consultamos directamente al endpoint para obtener el relevamiento específico
             const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`);
             const rel = await respuesta.json();
 
             if (!respuesta.ok || !rel) {
                 mostrarNotificacion("No se encontró el relevamiento a editar.", "error");
-                // Asegurate de tener definida o importar la función que lista los relevamientos
                 verListaRelevamientos(); 
                 return;
             }
@@ -91,22 +92,20 @@ export function editarRelevamientoGeneral(idRelevamiento) {
             document.getElementById('r_id_edicion').value = rel.id_relevamiento || rel.id;
 
             cargarDesplegablesUbicacion();
-            await cargarDesplegableRelevadores(); // Esperamos a que carguen los selectores
+            await cargarDesplegableRelevadores();
 
-            // CORREGIDO: Seteamos departamento y forzamos onchange para que carguen las localidades correspondientes
             const selectDep = document.getElementById('r_departamento');
             if (selectDep) {
                 selectDep.value = rel.departamento || '';
                 if (selectDep.onchange) selectDep.onchange({ target: selectDep });
             }
 
-            // 2. Asignar el resto de los campos correctamente alineados con los nombres del backend
             document.getElementById('r_localidad').value = rel.localidad || '';
             document.getElementById('r_barrio').value = rel.barrio || '';
             document.getElementById('r_tipo_evento').value = rel.tipo_evento || '';
             document.getElementById('r_solicitante').value = rel.solicitante || '';
-            document.getElementById('r_prioridad').value = rel.prioridad || 'Baja'; // CORREGIDO: Apunta a 'prioridad'
-            document.getElementById('r_relevador').value = rel.relevador_asignado || ''; // <-- Corregido para leer relevador_asignado
+            document.getElementById('r_prioridad').value = rel.prioridad || 'Baja';
+            document.getElementById('r_relevador').value = rel.relevador_asignado || '';
 
             const form = document.getElementById('form-nuevo-relevamiento');
             if (form) {
@@ -170,11 +169,12 @@ export async function verPanelPrincipal() {
     });
 }
 
+// Función principal que hace el fetch UNA VEZ y almacena en memoria
 export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
         const respuesta = await fetch('/api/relevamientos');
@@ -184,41 +184,148 @@ export async function cargarTablaRelevamientos() {
             throw new Error(relevamientos.mensaje || 'Error al obtener los datos.');
         }
 
-        if (!relevamientos || relevamientos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No hay relevamientos registrados.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = relevamientos.map(r => `
-            <tr>
-                <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
-                <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D'}</td>
-                <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
-                <td>${r.barrio || ''}</td>
-                <td>${r.tipo_evento || ''}</td>
-                <td>${r.solicitante || ''}</td>
-                <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
-                <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
-                <td class="text-center">${r.familias ? r.familias.length : 0}</td>
-                <td class="text-center">
-    <div class="d-flex justify-content-center gap-1">
-        <!-- Botón Editar Relevamiento -->
-        <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Relevamiento">
-            <i class="bi bi-pencil-square"></i>
-        </button>
-        <!-- Botón Ver Familias (Ojito) -->
-        <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
-            <i class="bi bi-eye"></i>
-        </button>
-    </div>
-</td>
-            </tr>
-        `).join('');
+        relevamientosOriginales = relevamientos || [];
+        paginaActualRelevamientos = 1;
+        manejarCambioFiltrosRelevamientos();
 
     } catch (error) {
         console.error("Error al cargar la tabla de relevamientos:", error);
         tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger py-4">Error al conectar con el servidor.</td></tr>`;
     }
+}
+
+// Función central que procesa búsqueda, ordenamiento y paginación local de Relevamientos
+export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
+    if (resetPagina) paginaActualRelevamientos = 1;
+
+    const textoBusqueda = document.getElementById('inputBusquedaRelevamiento')?.value.toLowerCase().trim() || '';
+    const criterioOrden = document.getElementById('selectOrdenarRelevamientos')?.value || '';
+    const selectPaginacion = document.getElementById('selectPaginacionRelevamientos')?.value || '10';
+
+    // 1. Filtrado local por Código, Localidad, Barrio o Solicitante
+    let resultado = relevamientosOriginales.filter(r => {
+        const codigo = (r.codigo_relevamiento || '').toLowerCase();
+        const localidad = (r.localidad || '').toLowerCase();
+        const departamento = (r.departamento || '').toLowerCase();
+        const barrio = (r.barrio || '').toLowerCase();
+        const solicitante = (r.solicitante || '').toLowerCase();
+
+        return codigo.includes(textoBusqueda) || 
+               localidad.includes(textoBusqueda) || 
+               departamento.includes(textoBusqueda) || 
+               barrio.includes(textoBusqueda) || 
+               solicitante.includes(textoBusqueda);
+    });
+
+    // 2. Ordenamiento local
+    if (criterioOrden === 'codigo') {
+        resultado.sort((a, b) => (a.codigo_relevamiento || '').localeCompare(b.codigo_relevamiento || ''));
+    } else if (criterioOrden === 'prioridad') {
+        const pesoPrioridad = { 'alta': 1, 'media': 2, 'baja': 3 };
+        resultado.sort((a, b) => {
+            const pA = pesoPrioridad[(a.prioridad || '').toLowerCase()] || 4;
+            const pB = pesoPrioridad[(b.prioridad || '').toLowerCase()] || 4;
+            return pA - pB;
+        });
+    } else {
+        // Por defecto: Más recientes primero (por fecha de creación descendente)
+        resultado.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
+    // 3. Paginación local
+    let relevamientosPaginados = resultado;
+    let totalPaginas = 1;
+
+    if (selectPaginacion !== 'todos') {
+        const porPagina = parseInt(selectPaginacion, 10);
+        totalPaginas = Math.ceil(resultado.length / porPagina) || 1;
+        
+        if (paginaActualRelevamientos > totalPaginas) paginaActualRelevamientos = totalPaginas;
+        if (paginaActualRelevamientos < 1) paginaActualRelevamientos = 1;
+
+        const inicio = (paginaActualRelevamientos - 1) * porPagina;
+        const fin = inicio + porPagina;
+        relevamientosPaginados = resultado.slice(inicio, fin);
+    }
+
+    renderizarFilasRelevamientos(relevamientosPaginados);
+    renderizarControlesPaginacionRelevamientos(resultado.length, selectPaginacion === 'todos' ? resultado.length : parseInt(selectPaginacion, 10), totalPaginas);
+}
+
+// Función auxiliar para cambiar de página desde los botones de Relevamientos
+window.cambiarPaginaRelevamientos = function(nuevaPagina) {
+    paginaActualRelevamientos = nuevaPagina;
+    manejarCambioFiltrosRelevamientos(false);
+}
+
+// Renderizado de filas en la tabla
+function renderizarFilasRelevamientos(relevamientos) {
+    const tbody = document.getElementById('tabla-relevamientos-body');
+    if (!tbody) return;
+
+    if (!relevamientos || relevamientos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">No se encontraron relevamientos con los criterios de búsqueda.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = relevamientos.map(r => `
+        <tr>
+            <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
+            <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D'}</td>
+            <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
+            <td>${r.barrio || ''}</td>
+            <td>${r.tipo_evento || ''}</td>
+            <td>${r.solicitante || ''}</td>
+            <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
+            <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
+            <td class="text-center">${r.familias ? r.familias.length : 0}</td>
+            <td class="text-center">
+                <div class="d-flex justify-content-center gap-1">
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Relevamiento">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Renderiza los controles de paginación para Relevamientos
+function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, totalPaginas) {
+    const contenedor = document.getElementById('contenedor-paginacion-relevamientos');
+    if (!contenedor) return;
+
+    if (totalRegistros === 0) {
+        contenedor.innerHTML = '';
+        return;
+    }
+
+    const selectPaginacion = document.getElementById('selectPaginacionRelevamientos')?.value;
+    if (selectPaginacion === 'todos') {
+        contenedor.innerHTML = `<span class="text-muted small">Mostrando todos los registros (${totalRegistros} en total)</span>`;
+        return;
+    }
+
+    const inicioRegistro = ((paginaActualRelevamientos - 1) * porPagina) + 1;
+    const finRegistro = Math.min(paginaActualRelevamientos * porPagina, totalRegistros);
+
+    contenedor.innerHTML = `
+        <span class="text-muted small">Mostrando ${inicioRegistro} a ${finRegistro} de ${totalRegistros} relevamientos</span>
+        <ul class="pagination pagination-sm m-0">
+            <li class="page-item ${paginaActualRelevamientos === 1 ? 'disabled' : ''}">
+                <button class="page-link" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos - 1})">Anterior</button>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link bg-light text-dark">Pág. ${paginaActualRelevamientos} de ${totalPaginas}</span>
+            </li>
+            <li class="page-item ${paginaActualRelevamientos >= totalPaginas ? 'disabled' : ''}">
+                <button class="page-link" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos + 1})">Siguiente</button>
+            </li>
+        </ul>
+    `;
 }
 
 export function mostrarFormularioNuevoRelevamiento() {
@@ -229,7 +336,7 @@ export function mostrarFormularioNuevoRelevamiento() {
         }
 
         const idEdicion = document.getElementById('r_id_edicion');
-        if (idEdicion) idEdicion.value = ''; // <-- Vital para que no se duplique
+        if (idEdicion) idEdicion.value = '';
 
         const form = document.getElementById('form-nuevo-relevamiento');
         if (form) {
@@ -255,9 +362,8 @@ async function guardarRelevamientoGeneral(event) {
         tipo_evento: document.getElementById('r_tipo_evento').value,
         solicitante: document.getElementById('r_solicitante')?.value || '',
         prioridad: document.getElementById('r_prioridad')?.value || 'Baja',
-        relevador_asignado: document.getElementById('r_relevador').value // <-- Cambiado de relevador_assigned a relevador_asignado
+        relevador_asignado: document.getElementById('r_relevador').value
     };
-    console.log("Enviando datos al backend:", JSON.stringify(datosFormulario));
 
     const url = idEdicion ? `/api/relevamientos/${idEdicion}` : '/api/relevamientos';
     const metodo = idEdicion ? 'PUT' : 'POST';
@@ -276,15 +382,12 @@ async function guardarRelevamientoGeneral(event) {
         if (respuesta.ok) {
             mostrarNotificacion(resultado.mensaje || 'Operación realizada con éxito.', 'success');
             
-            // Limpiamos el formulario y el ID de edición para evitar duplicados
             document.getElementById('form-nuevo-relevamiento').reset();
             document.getElementById('r_id_edicion').value = '';
 
-            // CAMBIAR ESTO: En lugar de cargar la tabla sola, volvemos a la vista del listado de relevamientos
             if (typeof verListaRelevamientos === 'function') {
                 verListaRelevamientos();
             } else {
-                // Alternativa por si se importa desde otro módulo
                 cargarTablaRelevamientos(); 
             }
         } else {
@@ -297,9 +400,10 @@ async function guardarRelevamientoGeneral(event) {
     }
 }
 
-// Exposiciones globales necesarias para el manejo modular de la interfaz
+// Exposiciones globales necesarias
 window.editarRelevamiento = editarRelevamientoGeneral;
 window.mostrarFormularioNuevoRelevamiento = mostrarFormularioNuevoRelevamiento;
 window.cargarTablaRelevamientos = cargarTablaRelevamientos;
+window.manejarCambioFiltrosRelevamientos = manejarCambioFiltrosRelevamientos;
 window.verFichaNecesidades = verFichaNecesidades;
 window.editarDatosFamilia = editarDatosFamilia;
