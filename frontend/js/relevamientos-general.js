@@ -218,14 +218,22 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
     });
 
     // 2. Ordenamiento local
-    if (criterioOrden === 'codigo') {
-        resultado.sort((a, b) => (a.codigo_relevamiento || '').localeCompare(b.codigo_relevamiento || ''));
+    if (criterioOrden === 'localidad') {
+        resultado.sort((a, b) => (a.localidad || '').localeCompare(b.localidad || ''));
+    } else if (criterioOrden === 'solicitante') {
+        resultado.sort((a, b) => (a.solicitante || '').localeCompare(b.solicitante || ''));
     } else if (criterioOrden === 'prioridad') {
         const pesoPrioridad = { 'alta': 1, 'media': 2, 'baja': 3 };
         resultado.sort((a, b) => {
             const pA = pesoPrioridad[(a.prioridad || '').toLowerCase()] || 4;
             const pB = pesoPrioridad[(b.prioridad || '').toLowerCase()] || 4;
             return pA - pB;
+        });
+    } else if (criterioOrden === 'relevador') {
+        resultado.sort((a, b) => {
+            const revA = (a.relevador_apellido ? `${a.relevador_apellido}, ${a.relevador_nombre}` : (a.relevador_asignado || '')).toLowerCase();
+            const revB = (b.relevador_apellido ? `${b.relevador_apellido}, ${b.relevador_nombre}` : (b.relevador_asignado || '')).toLowerCase();
+            return revA.localeCompare(revB);
         });
     } else {
         // Por defecto: Más recientes primero (por fecha de creación descendente)
