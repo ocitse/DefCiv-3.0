@@ -1,15 +1,19 @@
+// backend/routes/usuarioroutes.js
 import express from 'express';
 import { obtenerUsuarios, crearUsuario } from '../controllers/usuariocontroller.js';
 import Usuario from '../models/usuario.js'; 
+import { verificarToken, verificarRolPermitido } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Todas las rutas de usuarios requieren estar autenticado y ser Administrador
+
 // Definimos los verbos HTTP para la gestión de usuarios
-router.get('/', obtenerUsuarios);   // Ruta para listar usuarios
-router.post('/', crearUsuario);     // Ruta para registrar el nuevo usuario (Alta)
+router.get('/', verificarToken, verificarRolPermitido('usuarios'), obtenerUsuarios);   // Ruta para listar usuarios
+router.post('/', verificarToken, verificarRolPermitido('usuarios'), crearUsuario);    // Ruta para registrar el nuevo usuario (Alta)
 
 // 🔄 Cambiar estado del usuario (Borrado Lógico)
-router.put('/:id/estado', async (req, res) => {
+router.put('/:id/estado', verificarToken, verificarRolPermitido('usuarios'), async (req, res) => {
     try {
         const { id } = req.params;
         const usuario = await Usuario.findByPk(id);
@@ -34,7 +38,7 @@ router.put('/:id/estado', async (req, res) => {
 });
 
 // 🌟 Actualizar datos y rol del usuario
-router.put('/:id', async (req, res) => {
+router.put('/:id', verificarToken, verificarRolPermitido('usuarios'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nombres, apellido, dni, email, celular, rol } = req.body;
