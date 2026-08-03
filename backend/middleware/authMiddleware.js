@@ -1,24 +1,49 @@
 // backend/middleware/authMiddleware.js
-export function verificarRolPermitido(seccionRequerida) {
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_temporal_defensa_civil';
+
+// 1. Middleware para verificar que el usuario envió un token JWT válido
+export const verificarToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    
+    if (!authHeader) {
+        return res.status(401).json({ success: false, message: 'Acceso denegado. No se proporcionó token.' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Formato: "Bearer TOKEN"
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Token malformado.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded; // Guardamos los datos del usuario en req.user
+        next();
+    } catch (error) {
+        return res.status(403).json({ success: false, message: 'Token inválido o expirado.' });
+    }
+};
+
+// 2. Middleware para controlar el acceso por roles a secciones/recursos específicos
+export const verificarRolPermitido = (seccionRequerida) => {
     return (req, res, next) => {
-        // Asumiendo que guardaste los datos del usuario logueado en req.user (vía JWT o sesión)
-        const rolUsuario = req.user ? req.user.rol.toLowerCase() : '';
+        // Obtenemos el rol del usuario (normalizado a minúsculas)
+        const rolUsuario = req.user && req.user.rol ? req.user.rol.toLowerCase() : '';
         
-        // Mapeo idéntico al del frontend
+        // Mapeo adaptado a los recursos reales de tu sistema
         const permisos = {
-            administrador: ['dashboard', 'relevadores', 'usuarios', 'configuracion', 'reportes'],
-            administrativo: ['dashboard', 'relevadores', 'reportes'],
-            relevador: ['dashboard', 'relevadores'],
-            consulta: ['dashboard']
+            administrador: ['usuarios', 'relevamientos', 'familias', 'relevadores', 'solicitudes', 'provisiones'],
+            operador: ['relevamientos', 'familias', 'solicitudes', 'provisiones'],
+            relevador: ['relevamientos', 'familias'],
+            consulta: ['relevamientos']
         };
 
         if (permisos[rolUsuario] && permisos[rolUsuario].includes(seccionRequerida)) {
             next();
         } else {
-            res.status(403).json({ success: false, message: 'Acceso no autorizado para este rol.' });
+            res.status(403).json({ success: false, message: 'Acceso no autorizado para este rol en esta sección.' });
         }
     };
-}
-
-// Uso en usuarioroutes.js:
-// router.post('/', verificarRolPermitido('usuarios'), crearUsuario);
+};
