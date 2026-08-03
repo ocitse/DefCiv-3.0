@@ -100,7 +100,14 @@ export async function cargarModuloUsuarios() {
     });
 
     try {
-        const respuesta = await fetch('/api/usuarios');
+        const token = localStorage.getItem('token'); // Recuperamos el token guardado
+        const respuesta = await fetch('https://defciv-app.onrender.com/api/usuarios', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Agregamos el token aquí
+            }
+        });
         const resultado = await respuesta.json();
 
         const tbody = document.getElementById('tbody-usuarios');
@@ -254,12 +261,16 @@ async function registrarUsuarioBackend() {
         btnGuardar.disabled = true;
         btnGuardar.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Guardando...`;
 
-        const url = editId ? `/api/usuarios/${editId}` : '/api/usuarios';
+        const url = editId ? `https://defciv-app.onrender.com/api/usuarios/${editId}` : 'https://defciv-app.onrender.com/api/usuarios';
         const method = editId ? 'PUT' : 'POST';
+        const token = localStorage.getItem('token'); // <--- Recuperamos el token
 
         const respuesta = await fetch(url, {
             method: method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // <--- Lo inyectamos aquí
+            },
             body: JSON.stringify({ username, dni, apellido, nombres, email, celular, rol })
         });
 
@@ -299,9 +310,13 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
     }
 
     try {
-        const respuesta = await fetch(`/api/usuarios/${id}/estado`, {
+        const token = localStorage.getItem('token'); // <--- Recuperamos el token
+        const respuesta = await fetch(`https://defciv-app.onrender.com/api/usuarios/${id}/estado`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // <--- Lo inyectamos aquí
+            }
         });
 
         const resultado = await respuesta.json();
