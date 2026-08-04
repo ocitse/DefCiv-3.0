@@ -61,7 +61,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ mensaje: 'Credenciales inválidas (Contraseña incorrecta).' });
         }
 
-        const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_defensa_civil';
+        const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_unica_defensa_civil';
         
         // Usamos usuarioEncontrado.id (que Sequelize mapea a id_usuario)
         const token = jwt.sign(

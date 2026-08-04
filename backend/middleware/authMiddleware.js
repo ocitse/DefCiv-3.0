@@ -1,7 +1,7 @@
 // backend/middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_defensa_civil';
+const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_unica_defensa_civil';
 
 // 1. Middleware para verificar que el usuario envió un token JWT válido
 export const verificarToken = (req, res, next) => {
