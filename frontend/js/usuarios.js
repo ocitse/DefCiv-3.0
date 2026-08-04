@@ -102,6 +102,7 @@ export async function cargarModuloUsuarios() {
 
     try {
         const token = localStorage.getItem('token'); // Recuperamos el token guardado
+        console.log("🔍 Token que voy a enviar:", tokenGuardado);
         const respuesta = await fetch('https://defciv-app.onrender.com/api/usuarios', {
             method: 'GET',
             headers: {
