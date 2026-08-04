@@ -19,9 +19,11 @@ export const verificarToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = decoded; // Guardamos los datos del usuario en req.user
+        req.user = decoded; 
         next();
     } catch (error) {
+        // 🔎 Agregamos esto para ver el motivo exacto en los logs de Render
+        console.error("❌ Error detallado al verificar JWT:", error.message);
         return res.status(403).json({ success: false, message: 'Token inválido o expirado.' });
     }
 };
