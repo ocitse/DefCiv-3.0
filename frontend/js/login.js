@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(resultado.mensaje || 'Error al intentar iniciar sesión.');
             }
 
-            sessionStorage.setItem('token', resultado.token);
-            sessionStorage.setItem('usuario', JSON.stringify(resultado.usuario));
+            localStorage.setItem('token', resultado.token);
+            localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
 
             errorMessage.style.color = '#198754';
             errorMessage.textContent = '¡Acceso concedido! Redirigiendo...';
