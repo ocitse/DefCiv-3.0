@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Actualizando...`;
 
-            const token = sessionStorage.getItem('token');
-            const usuarioRaw = sessionStorage.getItem('usuario');
+            const token = localStorage.getItem('token');
+            const usuarioRaw = localStorage.getItem('usuario');
 
             if (!token || !usuarioRaw) {
                 throw new Error('No hay sesión activa. Por favor, vuelva a iniciar sesión.');
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             usuario.requiereCambioPass = false;
-            sessionStorage.setItem('usuario', JSON.stringify(usuario));
+            localStorage.setItem('usuario', JSON.stringify(usuario));
 
             mostrarAlerta('¡Contraseña actualizada con éxito! Redirigiendo al sistema...', 'success');
 

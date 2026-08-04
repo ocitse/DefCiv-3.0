@@ -150,8 +150,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             window.editarRelevamientoGeneral = editarRelevamientoGeneral;
-            const token = sessionStorage.getItem('token');
-            const usuarioRaw = sessionStorage.getItem('usuario');
+            const token = localStorage.getItem('token');
+            const usuarioRaw = localStorage.getItem('usuario');
 
             if (!token || !usuarioRaw) {
                 window.location.replace('/login'); 
@@ -189,7 +189,7 @@
             const realizarSalida = (e) => {
                 e.preventDefault();
                 if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
-                    sessionStorage.clear(); 
+                    localStorage.clear(); 
                     window.location.replace('/login'); 
                 }
             };

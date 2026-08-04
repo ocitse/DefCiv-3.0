@@ -9,7 +9,7 @@ const MATRIZ_PERMISOS = {
 
 /**
  * Verifica si un rol tiene permiso para acceder a una sección o acción específica
- * @param {string} rolUsuario - Rol actual obtenido de sessionStorage
+ * @param {string} rolUsuario - Rol actual obtenido de localStorage
  * @param {string} seccion - Módulo o acción a validar
  * @returns {boolean}
  */
