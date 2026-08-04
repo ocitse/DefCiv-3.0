@@ -1,4 +1,5 @@
 // 🛠️ FUNCIÓN 1: CARGA DE LA TABLA Y EL MODAL (ROLES ACTUALIZADOS)
+
 export async function cargarModuloUsuarios() {
     const contenedor = document.querySelector('.content-principal');
     if (!contenedor) return;
