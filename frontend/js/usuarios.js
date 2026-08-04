@@ -1,4 +1,4 @@
-// 🛠️ FUNCIÓN 1: CARGA DE LA TABLA Y EL MODAL (ROLES ACTUALIZADOS)
+// 🛠️ MÓDULO DE GESTIÓN DE USUARIOS
 
 export async function cargarModuloUsuarios() {
     const contenedor = document.querySelector('.content-principal');
@@ -101,13 +101,12 @@ export async function cargarModuloUsuarios() {
     });
 
     try {
-        const token = localStorage.getItem('token'); // Recuperamos el token guardado
-        console.log("🔍 Token que voy a enviar:", tokenGuardado);
+        const token = localStorage.getItem('token');
         const respuesta = await fetch('https://defciv-app.onrender.com/api/usuarios', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Agregamos el token aquí
+                'Authorization': `Bearer ${token}`
             }
         });
         const resultado = await respuesta.json();
@@ -162,7 +161,7 @@ export async function cargarModuloUsuarios() {
                     <td><span class="badge ${badgeColor}">${nombreRolMostrar}</span></td>
                     <td>${badgeEstado}</td>
                     <td class="text-end pe-3">
-                       <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
+                         <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
                             <i class="bi bi-pencil-square text-dark"></i>
                         </button>
                         <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
@@ -183,7 +182,6 @@ export async function cargarModuloUsuarios() {
     }
 }
 
-// ➕ FUNCIÓN PARA ABRIR NUEVO USUARIO
 window.abrirModalNuevoUsuario = function() {
     resetearModalUsuario();
     const modalElement = document.getElementById('modalUsuario');
@@ -193,7 +191,6 @@ window.abrirModalNuevoUsuario = function() {
     }
 }
 
-// ✏️ FUNCIÓN PARA ABRIR MODAL EN EDICIÓN
 window.abrirModalEditar = function(u) {
     const tituloModal = document.getElementById('modalUsuarioLabel');
     if (tituloModal) {
@@ -219,7 +216,6 @@ window.abrirModalEditar = function(u) {
     }
 }
 
-// 🧹 LIMPIEZA DE ESTADOS DEL MODAL
 window.resetearModalUsuario = function() {
     const form = document.getElementById('form-usuario');
     if (form) {
@@ -237,7 +233,6 @@ window.resetearModalUsuario = function() {
     }
 }
 
-// 🛠️ REGISTRO O EDICIÓN DE UN USUARIO (INTELIGENTE: POST O PUT)
 async function registrarUsuarioBackend() {
     const btnGuardar = document.getElementById('btn-guardar-usuario');
     const alertModal = document.getElementById('alert-modal-usuario');
@@ -265,13 +260,13 @@ async function registrarUsuarioBackend() {
 
         const url = editId ? `https://defciv-app.onrender.com/api/usuarios/${editId}` : 'https://defciv-app.onrender.com/api/usuarios';
         const method = editId ? 'PUT' : 'POST';
-        const token = localStorage.getItem('token'); // <--- Recuperamos el token
+        const token = localStorage.getItem('token');
 
         const respuesta = await fetch(url, {
             method: method,
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // <--- Lo inyectamos aquí
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ username, dni, apellido, nombres, email, celular, rol })
         });
@@ -303,7 +298,6 @@ async function registrarUsuarioBackend() {
     }
 }
 
-// 🔄 CAMBIAR ESTADO (ACTIVO/INACTIVO) EN EL BACKEND
 window.cambiarEstadoUsuario = async function(id, estadoActual) {
     const accion = estadoActual === 'Activo' ? 'dar de BAJA' : 'ACTIVAR';
     
@@ -312,12 +306,12 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
     }
 
     try {
-        const token = localStorage.getItem('token'); // <--- Recuperamos el token
+        const token = localStorage.getItem('token');
         const respuesta = await fetch(`https://defciv-app.onrender.com/api/usuarios/${id}/estado`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // <--- Lo inyectamos aquí
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -336,5 +330,4 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
     }
 }
 
-// Exponemos las funciones principales al objeto global window
 window.cargarModuloUsuarios = cargarModuloUsuarios;
