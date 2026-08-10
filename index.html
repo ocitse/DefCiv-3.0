@@ -30,17 +30,18 @@
         </div>
         <hr>
         
-        <ul class="nav nav-pills flex-column mb-auto gap-1" id="sidebar-app-desktop">
-            <li class="nav-item">
-                <a href="#" class="nav-link text-white" id="btn-menu-inicio">
-                    <i class="bi bi-house-door-fill me-2"></i> Inicio
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link active" id="btn-menu-relevamientos">
-                    <i class="bi bi-journal-text me-2"></i> Relevamientos
-                </a>
-            </li>
+        <!-- Versión Escritorio -->
+<ul class="nav nav-pills flex-column mb-auto gap-1" id="sidebar-app-desktop">
+    <li class="nav-item">
+        <a href="#" class="nav-link active text-white" id="btn-menu-inicio">
+            <i class="bi bi-house-door-fill me-2"></i> Inicio
+        </a>
+    </li>
+    <li>
+        <a href="#" class="nav-link text-white" id="btn-menu-relevamientos">
+            <i class="bi bi-journal-text me-2"></i> Relevamientos
+        </a>
+    </li>
             <li>
                 <a href="#" class="nav-link text-white" id="btn-menu-solicitudes">
                     <i class="bi bi-file-earmark-text me-2"></i> Solicitudes
@@ -100,10 +101,10 @@
             <div class="collapse navbar-collapse text-start" id="navbarNavMobile">
                 <ul class="navbar-nav gap-1 pt-3 pb-2" id="sidebar-app-mobile">
                     <li class="nav-item">
-                        <a class="nav-link" id="btn-mobile-inicio" href="#"><i class="bi bi-house-door-fill me-2"></i> Inicio</a>
+                        <a class="nav-link active" id="btn-mobile-inicio" href="#"><i class="bi bi-house-door-fill me-2"></i> Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" id="btn-mobile-relevamientos" href="#"><i class="bi bi-journal-text me-2"></i> Relevamientos</a>
+                        <a class="nav-link" id="btn-mobile-relevamientos" href="#"><i class="bi bi-journal-text me-2"></i> Relevamientos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="btn-mobile-solicitudes" href="#"><i class="bi bi-file-earmark-text me-2"></i> Solicitudes</a>
@@ -150,14 +151,24 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             window.editarRelevamientoGeneral = editarRelevamientoGeneral;
+            
             const token = localStorage.getItem('token');
             const usuarioRaw = localStorage.getItem('usuario');
 
+            console.log("🔍 [INIT INDEX]: Token encontrado:", token ? "Sí" : "No");
+            console.log("🔍 [INIT INDEX]: Usuario encontrado:", usuarioRaw ? "Sí" : "No");
+
+            // Si no hay credenciales, mandamos al login de forma absoluta
             if (!token || !usuarioRaw) {
+                console.warn("⚠️ Faltan credenciales, redirigiendo al login...");
                 window.location.replace('/login'); 
                 return;
-            } else {
-                document.getElementById('cuerpo-sistema').style.display = 'block';
+            }
+
+            // Forzamos a mostrar el cuerpo del sistema inmediatamente
+            const cuerpoSistema = document.getElementById('cuerpo-sistema');
+            if (cuerpoSistema) {
+                cuerpoSistema.style.display = 'block';
             }
 
             try {
@@ -175,7 +186,7 @@
                     if (elMobile) elMobile.textContent = nombreCompleto;
                 }
             } catch (e) {
-                console.error("Error al parsear el usuario:", e);
+                console.error("❌ Error al parsear el usuario del localStorage:", e);
             }
 
             // --- DISPARADOR INICIAL DEL PANEL PRINCIPAL ---
