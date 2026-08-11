@@ -18,15 +18,45 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 // 1. OBTENER TODOS LOS RELEVAMIENTOS Y LIMPIAR DATOS SUCIOS
 export const obtenerrelevamientos = async (req, res) => {
     try {
+        // Obtenemos el rol y los datos del usuario logueado desde el token
+        const rolUsuario = req.user && req.user.rol ? String(req.user.rol).trim().toLowerCase() : '';
+        const idUsuarioLogueado = req.user ? (req.user.id_usuario || req.user.id) : null;
+
+        // Construimos el filtro dinámico según el rol
+        let condicionesWhere = {};
+
+        // Si es un relevador, limitamos para que solo vea lo suyo asignado
+        if (rolUsuario === 'relevador') {
+            // Buscamos primero el nombre del relevador logueado si es necesario, 
+            // o filtramos directamente por su ID/Nombre según cómo guardes el campo 'relevador_asignado' en la BD.
+            // O si prefieres buscar por su nombre de usuario o ID, lo adaptamos aquí.
+            const relevadorPerfil = await Relevador.findOne({ where: { id_usuario: idUsuarioLogueado } });
+            
+            if (relevadorPerfil) {
+                condicionesWhere = {
+                    [Op.or]: [
+                        { relevador_asignado: String(relevadorPerfil.id) },
+                        { relevador_asignado: `${relevadorPerfil.apellido}, ${relevadorPerfil.nombre}` }
+                    ]
+                };
+            } else {
+                // Si no tiene perfil de relevador vinculado, no devuelve nada por seguridad
+                condicionesWhere = { id: 0 }; 
+            }
+        }
+        // Nota: Si el rol es 'administrador' o 'operador', 'condicionesWhere' se queda vacío {} y trae TODO.
+
         const [listaRelevamientos, relevadores] = await Promise.all([
-            relevamiento.findAll({ order: [['createdAt', 'DESC']] }),
+            relevamiento.findAll({ 
+                where: condicionesWhere,
+                order: [['createdAt', 'DESC']] 
+            }),
             Relevador.findAll()
         ]);
 
         const mapaRelevadores = {};
         relevadores.forEach(rev => {
             if (rev && rev.id) {
-                // CORREGIDO: Combinamos apellido y nombre para que se muestre prolijo en la tabla
                 const nombreCompleto = `${rev.apellido}, ${rev.nombre}`;
                 mapaRelevadores[String(rev.id)] = nombreCompleto;
                 mapaRelevadores[String(rev.nombre).trim()] = nombreCompleto;
