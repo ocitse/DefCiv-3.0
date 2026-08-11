@@ -188,6 +188,31 @@
             } catch (e) {
                 console.error("❌ Error al parsear el usuario del localStorage:", e);
             }
+            // ==========================================
+    // NUEVO: FILTRADO DE MENÚ SEGÚN EL ROL
+    // ==========================================
+    const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
+    
+    if (rolUsuario === 'relevador' || rolUsuario === 'consulta') {
+        // Ocultamos elementos que no deben ver en Escritorio
+        const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
+        const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
+        const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
+
+        if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
+        if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
+        if (menuConfigDesk) menuConfigDesk.style.display = 'none';
+
+        // Ocultamos elementos que no deben ver en Mobile
+        const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
+        const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
+        const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
+
+        if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
+        if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
+        if (menuConfigMob) menuConfigMob.style.display = 'none';
+    }
+    // ==========================================
 
             // --- DISPARADOR INICIAL DEL PANEL PRINCIPAL ---
             //console.log("👉 [DEBUG]: El script llegó al disparador inicial");

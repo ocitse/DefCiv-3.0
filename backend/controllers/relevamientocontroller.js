@@ -2,7 +2,7 @@
 import relevamiento from '../models/relevamiento.js';
 import Relevador from '../models/relevador.js';
 
-// Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-CEN-001-26)
+// Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-001-26)
 const generarCodigoRelevamiento = async (departamento, localidad) => {
     const anioActual = '26'; // Año actual del proyecto
     const dptoPrefix = departamento ? departamento.substring(0, 3).toUpperCase() : 'DEP';
