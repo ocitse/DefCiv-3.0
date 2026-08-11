@@ -150,52 +150,48 @@
         import { cargarVistaRelevadores } from './frontend/js/relevadores.js';
 
         document.addEventListener('DOMContentLoaded', () => {
-            window.editarRelevamientoGeneral = editarRelevamientoGeneral;
-            
-            const token = localStorage.getItem('token');
-            const usuarioRaw = localStorage.getItem('usuario');
+    window.editarRelevamientoGeneral = editarRelevamientoGeneral;
+    
+    const token = localStorage.getItem('token');
+    const usuarioRaw = localStorage.getItem('usuario');
 
-            //console.log("🔍 [INIT INDEX]: Token encontrado:", token ? "Sí" : "No");
-            //console.log("🔍 [INIT INDEX]: Usuario encontrado:", usuarioRaw ? "Sí" : "No");
+    if (!token || !usuarioRaw) {
+        console.warn("⚠️ Faltan credenciales, redirigiendo al login...");
+        window.location.replace('/login'); 
+        return;
+    }
 
-            // Si no hay credenciales, mandamos al login de forma absoluta
-            if (!token || !usuarioRaw) {
-                console.warn("⚠️ Faltan credenciales, redirigiendo al login...");
-                window.location.replace('/login'); 
-                return;
-            }
+    const cuerpoSistema = document.getElementById('cuerpo-sistema');
+    if (cuerpoSistema) {
+        cuerpoSistema.style.display = 'block';
+    }
 
-            // Forzamos a mostrar el cuerpo del sistema inmediatamente
-            const cuerpoSistema = document.getElementById('cuerpo-sistema');
-            if (cuerpoSistema) {
-                cuerpoSistema.style.display = 'block';
-            }
+    // Declaramos la variable de forma global para todo este ámbito
+    let usuarioLogueado = {};
+    try {
+        usuarioLogueado = JSON.parse(usuarioRaw);
+        if (usuarioLogueado.requiereCambioPass) {
+            window.location.replace('/cambiar-password');
+            return; 
+        }
 
-            try {
-                const usuarioLogueado = JSON.parse(usuarioRaw);
-                if (usuarioLogueado.requiereCambioPass) {
-                    window.location.replace('/cambiar-password');
-                    return; 
-                }
+        if (usuarioLogueado && usuarioLogueado.nombres && usuarioLogueado.apellido) {
+            const nombreCompleto = usuarioLogueado.nombres + ' ' + usuarioLogueado.apellido;
+            const elDesktop = document.getElementById('nombre-usuario-desktop');
+            const elMobile = document.getElementById('nombre-usuario-mobile');
+            if (elDesktop) elDesktop.textContent = nombreCompleto;
+            if (elMobile) elMobile.textContent = nombreCompleto;
+        }
+    } catch (e) {
+        console.error("❌ Error al parsear el usuario del localStorage:", e);
+    }
 
-                if (usuarioLogueado && usuarioLogueado.nombres && usuarioLogueado.apellido) {
-                    const nombreCompleto = usuarioLogueado.nombres + ' ' + usuarioLogueado.apellido;
-                    const elDesktop = document.getElementById('nombre-usuario-desktop');
-                    const elMobile = document.getElementById('nombre-usuario-mobile');
-                    if (elDesktop) elDesktop.textContent = nombreCompleto;
-                    if (elMobile) elMobile.textContent = nombreCompleto;
-                }
-            } catch (e) {
-                console.error("❌ Error al parsear el usuario del localStorage:", e);
-            }
-            // ==========================================
     // ==========================================
-    // FILTRADO DE MENÚ SEGÚN EL ROL
+    // FILTRADO DE MENÚ SEGÚN EL ROL (Seguro)
     // ==========================================
     const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
     
     if (rolUsuario === 'relevador' || rolUsuario === 'consulta') {
-        // Ocultamos elementos que no deben ver en Escritorio
         const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
         const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
         const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
@@ -204,7 +200,6 @@
         if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
         if (menuConfigDesk) menuConfigDesk.style.display = 'none';
 
-        // Ocultamos elementos que no deben ver en Mobile
         const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
         const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
         const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
@@ -215,130 +210,129 @@
     }
     // ==========================================
 
-            // --- DISPARADOR INICIAL DEL PANEL PRINCIPAL ---
-            //console.log("👉 [DEBUG]: El script llegó al disparador inicial");
-            try {
-                verPanelPrincipal();
-            } catch (err) {
-                console.error("❌ [DEBUG]: Error al intentar ejecutar verPanelPrincipal:", err);
-            }
+    // Disparador inicial del panel principal
+    try {
+        verPanelPrincipal();
+    } catch (err) {
+        console.error("❌ Error al intentar ejecutar verPanelPrincipal:", err);
+    }
 
-            const realizarSalida = (e) => {
-                e.preventDefault();
-                if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
-                    localStorage.clear(); 
-                    window.location.replace('/login'); 
-                }
-            };
+    const realizarSalida = (e) => {
+        e.preventDefault();
+        if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
+            localStorage.clear(); 
+            window.location.replace('/login'); 
+        }
+    };
 
-            const btnSalirDesk = document.getElementById('btn-salir-desktop');
-            const btnSalirMob = document.getElementById('btn-salir-mobile');
-            if (btnSalirDesk) btnSalirDesk.addEventListener('click', realizarSalida);
-            if (btnSalirMob) btnSalirMob.addEventListener('click', realizarSalida);
+    const btnSalirDesk = document.getElementById('btn-salir-desktop');
+    const btnSalirMob = document.getElementById('btn-salir-mobile');
+    if (btnSalirDesk) btnSalirDesk.addEventListener('click', realizarSalida);
+    if (btnSalirMob) btnSalirMob.addEventListener('click', realizarSalida);
 
-            const abrirModalCambioClave = (e) => {
-                e.preventDefault();
-                window.location.replace('/cambiar-password');
-            };
-            const btnPassDesk = document.getElementById('btn-cambiar-pass-desktop');
-            const btnPassMob = document.getElementById('btn-cambiar-pass-mobile');
-            if (btnPassDesk) btnPassDesk.addEventListener('click', abrirModalCambioClave);
-            if (btnPassMob) btnPassMob.addEventListener('click', abrirModalCambioClave);
-            
-            function cambiarEnlaceActivo(idBotonDesktop, idBotonMobile) {
-                document.querySelectorAll('.sidebar .nav-link, .navbar-nav .nav-link').forEach(enlace => {
-                    enlace.classList.remove('active');
-                });
-                const desk = document.getElementById(idBotonDesktop);
-                const mob = document.getElementById(idBotonMobile);
-                if (desk) desk.classList.add('active');
-                if (mob) mob.classList.add('active');
-            }
-
-            const btnInicioDesk = document.getElementById('btn-menu-inicio');
-            const btnInicioMob = document.getElementById('btn-mobile-inicio');
-            const handlerInicio = (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-inicio', 'btn-mobile-inicio');
-                verPanelPrincipal();
-            };
-            if (btnInicioDesk) btnInicioDesk.addEventListener('click', handlerInicio);
-            if (btnInicioMob) btnInicioMob.addEventListener('click', handlerInicio);
-
-            const btnRevDesk = document.getElementById('btn-menu-relevamientos');
-            const btnRevMob = document.getElementById('btn-mobile-relevamientos');
-            const handlerRev = (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-relevamientos', 'btn-mobile-relevamientos');
-                verListaRelevamientos();
-            };
-            if (btnRevDesk) btnRevDesk.addEventListener('click', handlerRev);
-            if (btnRevMob) btnRevMob.addEventListener('click', handlerRev);
-
-            const btnSolDesk = document.getElementById('btn-menu-solicitudes');
-            const btnSolMob = document.getElementById('btn-mobile-solicitudes');
-            const handlerSol = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                cambiarEnlaceActivo('btn-menu-solicitudes', 'btn-mobile-solicitudes');
-                verListaSolicitudes();
-            };
-            if (btnSolDesk) btnSolDesk.addEventListener('click', handlerSol);
-            if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
-
-            const btnUsuDesk = document.getElementById('btn-sub-usuarios');
-            if (btnUsuDesk) {
-                btnUsuDesk.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-                    if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios(); 
-                });
-            }
-
-            const btnUsuMob = document.getElementById('btn-mobile-sub-usuarios');
-            if (btnUsuMob) {
-                btnUsuMob.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-                    const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNavMobile'));
-                    if (bsCollapse) bsCollapse.hide();
-                    if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
-                });
-            }
-
-            const cargarVistaRelevadoresDinamica = async (e) => {
-                e.preventDefault();
-                cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-
-                const navMobile = document.getElementById('navbarNavMobile');
-                if (navMobile) {
-                    const bsCollapse = bootstrap.Collapse.getInstance(navMobile);
-                    if (bsCollapse) bsCollapse.hide();
-                }
-
-                const contenedor = document.querySelector('.content-principal');
-                if (!contenedor) return;
-
-                try {
-                    const respuesta = await fetch('./frontend/pages/config-relevadores.html');
-                    if (!respuesta.ok) throw new Error('No se pudo cargar la vista de relevadores');
-                    
-                    contenedor.innerHTML = await respuesta.text();
-
-                    if (typeof cargarVistaRelevadores === 'function') {
-                        cargarVistaRelevadores();
-                    }
-                } catch (error) {
-                    console.error("Error al cargar la sección de relevadores:", error);
-                }
-            };
-
-            const btnRevConfigDesk = document.getElementById('btn-sub-relevadores');
-            if (btnRevConfigDesk) btnRevConfigDesk.addEventListener('click', cargarVistaRelevadoresDinamica);
-
-            const btnRevConfigMob = document.getElementById('btn-mobile-sub-relevadores');
-            if (btnRevConfigMob) btnRevConfigMob.addEventListener('click', cargarVistaRelevadoresDinamica);
+    const abrirModalCambioClave = (e) => {
+        e.preventDefault();
+        window.location.replace('/cambiar-password');
+    };
+    const btnPassDesk = document.getElementById('btn-cambiar-pass-desktop');
+    const btnPassMob = document.getElementById('btn-cambiar-pass-mobile');
+    if (btnPassDesk) btnPassDesk.addEventListener('click', abrirModalCambioClave);
+    if (btnPassMob) btnPassMob.addEventListener('click', abrirModalCambioClave);
+    
+    function cambiarEnlaceActivo(idBotonDesktop, idBotonMobile) {
+        document.querySelectorAll('.sidebar .nav-link, .navbar-nav .nav-link').forEach(enlace => {
+            enlace.classList.remove('active');
         });
+        const desk = document.getElementById(idBotonDesktop);
+        const mob = document.getElementById(idBotonMobile);
+        if (desk) desk.classList.add('active');
+        if (mob) mob.classList.add('active');
+    }
+
+    const btnInicioDesk = document.getElementById('btn-menu-inicio');
+    const btnInicioMob = document.getElementById('btn-mobile-inicio');
+    const handlerInicio = (e) => {
+        e.preventDefault();
+        cambiarEnlaceActivo('btn-menu-inicio', 'btn-mobile-inicio');
+        verPanelPrincipal();
+    };
+    if (btnInicioDesk) btnInicioDesk.addEventListener('click', handlerInicio);
+    if (btnInicioMob) btnInicioMob.addEventListener('click', handlerInicio);
+
+    const btnRevDesk = document.getElementById('btn-menu-relevamientos');
+    const btnRevMob = document.getElementById('btn-mobile-relevamientos');
+    const handlerRev = (e) => {
+        e.preventDefault();
+        cambiarEnlaceActivo('btn-menu-relevamientos', 'btn-mobile-relevamientos');
+        verListaRelevamientos();
+    };
+    if (btnRevDesk) btnRevDesk.addEventListener('click', handlerRev);
+    if (btnRevMob) btnRevMob.addEventListener('click', handlerRev);
+
+    const btnSolDesk = document.getElementById('btn-menu-solicitudes');
+    const btnSolMob = document.getElementById('btn-mobile-solicitudes');
+    const handlerSol = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cambiarEnlaceActivo('btn-menu-solicitudes', 'btn-mobile-solicitudes');
+        verListaSolicitudes();
+    };
+    if (btnSolDesk) btnSolDesk.addEventListener('click', handlerSol);
+    if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
+
+    const btnUsuDesk = document.getElementById('btn-sub-usuarios');
+    if (btnUsuDesk) {
+        btnUsuDesk.addEventListener('click', (e) => {
+            e.preventDefault();
+            cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+            if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios(); 
+        });
+    }
+
+    const btnUsuMob = document.getElementById('btn-mobile-sub-usuarios');
+    if (btnUsuMob) {
+        btnUsuMob.addEventListener('click', (e) => {
+            e.preventDefault();
+            cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+            const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNavMobile'));
+            if (bsCollapse) bsCollapse.hide();
+            if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
+        });
+    }
+
+    const cargarVistaRelevadoresDinamica = async (e) => {
+        e.preventDefault();
+        cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+
+        const navMobile = document.getElementById('navbarNavMobile');
+        if (navMobile) {
+            const bsCollapse = bootstrap.Collapse.getInstance(navMobile);
+            if (bsCollapse) bsCollapse.hide();
+        }
+
+        const contenedor = document.querySelector('.content-principal');
+        if (!contenedor) return;
+
+        try {
+            const respuesta = await fetch('./frontend/pages/config-relevadores.html');
+            if (!respuesta.ok) throw new Error('No se pudo cargar la vista de relevadores');
+            
+            contenedor.innerHTML = await respuesta.text();
+
+            if (typeof cargarVistaRelevadores === 'function') {
+                cargarVistaRelevadores();
+            }
+        } catch (error) {
+            console.error("Error al cargar la sección de relevadores:", error);
+        }
+    };
+
+    const btnRevConfigDesk = document.getElementById('btn-sub-relevadores');
+    if (btnRevConfigDesk) btnRevConfigDesk.addEventListener('click', cargarVistaRelevadoresDinamica);
+
+    const btnRevConfigMob = document.getElementById('btn-mobile-sub-relevadores');
+    if (btnRevConfigMob) btnRevConfigMob.addEventListener('click', cargarVistaRelevadoresDinamica);
+});
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
