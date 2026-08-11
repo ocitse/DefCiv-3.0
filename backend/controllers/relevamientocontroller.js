@@ -1,6 +1,7 @@
 // backend/controllers/relevamientocontroller.js
 import relevamiento from '../models/relevamiento.js';
 import Relevador from '../models/relevador.js';
+import { Op } from 'sequelize';
 
 // Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-001-26)
 const generarCodigoRelevamiento = async (departamento, localidad) => {
