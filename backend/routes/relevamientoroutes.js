@@ -6,7 +6,7 @@ import {
     actualizarRelevamiento,
     eliminarRelevamiento,
 } from '../controllers/relevamientocontroller.js';
-import { verificarToken } from '../middlewares/authMiddleware.js';
+import { verificarToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
