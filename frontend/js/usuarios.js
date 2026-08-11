@@ -102,7 +102,7 @@ export async function cargarModuloUsuarios() {
 
     try {
         const token = localStorage.getItem('token');
-        console.log("🔑 [DEBUG USUARIOS]: Token recuperado de localStorage:", token ? token.substring(0, 15) + "..." : "NO EXISTE");
+        //console.log("🔑 [DEBUG USUARIOS]: Token recuperado de localStorage:", token ? token.substring(0, 15) + "..." : "NO EXISTE");
 
         if (!token || token === "undefined" || token === "null") {
             throw new Error("No se encontró un token de sesión válido. Por favor, vuelva a iniciar sesión.");

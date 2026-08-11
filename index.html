@@ -155,8 +155,8 @@
             const token = localStorage.getItem('token');
             const usuarioRaw = localStorage.getItem('usuario');
 
-            console.log("🔍 [INIT INDEX]: Token encontrado:", token ? "Sí" : "No");
-            console.log("🔍 [INIT INDEX]: Usuario encontrado:", usuarioRaw ? "Sí" : "No");
+            //console.log("🔍 [INIT INDEX]: Token encontrado:", token ? "Sí" : "No");
+            //console.log("🔍 [INIT INDEX]: Usuario encontrado:", usuarioRaw ? "Sí" : "No");
 
             // Si no hay credenciales, mandamos al login de forma absoluta
             if (!token || !usuarioRaw) {
@@ -190,7 +190,7 @@
             }
 
             // --- DISPARADOR INICIAL DEL PANEL PRINCIPAL ---
-            console.log("👉 [DEBUG]: El script llegó al disparador inicial");
+            //console.log("👉 [DEBUG]: El script llegó al disparador inicial");
             try {
                 verPanelPrincipal();
             } catch (err) {
