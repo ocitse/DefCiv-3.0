@@ -102,6 +102,12 @@ export async function cargarModuloUsuarios() {
 
     try {
         const token = localStorage.getItem('token');
+        console.log("🔑 [DEBUG USUARIOS]: Token recuperado de localStorage:", token ? token.substring(0, 15) + "..." : "NO EXISTE");
+
+        if (!token || token === "undefined" || token === "null") {
+            throw new Error("No se encontró un token de sesión válido. Por favor, vuelva a iniciar sesión.");
+        }
+
         const respuesta = await fetch('https://defciv-app.onrender.com/api/usuarios', {
             method: 'GET',
             headers: {
@@ -109,6 +115,7 @@ export async function cargarModuloUsuarios() {
                 'Authorization': `Bearer ${token}`
             }
         });
+        
         const resultado = await respuesta.json();
 
         const tbody = document.getElementById('tbody-usuarios');
@@ -117,6 +124,8 @@ export async function cargarModuloUsuarios() {
         if (!respuesta.ok || !resultado.success) {
             throw new Error(resultado.message || 'No se pudieron cargar los usuarios.');
         }
+        
+        // ... (el resto del código de renderizado de la tabla sigue igual abajo)
 
         if (resultado.data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3 text-muted">No hay usuarios registrados.</td></tr>`;
