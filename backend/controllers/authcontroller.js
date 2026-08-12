@@ -55,8 +55,9 @@ export const login = async (req, res) => {
         if (!usuarioEncontrado) {
             return res.status(400).json({ mensaje: 'Credenciales inválidas (Usuario no encontrado).' });
         }
-        // Validar si el usuario está inactivo
-        if (usuarioEncontrado.estado === 'inactivo' || usuarioEncontrado.estado === false) {
+        // Validar si el usuario está inactivo (cubre texto en mayúsculas/minúsculas o booleanos)
+        const estadoUsuario = String(usuarioEncontrado.estado || '').trim().toLowerCase();
+        if (estadoUsuario === 'inactivo' || usuarioEncontrado.estado === false || usuarioEncontrado.estado === 0) {
             return res.status(403).json({ mensaje: 'Su cuenta se encuentra inactiva. Contacte al administrador.' });
         }
 
