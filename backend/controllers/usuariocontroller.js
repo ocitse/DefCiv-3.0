@@ -7,31 +7,33 @@ import { Op } from 'sequelize';
 export const obtenerUsuarios = async (req, res) => {
     try {
         const { rol, estado } = req.query;
-        let whereCondition = {};
+        
+        // Construimos un objeto de condiciones plano y seguro
+        const filtros = {};
 
-        // Si pasan un rol por query (ej: ?rol=relevador), lo aplicamos
         if (rol) {
-            whereCondition.rol = rol;
+            filtros.rol = rol;
         }
 
-        // Si pasan un estado (ej: ?estado=Activo), lo aplicamos. Si no, excluimos las 'Baja' por defecto.
         if (estado) {
-            whereCondition.estado = estado;
+            filtros.estado = estado;
         } else {
-            whereCondition.estado = {
-                [Op.ne]: 'Baja' 
+            // Si no se pide un estado específico, traemos todos menos los de baja
+            filtros.estado = {
+                [Op.ne]: 'Baja'
             };
         }
 
         const usuarios = await Usuario.findAll({
-            where: whereCondition,
-            attributes: ['id', 'username', 'dni', 'apellido', 'nombres', 'email', 'celular', 'rol', 'estado', 'ultimoAcceso']
+            where: filtros,
+            attributes: ['id', 'username', 'dni', 'apellido', 'nombres', 'email', 'celular', 'rol', 'estado']
         });
 
-        res.json({ success: true, data: usuarios });
+        return res.json({ success: true, data: usuarios });
     } catch (error) {
-        console.error('Error al obtener usuarios con Sequelize:', error);
-        res.status(500).json({ success: false, message: 'Error interno del servidor' });
+        // Esto imprimirá en los logs de tu servidor el motivo exacto del fallo 500
+        console.error('ERROR CRITICO EN obtenerUsuarios:', error.message, error.stack);
+        return res.status(500).json({ success: false, message: 'Error interno del servidor: ' + error.message });
     }
 };
 

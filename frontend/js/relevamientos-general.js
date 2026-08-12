@@ -55,8 +55,8 @@ async function cargarDesplegableRelevadores() {
 
     try {
         const token = localStorage.getItem('token');
-        // Petición exclusiva del Admin al controlador unificado de usuarios
-        const respuesta = await fetch('/api/usuarios/filtrados?rol=relevador&estado=Activo', {
+        // Apuntamos a /api/usuarios pasando los filtros por URL
+        const respuesta = await fetch('/api/usuarios?rol=relevador&estado=Activo', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const resultado = await respuesta.json();
