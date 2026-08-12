@@ -3,16 +3,28 @@ import bcrypt from 'bcryptjs';
 import Usuario from '../models/usuario.js'; // 👈 Corregido: Importamos con 'Usuario' en mayúscula
 import { Op } from 'sequelize'; 
 
-// 1. Obtener todos los usuarios (para listar en la tabla)
+// 1. Obtener todos los usuarios (permite filtrar opcionalmente por rol y estado ej: ?rol=relevador&estado=Activo)
 export const obtenerUsuarios = async (req, res) => {
     try {
+        const { rol, estado } = req.query;
+        let whereCondition = {
+            estado: {
+                [Op.ne]: 'Baja' 
+            }
+        };
+
+        // Si pasan un rol por query (ej: ?rol=relevador), lo agregamos al filtro
+        if (rol) {
+            whereCondition.rol = rol;
+        }
+
+        // Si pasan un estado específico (ej: ?estado=Activo), filtramos por él
+        if (estado) {
+            whereCondition.estado = estado;
+        }
+
         const usuarios = await Usuario.findAll({
-            where: {
-                estado: {
-                    [Op.ne]: 'Baja' 
-                }
-            },
-            // Atributos que devolvemos (excluimos la clave por seguridad)
+            where: whereCondition,
             attributes: ['id', 'username', 'dni', 'apellido', 'nombres', 'email', 'celular', 'rol', 'estado', 'ultimoAcceso']
         });
 
