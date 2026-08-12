@@ -54,7 +54,10 @@ async function cargarDesplegableRelevadores() {
     select.innerHTML = '<option value="" disabled selected>Asignar a...</option>';
 
     try {
-        const respuesta = await fetch('/api/relevadores');
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch('/api/relevadores', {
+            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
+        });
         const resultado = await respuesta.json();
 
         if (resultado.success && resultado.data) {
@@ -75,7 +78,10 @@ async function cargarDesplegableRelevadores() {
 export function editarRelevamientoGeneral(idRelevamiento) {
     cargarVistaDinamica('/frontend/pages/form-relevamiento.html', async () => {
         try {
-            const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`);
+            const token = localStorage.getItem('token');
+            const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`, {
+                headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
+            });
             const rel = await respuesta.json();
 
             if (!respuesta.ok || !rel) {
@@ -124,8 +130,10 @@ export async function eliminarRelevamientoGeneral(idRelevamiento) {
     }
 
     try {
+        const token = localStorage.getItem('token');
         const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
         });
 
         const resultado = await respuesta.json();
@@ -146,7 +154,10 @@ export async function eliminarRelevamientoGeneral(idRelevamiento) {
 export async function verPanelPrincipal() {
     cargarVistaDinamica('./frontend/pages/panel-principal.html', async () => {
         try {
-            const respuesta = await fetch('/api/relevamientos');
+            const token = localStorage.getItem('token'); // <-- Recuperar token
+            const respuesta = await fetch('/api/relevamientos', {
+                headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
+            });
             const relevamientos = await respuesta.json();
 
             if (!respuesta.ok) {
@@ -201,7 +212,10 @@ export async function cargarTablaRelevamientos() {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
-        const respuesta = await fetch('/api/relevamientos');
+        const token = localStorage.getItem('token'); // <-- Recuperar token
+        const respuesta = await fetch('/api/relevamientos', {
+            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
+        });
         const relevamientos = await respuesta.json();
 
         if (!respuesta.ok) {
@@ -404,10 +418,12 @@ async function guardarRelevamientoGeneral(event) {
     const metodo = idEdicion ? 'PUT' : 'POST';
 
     try {
+        const token = localStorage.getItem('token'); // <-- Recuperar token
         const respuesta = await fetch(url, {
             method: metodo,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // <-- Enviar token
             },
             body: JSON.stringify(datosFormulario)
         });
