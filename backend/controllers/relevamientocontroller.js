@@ -20,17 +20,17 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 export const obtenerrelevamientos = async (req, res) => {
     try {
         // Obtenemos el rol y los datos del usuario logueado desde el token
-        const rolUsuario = req.user && req.user.rol ? String(req.user.rol).trim().toLowerCase() : '';
+        const rolUsuario = req.user && (req.user.rol || req.user.tipo_rol || req.user.tipo) ? String(req.user.rol || req.user.tipo_rol || req.user.tipo).trim().toLowerCase() : '';
         const idUsuarioLogueado = req.user ? (req.user.id_usuario || req.user.id) : null;
 
         // Construimos el filtro dinámico según el rol
         let condicionesWhere = {};
 
-        // Si es un relevador, limitamos para que solo vea lo suyo asignado
-        if (rolUsuario === 'relevador') {
-            // Buscamos primero el nombre del relevador logueado si es necesario, 
-            // o filtramos directamente por su ID/Nombre según cómo guardes el campo 'relevador_asignado' en la BD.
-            // O si prefieres buscar por su nombre de usuario o ID, lo adaptamos aquí.
+        // Verificamos si es Administrador (tolerante a variaciones en el texto del rol)
+        const esAdministrador = rolUsuario.includes('admin');
+
+        // Si NO es administrador y es relevador, limitamos para que solo vea lo suyo asignado
+        if (!esAdministrador && rolUsuario === 'relevador') {
             const relevadorPerfil = await Relevador.findOne({ where: { id_usuario: idUsuarioLogueado } });
             
             if (relevadorPerfil) {
@@ -45,7 +45,7 @@ export const obtenerrelevamientos = async (req, res) => {
                 condicionesWhere = { id: 0 }; 
             }
         }
-        // Nota: Si el rol es 'administrador' o 'operador', 'condicionesWhere' se queda vacío {} y trae TODO.
+        // Si es Administrador, 'condicionesWhere' se queda en {} y trae TODO.
 
         const [listaRelevamientos, relevadores] = await Promise.all([
             relevamiento.findAll({ 
@@ -73,7 +73,7 @@ export const obtenerrelevamientos = async (req, res) => {
 
         return res.status(200).json(relevamientosFinales);
     } catch (error) {
-        console.error('🔥 ERROR CRudo EN /api/relevamientos:', error);
+        console.error('🔥 ERROR CRUCIAL EN /api/relevamientos:', error);
         return res.status(500).json({ 
             mensaje: 'Error en el servidor al obtener los datos.',
             errorReal: error.message,
