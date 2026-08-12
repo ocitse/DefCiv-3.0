@@ -55,6 +55,10 @@ export const login = async (req, res) => {
         if (!usuarioEncontrado) {
             return res.status(400).json({ mensaje: 'Credenciales inválidas (Usuario no encontrado).' });
         }
+        // Validar si el usuario está inactivo
+        if (usuarioEncontrado.estado === 'inactivo' || usuarioEncontrado.estado === false) {
+            return res.status(403).json({ mensaje: 'Su cuenta se encuentra inactiva. Contacte al administrador.' });
+        }
 
         const passwordCorrecta = await bcrypt.compare(password, usuarioEncontrado.password);
         if (!passwordCorrecta) {
