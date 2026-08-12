@@ -6,7 +6,9 @@ import { verificarToken, verificarRolPermitido } from '../middleware/authMiddlew
 
 const router = express.Router();
 
-// Todas las rutas de usuarios requieren estar autenticado y ser Administrador
+// Ruta exclusiva para administradores: Obtener usuarios filtrados (ej: para selects de asignación)
+// Ej: /api/usuarios/filtrados?rol=relevador&estado=Activo
+router.get('/filtrados', verificarToken, verificarRolPermitido('Administrador'), obtenerUsuarios);
 
 // Definimos los verbos HTTP para la gestión de usuarios
 router.get('/', verificarToken, verificarRolPermitido('Administrador'), obtenerUsuarios);   // Ruta para listar usuarios

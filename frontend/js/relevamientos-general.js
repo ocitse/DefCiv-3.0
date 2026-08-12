@@ -55,8 +55,9 @@ async function cargarDesplegableRelevadores() {
 
     try {
         const token = localStorage.getItem('token');
-        const respuesta = await fetch('/api/relevadores', {
-            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
+        // Petición exclusiva del Admin al controlador unificado de usuarios
+        const respuesta = await fetch('/api/usuarios/filtrados?rol=relevador&estado=Activo', {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         const resultado = await respuesta.json();
 
@@ -64,11 +65,11 @@ async function cargarDesplegableRelevadores() {
             resultado.data.forEach(rev => {
                 const option = document.createElement('option');
                 option.value = rev.id; 
-                option.textContent = `${rev.apellido}, ${rev.nombre}`;
+                option.textContent = `${rev.apellido}, ${rev.nombres}`;
                 select.appendChild(option);
             });
         } else {
-            console.error('No se pudieron cargar los relevadores');
+            console.error('No se pudieron cargar los relevadores activos');
         }
     } catch (error) {
         console.error('Error de red al obtener relevadores:', error);
