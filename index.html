@@ -62,11 +62,6 @@
                             <i class="bi bi-people-fill me-2"></i> Usuarios
                         </a>
                     </li>
-                    <li>
-                        <a class="dropdown-item" href="#" id="btn-sub-relevadores">
-                            <i class="bi bi-person-badge-fill me-2"></i> Relevadores
-                        </a>
-                    </li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-sliders me-2"></i> Ajustes Sistema</a></li>
                 </ul>
             </li>
@@ -124,11 +119,6 @@
                                     <i class="bi bi-people-fill me-2"></i> Usuarios
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" id="btn-mobile-sub-relevadores" href="#">
-                                    <i class="bi bi-person-badge-fill me-2"></i> Relevadores
-                                </a>
-                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -147,7 +137,6 @@
         import { cargarModuloUsuarios } from './frontend/js/usuarios.js';
         import { verPanelPrincipal, verListaRelevamientos, editarRelevamientoGeneral } from './frontend/js/relevamientos.js';
         import { verListaSolicitudes } from './frontend/js/solicitudes.js';
-        import { cargarVistaRelevadores } from './frontend/js/relevadores.js';
 
         document.addEventListener('DOMContentLoaded', () => {
     window.editarRelevamientoGeneral = editarRelevamientoGeneral;
@@ -299,39 +288,6 @@
             if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
         });
     }
-
-    const cargarVistaRelevadoresDinamica = async (e) => {
-        e.preventDefault();
-        cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-
-        const navMobile = document.getElementById('navbarNavMobile');
-        if (navMobile) {
-            const bsCollapse = bootstrap.Collapse.getInstance(navMobile);
-            if (bsCollapse) bsCollapse.hide();
-        }
-
-        const contenedor = document.querySelector('.content-principal');
-        if (!contenedor) return;
-
-        try {
-            const respuesta = await fetch('./frontend/pages/config-relevadores.html');
-            if (!respuesta.ok) throw new Error('No se pudo cargar la vista de relevadores');
-            
-            contenedor.innerHTML = await respuesta.text();
-
-            if (typeof cargarVistaRelevadores === 'function') {
-                cargarVistaRelevadores();
-            }
-        } catch (error) {
-            console.error("Error al cargar la sección de relevadores:", error);
-        }
-    };
-
-    const btnRevConfigDesk = document.getElementById('btn-sub-relevadores');
-    if (btnRevConfigDesk) btnRevConfigDesk.addEventListener('click', cargarVistaRelevadoresDinamica);
-
-    const btnRevConfigMob = document.getElementById('btn-mobile-sub-relevadores');
-    if (btnRevConfigMob) btnRevConfigMob.addEventListener('click', cargarVistaRelevadoresDinamica);
 });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
