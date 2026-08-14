@@ -181,31 +181,38 @@
     const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
     
     // Referencias comunes para escritorio y móvil
+    const menuRelevamientosDesk = document.getElementById('btn-menu-relevamientos')?.closest('li'); // Ajusta el ID si es distinto
     const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
     const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
     const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
 
+    const menuRelevamientosMob = document.getElementById('btn-mobile-relevamientos')?.closest('li'); // Ajusta el ID si es distinto
     const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
     const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
     const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
 
     if (rolUsuario === 'consulta') {
-        // Consulta solo ve el inicio: ocultamos solicitudes, provisiones y configuración
+        // Consulta solo ve el inicio: ocultamos todo lo demás
+        if (menuRelevamientosDesk) menuRelevamientosDesk.style.display = 'none';
         if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
         if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
         if (menuConfigDesk) menuConfigDesk.style.display = 'none';
 
+        if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
         if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
         if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
         if (menuConfigMob) menuConfigMob.style.display = 'none';
 
     } else if (rolUsuario === 'operador') {
-        // Operador ve solicitudes y provisiones: solo ocultamos configuración (y relevamientos si aplica)
+        // Operador ve solicitudes y provisiones: ocultamos relevamientos y configuración
+        if (menuRelevamientosDesk) menuRelevamientosDesk.style.display = 'none';
         if (menuConfigDesk) menuConfigDesk.style.display = 'none';
+
+        if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
         if (menuConfigMob) menuConfigMob.style.display = 'none';
 
     } else if (rolUsuario === 'relevador') {
-        // Si mantienes reglas específicas para relevador, las puedes dejar aquí
+        // Relevador (reglas existentes)
         if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
         if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
         if (menuConfigDesk) menuConfigDesk.style.display = 'none';
