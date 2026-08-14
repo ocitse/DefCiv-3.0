@@ -19,59 +19,48 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
 // 1. OBTENER TODOS LOS RELEVAMIENTOS Y LIMPIAR DATOS SUCIOS
 export const obtenerrelevamientos = async (req, res) => {
     try {
-        // Obtenemos el rol y los datos del usuario logueado desde el token
         const rolUsuario = req.user && (req.user.rol || req.user.tipo_rol || req.user.tipo) ? String(req.user.rol || req.user.tipo_rol || req.user.tipo).trim().toLowerCase() : '';
         const idUsuarioLogueado = req.user ? (req.user.id_usuario || req.user.id) : null;
 
-        // Construimos el filtro dinámico según el rol
         let condicionesWhere = {};
-
-        // Verificamos si es Administrador (tolerante a variaciones en el texto del rol)
         const esAdministrador = rolUsuario.includes('admin');
 
-        // Si NO es administrador y es relevador, limitamos para que solo vea lo suyo asignado
+        // Si NO es administrador y es relevador, filtramos directamente por su ID de usuario
         if (!esAdministrador && rolUsuario === 'relevador') {
-            // Buscamos directamente en la tabla unificada de usuarios los datos del relevador logueado
-            const usuarioPerfil = await Usuario.findByPk(idUsuarioLogueado);
-            
-            if (usuarioPerfil) {
-                const nombreCompleto = `${usuarioPerfil.apellido}, ${usuarioPerfil.nombres}`;
+            if (idUsuarioLogueado) {
                 condicionesWhere = {
-                    [Op.or]: [
-                        { relevador_asignado: String(usuarioPerfil.id_usuario) },
-                        { relevador_asignado: nombreCompleto }
-                    ]
+                    relevador_asignado: String(idUsuarioLogueado)
                 };
             } else {
-                condicionesWhere = { id: 0 }; 
+                condicionesWhere = { id_relevamiento: 0 }; 
             }
         }
 
-        // Obtenemos los relevamientos y la lista de usuarios con rol relevador para mapear nombres
-        const [listaRelevamientos, listaRelevadores] = await Promise.all([
+        // Obtenemos los relevamientos filtrados y todos los usuarios para armar el diccionario de nombres
+        const [listaRelevamientos, listaUsuarios] = await Promise.all([
             relevamiento.findAll({ 
                 where: condicionesWhere,
                 order: [['createdAt', 'DESC']] 
             }),
-            Usuario.findAll({ where: { rol: 'Relevador' } })
+            Usuario.findAll()
         ]);
 
-        const mapaRelevadores = {};
-        listaRelevadores.forEach(rev => {
-            if (rev && rev.id_usuario) {
-                const nombreCompleto = `${rev.apellido}, ${rev.nombres}`;
-                // Mapeamos de todas las formas posibles en que pueda venir guardado en la BD
-                mapaRelevadores[String(rev.id_usuario)] = nombreCompleto; // Por ID (ej: "10")
-                mapaRelevadores[nombreCompleto] = nombreCompleto;        // Por "Apellido, Nombres"
-                mapaRelevadores[String(rev.nombres).trim()] = nombreCompleto; // Por nombre suelto
+        // Creamos un mapa rápido para traducir ID -> "Apellido, Nombres"
+        const mapaNombres = {};
+        listaUsuarios.forEach(usr => {
+            if (usr && usr.id_usuario) {
+                const nombreCompleto = `${usr.apellido}, ${usr.nombres}`;
+                mapaNombres[String(usr.id_usuario)] = nombreCompleto;
             }
         });
 
+        // Reemplazamos el ID numérico por el nombre completo para que se vea bien en la tabla
         const relevamientosFinales = listaRelevamientos.map(rel => {
             const relJSON = rel.toJSON();
-            const asignado = String(relJSON.relevador_asignado || '').trim();
-            // Si el valor asignado coincide con alguna clave del mapa, devuelve el nombre completo. Si no, muestra lo que tenga o 'Sin asignar'
-            relJSON.relevador_asignado = mapaRelevadores[asignado] || (asignado !== '' ? asignado : 'Sin asignar');
+            const idAsignado = String(relJSON.relevador_asignado || '').trim();
+            
+            // Si el ID existe en nuestro mapa de usuarios, ponemos "Apellido, Nombres", sino dejamos lo que tenga
+            relJSON.relevador_asignado = mapaNombres[idAsignado] || (idAsignado !== '' ? idAsignado : 'Sin asignar');
             return relJSON;
         });
 
