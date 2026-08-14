@@ -159,13 +159,15 @@ export async function verPanelPrincipal() {
             const respuesta = await fetch('/api/relevamientos', {
                 headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
             });
-            const relevamientos = await respuesta.json();
 
+            // Validamos primero si la respuesta es correcta antes de parsear a JSON
             if (!respuesta.ok) {
-                throw new Error(relevamientos.mensaje || 'Error al obtener los datos del panel.');
+                const errorData = await respuesta.json().catch(() => ({}));
+                throw new Error(errorData.mensaje || `Error en el servidor: ${respuesta.status}`);
             }
 
-            const listaRelevamientos = relevamientos || [];
+            const relevamientos = await respuesta.json();
+            const listaRelevamientos = Array.isArray(relevamientos) ? relevamientos : [];
 
             const nuevos = listaRelevamientos.filter(r => r.estado === 'Nuevo' || !r.familias || r.familias.length === 0).length;
             
@@ -192,8 +194,8 @@ export async function verPanelPrincipal() {
                 const ultimos = listaRelevamientos.slice(-4).reverse();
                 tbodyDash.innerHTML = ultimos.map(r => `
                     <tr>
-                        <td><strong>${r.departamento}</strong> (${r.localidad})</td>
-                        <td>${r.tipo_evento}</td>
+                        <td><strong>${r.departamento || 'N/D'}</strong> (${r.localidad || 'N/D'})</td>
+                        <td>${r.tipo_evento || 'N/D'}</td>
                         <td><small>${r.relevador_asignado || r.relevador_assigned || 'N/D'}</small></td>
                         <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
                     </tr>
@@ -201,6 +203,10 @@ export async function verPanelPrincipal() {
             }
         } catch (error) {
             console.error("Error al cargar los datos del panel principal:", error);
+            const tbodyDash = document.getElementById('dash-tabla-emergencias');
+            if (tbodyDash) {
+                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar los datos</td></tr>`;
+            }
         }
     });
 }
