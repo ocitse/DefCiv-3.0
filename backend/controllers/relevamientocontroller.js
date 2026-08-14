@@ -84,11 +84,7 @@ export const obtenerrelevamientos = async (req, res) => {
         return res.status(200).json(relevamientosFinales);
     } catch (error) {
         console.error('🔥 ERROR CRUCIAL EN /api/relevamientos:', error);
-        return res.status(500).json({ 
-            mensaje: 'Error en el servidor al obtener los datos.',
-            errorReal: error.message,
-            stack: error.stack 
-        });
+        return res.status(500).json([]);
     }
 };
 

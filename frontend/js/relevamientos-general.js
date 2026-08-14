@@ -169,6 +169,12 @@ export async function verPanelPrincipal() {
             const relevamientos = await respuesta.json();
             const listaRelevamientos = Array.isArray(relevamientos) ? relevamientos : [];
 
+            if (listaRelevamientos.length === 0) {
+                // Si no hay datos, muestra un mensaje amigable o sal de la función de forma segura
+                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay registros cargados</td></tr>`;
+                return;
+            }
+
             const nuevos = listaRelevamientos.filter(r => r.estado === 'Nuevo' || !r.familias || r.familias.length === 0).length;
             
             let totalFamilias = 0;
