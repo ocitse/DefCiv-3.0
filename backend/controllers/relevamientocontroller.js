@@ -25,42 +25,51 @@ export const obtenerrelevamientos = async (req, res) => {
         let condicionesWhere = {};
         const esAdministrador = rolUsuario.includes('admin');
 
-        // Si NO es administrador y es relevador, filtramos directamente por su ID de usuario
+        // Primero obtenemos todos los usuarios para tenerlos disponibles para el filtro y el mapeo
+        const listaUsuarios = await Usuario.findAll();
+
+        const mapaNombres = {};
+        let usuarioLogueadoPerfil = null;
+
+        listaUsuarios.forEach(usr => {
+            if (usr && usr.id_usuario) {
+                const nombreCompleto = `${usr.apellido}, ${usr.nombres}`;
+                // Mapeamos tanto el ID como el nombre por si acaso
+                mapaNombres[String(usr.id_usuario)] = nombreCompleto;
+                mapaNombres[nombreCompleto] = nombreCompleto;
+
+                if (idUsuarioLogueado && Number(usr.id_usuario) === Number(idUsuarioLogueado)) {
+                    usuarioLogueadoPerfil = usr;
+                }
+            }
+        });
+
+        // Si NO es administrador y es relevador, construimos un filtro flexible (por ID o por Nombre)
         if (!esAdministrador && rolUsuario === 'relevador') {
-            if (idUsuarioLogueado) {
+            if (usuarioLogueadoPerfil) {
+                const nombreCompletoLogueado = `${usuarioLogueadoPerfil.apellido}, ${usuarioLogueadoPerfil.nombres}`;
                 condicionesWhere = {
-                    relevador_asignado: String(idUsuarioLogueado)
+                    [Op.or]: [
+                        { relevador_asignado: String(usuarioLogueadoPerfil.id_usuario) },
+                        { relevador_asignado: nombreCompletoLogueado }
+                    ]
                 };
             } else {
                 condicionesWhere = { id_relevamiento: 0 }; 
             }
         }
 
-        // Obtenemos los relevamientos filtrados y todos los usuarios para armar el diccionario de nombres
-        const [listaRelevamientos, listaUsuarios] = await Promise.all([
-            relevamiento.findAll({ 
-                where: condicionesWhere,
-                order: [['createdAt', 'DESC']] 
-            }),
-            Usuario.findAll()
-        ]);
-
-        // Creamos un mapa rápido para traducir ID -> "Apellido, Nombres"
-        const mapaNombres = {};
-        listaUsuarios.forEach(usr => {
-            if (usr && usr.id_usuario) {
-                const nombreCompleto = `${usr.apellido}, ${usr.nombres}`;
-                mapaNombres[String(usr.id_usuario)] = nombreCompleto;
-            }
+        const listaRelevamientos = await relevamiento.findAll({ 
+            where: condicionesWhere,
+            order: [['createdAt', 'DESC']] 
         });
 
-        // Reemplazamos el ID numérico por el nombre completo para que se vea bien en la tabla
+        // Traducimos cualquier ID numérico a su respectivo "Apellido, Nombres" para la vista
         const relevamientosFinales = listaRelevamientos.map(rel => {
             const relJSON = rel.toJSON();
-            const idAsignado = String(relJSON.relevador_asignado || '').trim();
+            const asignado = String(relJSON.relevador_asignado || '').trim();
             
-            // Si el ID existe en nuestro mapa de usuarios, ponemos "Apellido, Nombres", sino dejamos lo que tenga
-            relJSON.relevador_asignado = mapaNombres[idAsignado] || (idAsignado !== '' ? idAsignado : 'Sin asignar');
+            relJSON.relevador_asignado = mapaNombres[asignado] || (asignado !== '' ? asignado : 'Sin asignar');
             return relJSON;
         });
 
