@@ -180,25 +180,41 @@
     // ==========================================
     const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
     
-    if (rolUsuario === 'relevador' || rolUsuario === 'consulta') {
-        const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
-        const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
-        const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
+    // Referencias comunes para escritorio y móvil
+    const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
+    const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
+    const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
 
+    const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
+    const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
+    const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
+
+    if (rolUsuario === 'consulta') {
+        // Consulta solo ve el inicio: ocultamos solicitudes, provisiones y configuración
         if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
         if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
         if (menuConfigDesk) menuConfigDesk.style.display = 'none';
 
-        const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
-        const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
-        const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
+        if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
+        if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
+        if (menuConfigMob) menuConfigMob.style.display = 'none';
+
+    } else if (rolUsuario === 'operador') {
+        // Operador ve solicitudes y provisiones: solo ocultamos configuración (y relevamientos si aplica)
+        if (menuConfigDesk) menuConfigDesk.style.display = 'none';
+        if (menuConfigMob) menuConfigMob.style.display = 'none';
+
+    } else if (rolUsuario === 'relevador') {
+        // Si mantienes reglas específicas para relevador, las puedes dejar aquí
+        if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
+        if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
+        if (menuConfigDesk) menuConfigDesk.style.display = 'none';
 
         if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
         if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
         if (menuConfigMob) menuConfigMob.style.display = 'none';
     }
     // ==========================================
-
     // Disparador inicial del panel principal
     try {
         verPanelPrincipal();
