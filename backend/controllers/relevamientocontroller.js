@@ -32,13 +32,21 @@ export const obtenerrelevamientos = async (req, res) => {
         let usuarioLogueadoPerfil = null;
 
         listaUsuarios.forEach(usr => {
-            if (usr && usr.id_usuario) {
-                const nombreCompleto = `${usr.apellido}, ${usr.nombres}`;
-                // Mapeamos tanto el ID como el nombre por si acaso
-                mapaNombres[String(usr.id_usuario)] = nombreCompleto;
+            // Imprimimos en la consola del servidor de Render/Node cada usuario para ver sus propiedades reales
+            console.log("USUARIO ENCONTRADO:", usr.toJSON ? usr.toJSON() : usr);
+
+            if (usr && (usr.id_usuario || usr.id)) {
+                const idUsr = usr.id_usuario || usr.id;
+                // Probamos ambas opciones por si la columna es 'nombre' o 'nombres'
+                const nombreProp = usr.nombres || usr.nombre || '';
+                const apellidoProp = usr.apellido || '';
+                
+                const nombreCompleto = `${apellidoProp}, ${nombreProp}`;
+                
+                mapaNombres[String(idUsr)] = nombreCompleto;
                 mapaNombres[nombreCompleto] = nombreCompleto;
 
-                if (idUsuarioLogueado && Number(usr.id_usuario) === Number(idUsuarioLogueado)) {
+                if (idUsuarioLogueado && Number(idUsr) === Number(idUsuarioLogueado)) {
                     usuarioLogueadoPerfil = usr;
                 }
             }
