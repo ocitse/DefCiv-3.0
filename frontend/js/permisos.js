@@ -2,7 +2,7 @@
 
 const MATRIZ_PERMISOS = {
     administrador: ['dashboard', 'relevadores', 'usuarios', 'configuracion', 'reportes'],
-    administrativo: ['dashboard', 'relevadores', 'reportes'],
+    operador: ['dashboard', 'relevadores', 'reportes'],
     relevador: ['dashboard', 'relevadores'],
     consulta: ['dashboard'] // Solo lectura
 };

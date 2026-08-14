@@ -68,7 +68,7 @@ export async function cargarModuloUsuarios() {
                                     <select class="form-select" id="u-rol" required>
                                         <option value="" disabled selected>Seleccione un rol...</option>
                                         <option value="Administrador">Administrador</option>
-                                        <option value="Administrativo">Administrativo</option>
+                                        <option value="Operador">Operador</option>
                                         <option value="Relevador">Relevador</option>
                                         <option value="Consulta">Consulta</option>
                                     </select>
@@ -142,8 +142,8 @@ export async function cargarModuloUsuarios() {
             if (rolCrudo === 'administrador') {
                 nombreRolMostrar = 'Administrador';
                 badgeColor = 'bg-primary text-white';
-            } else if (rolCrudo === 'administrativo') {
-                nombreRolMostrar = 'Administrativo';
+            } else if (rolCrudo === 'Operador') {
+                nombreRolMostrar = 'Operador';
                 badgeColor = 'bg-info text-dark';
             } else if (rolCrudo === 'relevador') {
                 nombreRolMostrar = 'Relevador';
