@@ -1,6 +1,6 @@
 // backend/controllers/relevamientocontroller.js
 import relevamiento from '../models/relevamiento.js';
-import Relevador from '../models/relevador.js';
+import Usuario from '../models/usuario.js';
 import { Op } from 'sequelize';
 
 // Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-001-26)
@@ -31,36 +31,37 @@ export const obtenerrelevamientos = async (req, res) => {
 
         // Si NO es administrador y es relevador, limitamos para que solo vea lo suyo asignado
         if (!esAdministrador && rolUsuario === 'relevador') {
-            const relevadorPerfil = await Relevador.findOne({ where: { id_usuario: idUsuarioLogueado } });
+            // Buscamos directamente en la tabla unificada de usuarios los datos del relevador logueado
+            const usuarioPerfil = await Usuario.findByPk(idUsuarioLogueado);
             
-            if (relevadorPerfil) {
+            if (usuarioPerfil) {
+                const nombreCompleto = `${usuarioPerfil.apellido}, ${usuarioPerfil.nombres}`;
                 condicionesWhere = {
                     [Op.or]: [
-                        { relevador_asignado: String(relevadorPerfil.id) },
-                        { relevador_asignado: `${relevadorPerfil.apellido}, ${relevadorPerfil.nombre}` }
+                        { relevador_asignado: String(usuarioPerfil.id_usuario) },
+                        { relevador_asignado: nombreCompleto }
                     ]
                 };
             } else {
-                // Si no tiene perfil de relevador vinculado, no devuelve nada por seguridad
                 condicionesWhere = { id: 0 }; 
             }
         }
-        // Si es Administrador, 'condicionesWhere' se queda en {} y trae TODO.
 
-        const [listaRelevamientos, relevadores] = await Promise.all([
+        // Obtenemos los relevamientos y la lista de usuarios con rol relevador para mapear nombres
+        const [listaRelevamientos, listaRelevadores] = await Promise.all([
             relevamiento.findAll({ 
                 where: condicionesWhere,
                 order: [['createdAt', 'DESC']] 
             }),
-            Relevador.findAll()
+            Usuario.findAll({ where: { rol: 'Relevador' } }) // O el filtro que uses para identificar relevadores en la tabla unificada
         ]);
 
         const mapaRelevadores = {};
-        relevadores.forEach(rev => {
-            if (rev && rev.id) {
-                const nombreCompleto = `${rev.apellido}, ${rev.nombre}`;
-                mapaRelevadores[String(rev.id)] = nombreCompleto;
-                mapaRelevadores[String(rev.nombre).trim()] = nombreCompleto;
+        listaRelevadores.forEach(rev => {
+            if (rev && rev.id_usuario) {
+                const nombreCompleto = `${rev.apellido}, ${rev.nombres}`;
+                mapaRelevadores[String(rev.id_usuario)] = nombreCompleto;
+                mapaRelevadores[String(rev.nombres).trim()] = nombreCompleto;
             }
         });
 
