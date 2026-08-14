@@ -53,21 +53,24 @@ export const obtenerrelevamientos = async (req, res) => {
                 where: condicionesWhere,
                 order: [['createdAt', 'DESC']] 
             }),
-            Usuario.findAll({ where: { rol: 'Relevador' } }) // O el filtro que uses para identificar relevadores en la tabla unificada
+            Usuario.findAll({ where: { rol: 'Relevador' } })
         ]);
 
         const mapaRelevadores = {};
         listaRelevadores.forEach(rev => {
             if (rev && rev.id_usuario) {
                 const nombreCompleto = `${rev.apellido}, ${rev.nombres}`;
-                mapaRelevadores[String(rev.id_usuario)] = nombreCompleto;
-                mapaRelevadores[String(rev.nombres).trim()] = nombreCompleto;
+                // Mapeamos de todas las formas posibles en que pueda venir guardado en la BD
+                mapaRelevadores[String(rev.id_usuario)] = nombreCompleto; // Por ID (ej: "10")
+                mapaRelevadores[nombreCompleto] = nombreCompleto;        // Por "Apellido, Nombres"
+                mapaRelevadores[String(rev.nombres).trim()] = nombreCompleto; // Por nombre suelto
             }
         });
 
         const relevamientosFinales = listaRelevamientos.map(rel => {
             const relJSON = rel.toJSON();
             const asignado = String(relJSON.relevador_asignado || '').trim();
+            // Si el valor asignado coincide con alguna clave del mapa, devuelve el nombre completo. Si no, muestra lo que tenga o 'Sin asignar'
             relJSON.relevador_asignado = mapaRelevadores[asignado] || (asignado !== '' ? asignado : 'Sin asignar');
             return relJSON;
         });
