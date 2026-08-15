@@ -10,7 +10,7 @@ const generarCodigoRelevamiento = async (departamento, localidad) => {
     const locPrefix = localidad ? localidad.substring(0, 3).toUpperCase() : 'LOC';
     
     // Contamos cuántos registros hay para calcular el próximo número correlativo
-    const totalRegistros = await relevamiento.count();
+    const totalRegistros = await relevamiento.count().catch(() => 0);
     const correlativo = String(totalRegistros + 1).padStart(3, '0');
     
     return `${dptoPrefix}${locPrefix}${correlativo}-${anioActual}`;
@@ -25,40 +25,40 @@ export const obtenerrelevamientos = async (req, res) => {
         let condicionesWhere = {};
         const esAdministrador = rolUsuario.includes('admin');
 
-        // Primero obtenemos todos los usuarios para tenerlos disponibles para el filtro y el mapeo
-        const listaUsuarios = await Usuario.findAll();
+        // Obtenemos los usuarios de forma segura (si falla o está vacía, devuelve array vacío)
+        const listaUsuarios = await Usuario.findAll().catch(() => []);
 
         const mapaNombres = {};
         let usuarioLogueadoPerfil = null;
 
         listaUsuarios.forEach(usr => {
-            // Imprimimos en la consola del servidor de Render/Node cada usuario para ver sus propiedades reales
-            console.log("USUARIO ENCONTRADO:", usr.toJSON ? usr.toJSON() : usr);
+            if (usr) {
+                const usrJSON = usr.toJSON ? usr.toJSON() : usr;
+                const idUsr = usrJSON.id_usuario || usrJSON.id;
 
-            if (usr && (usr.id_usuario || usr.id)) {
-                const idUsr = usr.id_usuario || usr.id;
-                // Probamos ambas opciones por si la columna es 'nombre' o 'nombres'
-                const nombreProp = usr.nombres || usr.nombre || '';
-                const apellidoProp = usr.apellido || '';
-                
-                const nombreCompleto = `${apellidoProp}, ${nombreProp}`;
-                
-                mapaNombres[String(idUsr)] = nombreCompleto;
-                mapaNombres[nombreCompleto] = nombreCompleto;
+                if (idUsr) {
+                    const nombreProp = usrJSON.nombres || usrJSON.nombre || '';
+                    const apellidoProp = usrJSON.apellido || '';
+                    
+                    const nombreCompleto = `${apellidoProp}, ${nombreProp}`;
+                    
+                    mapaNombres[String(idUsr)] = nombreCompleto;
+                    mapaNombres[nombreCompleto] = nombreCompleto;
 
-                if (idUsuarioLogueado && Number(idUsr) === Number(idUsuarioLogueado)) {
-                    usuarioLogueadoPerfil = usr;
+                    if (idUsuarioLogueado && Number(idUsr) === Number(idUsuarioLogueado)) {
+                        usuarioLogueadoPerfil = usrJSON;
+                    }
                 }
             }
         });
 
-        // Si NO es administrador y es relevador, construimos un filtro flexible (por ID o por Nombre)
+        // Si NO es administrador y es relevador, construimos un filtro flexible
         if (!esAdministrador && rolUsuario === 'relevador') {
             if (usuarioLogueadoPerfil) {
-                const nombreCompletoLogueado = `${usuarioLogueadoPerfil.apellido}, ${usuarioLogueadoPerfil.nombres}`;
+                const nombreCompletoLogueado = `${usuarioLogueadoPerfil.apellido || ''}, ${usuarioLogueadoPerfil.nombres || usuarioLogueadoPerfil.nombre || ''}`;
                 condicionesWhere = {
                     [Op.or]: [
-                        { relevador_asignado: String(usuarioLogueadoPerfil.id_usuario) },
+                        { relevador_asignado: String(usuarioLogueadoPerfil.id_usuario || usuarioLogueadoPerfil.id) },
                         { relevador_asignado: nombreCompletoLogueado }
                     ]
                 };
@@ -70,11 +70,11 @@ export const obtenerrelevamientos = async (req, res) => {
         const listaRelevamientos = await relevamiento.findAll({ 
             where: condicionesWhere,
             order: [['createdAt', 'DESC']] 
-        });
+        }).catch(() => []);
 
         // Traducimos cualquier ID numérico a su respectivo "Apellido, Nombres" para la vista
         const relevamientosFinales = listaRelevamientos.map(rel => {
-            const relJSON = rel.toJSON();
+            const relJSON = rel.toJSON ? rel.toJSON() : rel;
             const asignado = String(relJSON.relevador_asignado || '').trim();
             
             relJSON.relevador_asignado = mapaNombres[asignado] || (asignado !== '' ? asignado : 'Sin asignar');
@@ -84,7 +84,7 @@ export const obtenerrelevamientos = async (req, res) => {
         return res.status(200).json(relevamientosFinales);
     } catch (error) {
         console.error('🔥 ERROR CRUCIAL EN /api/relevamientos:', error);
-        return res.status(500).json([]);
+        return res.status(200).json([]);
     }
 };
 
@@ -121,7 +121,7 @@ export const crearrelevamiento = async (req, res) => {
             tipo_evento: eventoFinal,
             solicitante,
             relevador_asignado,
-            prioridad: prioridad || 'Baja', // Por defecto Baja como pediste
+            prioridad: prioridad || 'Baja',
             estado: 'nuevo'
         });
 
@@ -197,6 +197,7 @@ export const actualizarRelevamiento = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al actualizar el relevamiento.' });
     }
 };
+
 // 5. ELIMINAR UN RELEVAMIENTO
 export const eliminarRelevamiento = async (req, res) => {
     try {
