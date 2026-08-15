@@ -211,7 +211,8 @@ export async function verPanelPrincipal() {
             console.error("Error al cargar los datos del panel principal:", error);
             const tbodyDash = document.getElementById('dash-tabla-emergencias');
             if (tbodyDash) {
-                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error al cargar los datos</td></tr>`;
+                // Cambiamos el mensaje de error rojo por un aviso limpio de que no hay registros
+                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay emergencias asignadas</td></tr>`;
             }
         }
     });
