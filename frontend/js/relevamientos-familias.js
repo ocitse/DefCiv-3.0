@@ -1,7 +1,7 @@
 // frontend/js/relevamientos-familias.js
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
-import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes } from './relevamientos-form.js';
+import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes, mostrarFormularioNuevaFamilia } from './relevamientos-form.js';
 
 // Variable global en memoria para almacenar las familias del relevamiento activo
 let familiasOriginalesRelevamiento = [];
