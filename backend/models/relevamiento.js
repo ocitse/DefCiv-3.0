@@ -46,7 +46,15 @@ const Relevamiento = sequelize.define('Relevamiento', {
         defaultValue: 'Media'
     },
     estado: {
-        type: DataTypes.ENUM('nuevo', 'en-espera', 'en-proceso', 'derivado', 'finalizado', 'cancelado'),
+        type: DataTypes.ENUM(
+            'nuevo',          // Inicio
+            'en-espera',      // Solicitud enviada, esperando aprobación
+            'en-proceso',     // Cargando familias
+            'completado',     // El relevador terminó su trabajo (Bloquea edición)
+            'derivado',       // Se envía a otra entidad (Bomberos, Muni, etc.)
+            'finalizado',     // Entrega de provisiones y archivo total
+            'cancelado'       // Baja por cambio de entidad o decisión administrativa
+        ),
         allowNull: false,
         defaultValue: 'nuevo'
     },
