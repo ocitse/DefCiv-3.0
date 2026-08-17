@@ -347,18 +347,25 @@ function renderizarFilasRelevamientos(relevamientos) {
             <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
             <td class="text-center">${r.familias ? r.familias.length : 0}</td>
             <td class="text-center">
-                <div class="d-flex justify-content-center gap-1">
-                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Relevamiento">
+            <div class="d-flex justify-content-center gap-1">
+                ${['nuevo', 'en-proceso'].includes((r.estado || '').toLowerCase()) ? `
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
                         <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
-                        <i class="bi bi-eye"></i>
+                    <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
+                        <i class="bi bi-check-circle"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
+                ` : `
+                    <span class="badge bg-secondary align-self-center">Bloqueado</span>
+                `}
+                <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
                     <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            </td>
+                </button>
+            </div>
+        </td>
         </tr>
     `).join('');
 }
@@ -471,6 +478,35 @@ async function guardarRelevamientoGeneral(event) {
         mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
     }
 }
+
+export async function completarRelevamientoGeneral(idRelevamiento) {
+    if (!confirm('¿Estás seguro de marcar este relevamiento como completado? Esta acción finalizará la carga de familias y bloqueará futuras modificaciones.')) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}/completar`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            mostrarNotificacion(resultado.mensaje || 'Relevamiento completado con éxito.', 'success');
+            cargarTablaRelevamientos();
+        } else {
+            mostrarNotificacion(resultado.mensaje || 'Error al intentar completar el relevamiento.', 'error');
+        }
+    } catch (error) {
+        console.error('Error de red al completar relevamiento:', error);
+        mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
+    }
+}
+
+// No olvides exponerla en el objeto window al final del archivo:
+window.completarRelevamientoGeneral = completarRelevamientoGeneral;
 
 // Exposiciones globales necesarias
 window.editarRelevamiento = editarRelevamientoGeneral;

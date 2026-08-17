@@ -218,3 +218,22 @@ export const eliminarRelevamiento = async (req, res) => {
         return res.status(500).json({ mensaje: 'Error en el servidor al eliminar el relevamiento.' });
     }
 };
+// 5. COMPLETAR UN RELEVAMIENTO
+export const completarRelevamiento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rel = await relevamiento.findByPk(id);
+
+        if (!rel) return res.status(404).json({ mensaje: 'No se encontró el relevamiento.' });
+
+        // Verificamos que no esté ya finalizado o cancelado
+        if (rel.estado === 'finalizado' || rel.estado === 'cancelado') {
+            return res.status(400).json({ mensaje: 'Este relevamiento ya no puede ser modificado.' });
+        }
+
+        await rel.update({ estado: 'completado' });
+        res.json({ mensaje: 'Relevamiento marcado como completado.', data: rel });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al procesar el cambio de estado.' });
+    }
+};
