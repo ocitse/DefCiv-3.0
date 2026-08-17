@@ -268,6 +268,14 @@ export function verListaRelevamientos() {
     });
 }
 
+export function mostrarFormularioNuevaFamilia() {
+    // Aquí llamas a la función que abre el modal/formulario para crear la familia
+    if (typeof window.abrirModalFormularioFamilia === 'function') {
+        window.abrirModalFormularioFamilia();
+    } else {
+        console.error("No se encontró la función para abrir el formulario de nueva familia.");
+    }
+}
 // Exposiciones globales exclusivas para las funciones que realmente existen aquí
 window.ingresarARelevamiento = ingresarARelevamiento;
 window.verListaRelevamientos = verListaRelevamientos;
