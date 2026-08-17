@@ -265,3 +265,12 @@ export function mostrarFormularioNuevaFamilia() {
 }
 
 window.cambiarPasoWizard = cambiarPasoWizard;
+window.abrirModalFormularioFamilia = function() {
+    // Implementa aquí la lógica para abrir el modal o formulario, por ejemplo:
+    const modal = document.getElementById('modal-nueva-familia');
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.warn("Falta definir el elemento del modal en el HTML o la función real.");
+    }
+};
