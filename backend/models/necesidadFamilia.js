@@ -21,7 +21,9 @@ const necesidadFamilia = sequelize.define('necesidad_familia', {
 }, {
     tableName: 'necesidades_familia',
     timestamps: true,
-    underscored: true
+    createdAt: 'createdAt', // <-- FUERZA ESTO
+  updatedAt: 'updatedAt', // <-- FUERZA ESTO
+  underscored: false      // <-- Y ESTO ES LO MÁS IMPORTANTE
 });
 
 // 🌟 Relación: Una familia tiene muchas necesidades, una necesidad pertenece a una familia

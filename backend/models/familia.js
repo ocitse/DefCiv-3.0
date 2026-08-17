@@ -105,7 +105,9 @@ const familia = sequelize.define('familia', {
 }, {
     tableName: 'familias',
     timestamps: true,
-    underscored: true
+    createdAt: 'createdAt', // <-- FUERZA ESTO
+  updatedAt: 'updatedAt', // <-- FUERZA ESTO
+  underscored: false      // <-- Y ESTO ES LO MÁS IMPORTANTE
 });
 
 // 🌟 CONFIGURACIÓN DE LA RELACIÓN (Clave Foránea)
