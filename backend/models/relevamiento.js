@@ -56,7 +56,10 @@ const Relevamiento = sequelize.define('Relevamiento', {
     }
 }, {
     tableName: 'relevamientos', // Nombre explícito de la tabla en PostgreSQL
-    timestamps: true            // Mantiene createdAt y updatedAt
+    timestamps: true,            // Mantiene createdAt y updatedAt
+    createdAt: 'createdAt', // Coincide con la columna exacta en Render
+    updatedAt: 'updatedAt', // Coincide con la columna exacta en Render
+    underscored: false
 });
 
 export default Relevamiento;
