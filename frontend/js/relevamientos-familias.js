@@ -1,9 +1,7 @@
 // frontend/js/relevamientos-familias.js
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
-//import { cargarTablaRelevamientos } from './relevamientos-general.js';
 import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes } from './relevamientos-form.js';
-
 
 // Variable global en memoria para almacenar las familias del relevamiento activo
 let familiasOriginalesRelevamiento = [];
@@ -53,16 +51,20 @@ export async function ingresarARelevamiento(idRelevamiento) {
 
             const familias = await respuesta.json();
             familiasOriginalesRelevamiento = familias; // Guardamos la base en memoria
-            manejarCambioFiltros(); // Procesamos y renderizamos localmente
+            
+            if (typeof window.manejarCambioFiltros === 'function') {
+                window.manejarCambioFiltros(); 
+            }
 
         } catch (error) {
             console.error("Error al cargar familias:", error);
             mostrarNotificacion("Error al conectar con el servidor para traer las familias.", "error");
             familiasOriginalesRelevamiento = [];
-            renderizarTablaFamilias([]);
         }
     });
-}export async function eliminarFamiliar(idFamilia) {
+}
+
+export async function eliminarFamiliar(idFamilia) {
     if (!confirm("¿Está seguro de que desea eliminar esta familia del registro?")) {
         return;
     }
@@ -235,13 +237,16 @@ export async function verFichaNecesidades(idFamilia) {
         const bModal = new bootstrap.Modal(elementoModal);
         bModal.show();
 
-        document.getElementById('btn-editar-desde-ficha').addEventListener('click', () => {
-            bModal.hide();
-            divTemporal.remove();
-            if (typeof window.editarDatosFamilia === 'function') {
-                window.editarDatosFamilia(idReal);
-            }
-        });
+        const btnEditar = document.getElementById('btn-editar-desde-ficha');
+        if (btnEditar) {
+            btnEditar.addEventListener('click', () => {
+                bModal.hide();
+                divTemporal.remove();
+                if (typeof window.editarDatosFamilia === 'function') {
+                    window.editarDatosFamilia(idReal);
+                }
+            });
+        }
 
         elementoModal.addEventListener('hidden.bs.modal', () => {
             divTemporal.remove();
@@ -263,10 +268,8 @@ export function verListaRelevamientos() {
     });
 }
 
-// Exposiciones globales para los eventos onclick y onchange en el DOM dinámico
+// Exposiciones globales exclusivas para las funciones que realmente existen aquí
 window.ingresarARelevamiento = ingresarARelevamiento;
-window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
 window.verListaRelevamientos = verListaRelevamientos;
 window.eliminarFamiliar = eliminarFamiliar;
 window.verFichaNecesidades = verFichaNecesidades;
-window.manejarCambioFiltros = manejarCambioFiltros;
