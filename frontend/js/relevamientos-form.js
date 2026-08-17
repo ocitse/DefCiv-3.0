@@ -256,4 +256,12 @@ export function cambiarPasoWizard(paso) {
     // Subir el scroll suavemente al inicio del formulario
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+export function mostrarFormularioNuevaFamilia() {
+    if (typeof window.abrirModalFormularioFamilia === 'function') {
+        window.abrirModalFormularioFamilia();
+    } else {
+        console.error("No se encontró la función para abrir el formulario de nueva familia.");
+    }
+}
+
 window.cambiarPasoWizard = cambiarPasoWizard;
