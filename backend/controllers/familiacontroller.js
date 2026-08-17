@@ -39,7 +39,11 @@ export const crearFamilia = async (req, res) => {
         }
 
         // --- REGLA DE BACKEND: Actualizar estado del relevamiento si está 'Nuevo' ---
-        if (existeRelevamiento.estado === 'Nuevo') {
+        // Recargamos el objeto relevamiento para asegurar que tenemos el estado actual real
+        await existeRelevamiento.reload(); 
+
+        // Actualizamos si el estado es 'Nuevo' o si es nulo/vacío
+        if (existeRelevamiento.estado === 'Nuevo' || !existeRelevamiento.estado) {
             await existeRelevamiento.update({ estado: 'En Proceso' });
         }
         // --------------------------------------------------------------------------
