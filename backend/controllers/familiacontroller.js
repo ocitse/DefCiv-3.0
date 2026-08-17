@@ -38,6 +38,12 @@ export const crearFamilia = async (req, res) => {
             await necesidadFamilia.bulkCreate(necesidadesAInsertar);
         }
 
+        // --- REGLA DE BACKEND: Actualizar estado del relevamiento si está 'Nuevo' ---
+        if (existeRelevamiento.estado === 'Nuevo') {
+            await existeRelevamiento.update({ estado: 'En Proceso' });
+        }
+        // --------------------------------------------------------------------------
+
         // Buscamos la familia completa con sus relaciones para devolverla
         const familiaCompleta = await Familia.findByPk(nuevaFamilia.id_familia, {
             include: [
