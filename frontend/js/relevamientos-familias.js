@@ -3,6 +3,7 @@ import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { cargarTablaRelevamientos } from './relevamientos-general.js';
 import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes } from './relevamientos-form.js';
+import { mostrarFormularioNuevaFamilia } from './relevamientos-form.js';
 
 // Variable global en memoria para almacenar las familias del relevamiento activo
 let familiasOriginalesRelevamiento = [];
