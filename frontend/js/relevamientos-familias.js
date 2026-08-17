@@ -273,3 +273,4 @@ window.ingresarARelevamiento = ingresarARelevamiento;
 window.verListaRelevamientos = verListaRelevamientos;
 window.eliminarFamiliar = eliminarFamiliar;
 window.verFichaNecesidades = verFichaNecesidades;
+window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
