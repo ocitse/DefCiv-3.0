@@ -1,7 +1,7 @@
 // frontend/js/relevamientos-familias.js
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
-import { cargarTablaRelevamientos } from './relevamientos-general.js';
+//import { cargarTablaRelevamientos } from './relevamientos-general.js';
 import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes } from './relevamientos-form.js';
 
 
@@ -265,7 +265,7 @@ export function verListaRelevamientos() {
 
 // Exposiciones globales para los eventos onclick y onchange en el DOM dinámico
 window.ingresarARelevamiento = ingresarARelevamiento;
-window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+//window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
 window.verListaRelevamientos = verListaRelevamientos;
 window.eliminarFamiliar = eliminarFamiliar;
 window.verFichaNecesidades = verFichaNecesidades;
