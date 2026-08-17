@@ -4,12 +4,13 @@ import sequelize from '../config/database.js';
 
 const Relevamiento = sequelize.define('Relevamiento', {
     // 1. ID Técnico interno para la BD (Relaciones y claves primarias)
-    id_relevamiento: {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
+        field: 'id'
     },
-    // 2. Código visible amigable (Ej: CAP-SDE-CEN-001-26)
+    // 2. Código visible amigable (Ej: CAP-SDE-001-26)
     codigo_relevamiento: {
         type: DataTypes.STRING(50),
         allowNull: false,
