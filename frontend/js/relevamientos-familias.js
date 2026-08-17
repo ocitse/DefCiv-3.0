@@ -16,8 +16,14 @@ export async function ingresarARelevamiento(idRelevamiento) {
     // Cargamos la estructura HTML de la tabla de familias
     cargarVistaDinamica('./frontend/pages/tabla-familias.html', async () => {
         try {
+            // Recuperamos el token almacenado al iniciar sesión
+            const token = localStorage.getItem('token');
+
             // 1. Consultamos los datos generales del relevamiento para el "Contexto Territorial"
-            const respuestaRel = await fetch(`/api/relevamientos/${idRelevamiento}`);
+            const respuestaRel = await fetch(`/api/relevamientos/${idRelevamiento}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
             if (respuestaRel.ok) {
                 const rel = await respuestaRel.json();
                 const contenedorContexto = document.getElementById('contexto-relevamiento-activo');
@@ -36,7 +42,9 @@ export async function ingresarARelevamiento(idRelevamiento) {
             }
 
             // 2. Consultamos al backend las familias asociadas a este relevamiento UNA SOLA VEZ
-            const respuesta = await fetch(`/api/familias?id_relevamiento=${idRelevamiento}`);
+            const respuesta = await fetch(`/api/familias?id_relevamiento=${idRelevamiento}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             
             if (!respuesta.ok) {
                 throw new Error('No se pudo obtener la lista de familias del servidor.');
@@ -53,191 +61,16 @@ export async function ingresarARelevamiento(idRelevamiento) {
             renderizarTablaFamilias([]);
         }
     });
-}
-
-// Función central que procesa búsqueda, ordenamiento y paginación local
-export function manejarCambioFiltros(resetPagina = true) {
-    if (resetPagina) paginaActualFamilias = 1;
-
-    const textoBusqueda = document.getElementById('inputBusquedaApellido')?.value.toLowerCase().trim() || '';
-    const criterioOrden = document.getElementById('selectOrdenar')?.value || '';
-    const selectPaginacion = document.getElementById('selectPaginacion')?.value || '10';
-
-    // 1. Filtrado local por Apellido/Nombre o DNI
-    let resultado = familiasOriginalesRelevamiento.filter(fam => {
-        const apellidoNombre = (fam.jefe_familia || '').toLowerCase();
-        const dni = String(fam.dni_jefe || fam.dni || '');
-        return apellidoNombre.includes(textoBusqueda) || dni.includes(textoBusqueda);
-    });
-
-    // 2. Ordenamiento local
-    if (criterioOrden === 'alfabetico') {
-        resultado.sort((a, b) => (a.jefe_familia || '').localeCompare(b.jefe_familia || ''));
-    } else if (criterioOrden === 'urgencia') {
-        const pesoUrgencia = { 'alta': 1, 'media': 2, 'baja': 3 };
-        resultado.sort((a, b) => {
-            const pA = pesoUrgencia[(a.urgencia_familiar || a.prioridad || '').toLowerCase()] || 4;
-            const pB = pesoUrgencia[(b.urgencia_familiar || b.prioridad || '').toLowerCase()] || 4;
-            return pA - pB;
-        });
-    } else if (criterioOrden === 'asistencia') {
-        resultado.sort((a, b) => (a.estado_asistencia || '').localeCompare(b.estado_asistencia || ''));
-    }
-
-    // 3. Paginación local
-    let familiasPaginadas = resultado;
-    let totalPaginas = 1;
-
-    if (selectPaginacion !== 'todos') {
-        const porPagina = parseInt(selectPaginacion, 10);
-        totalPaginas = Math.ceil(resultado.length / porPagina) || 1;
-        
-        if (paginaActualFamilias > totalPaginas) paginaActualFamilias = totalPaginas;
-        if (paginaActualFamilias < 1) paginaActualFamilias = 1;
-
-        const inicio = (paginaActualFamilias - 1) * porPagina;
-        const fin = inicio + porPagina;
-        familiasPaginadas = resultado.slice(inicio, fin);
-    }
-
-    renderizarTablaFamilias(familiasPaginadas, resultado.length);
-    renderizarControlesPaginacion(resultado.length, selectPaginacion === 'todos' ? resultado.length : parseInt(selectPaginacion, 10), totalPaginas);
-}
-
-// Función auxiliar para cambiar de página desde los botones
-window.cambiarPaginaFamilias = function(nuevaPagina) {
-    paginaActualFamilias = nuevaPagina;
-    manejarCambioFiltros(false);
-}
-
-// Función auxiliar para dibujar las filas dentro de #tabla-familias-body
-function renderizarTablaFamilias(familias, totalFiltrados = 0) {
-    const tbody = document.getElementById('tabla-familias-body');
-    if (!tbody) return;
-
-    if (!familias || familias.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center py-4 text-muted">
-                    <i class="bi bi-folder2-open fs-3 d-block mb-1"></i>
-                    No se encontraron familias con los criterios de búsqueda.
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    // Calculamos el índice base según la paginación actual
-    const selectPaginacion = document.getElementById('selectPaginacion')?.value || '10';
-    let offset = 0;
-    if (selectPaginacion !== 'todos') {
-        offset = (paginaActualFamilias - 1) * parseInt(selectPaginacion, 10);
-    }
-
-    tbody.innerHTML = familias.map((fam, index) => `
-    <tr>
-        <td>${offset + index + 1}</td> <!-- Orden secuencial correcto -->
-        <td><strong>${fam.dni_jefe || fam.dni || 'N/D'}</strong></td>
-        <td>${fam.jefe_familia || 'Sin especificar'}</td>
-        <td class="text-center"><span class="badge bg-secondary">${fam.cantidad_integrantes || 1}</span></td>
-        <td>
-            <span class="badge bg-${obtenerColorUrgencia(fam.urgencia_familiar || fam.prioridad)}">
-                ${fam.urgencia_familiar || fam.prioridad || 'Normal'}
-            </span>
-        </td>
-        <td><span class="badge bg-info text-dark">${fam.estado_asistencia || 'Pendiente'}</span></td>
-        <td class="text-center">
-            <div class="d-flex justify-content-center gap-1">
-                <button class="btn btn-sm btn-outline-info" onclick="window.verFichaNecesidades('${fam.id_familia}')" title="Ver Ficha">
-                    <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${fam.id_familia}')" title="Editar">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${fam.id_familia}')" title="Eliminar">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        </td>
-    </tr>
-`).join('');
-}
-
-// Renderiza los botones de paginación y el texto informativo
-function renderizarControlesPaginacion(totalRegistros, porPagina, totalPaginas) {
-    const contenedor = document.getElementById('contenedor-paginacion');
-    if (!contenedor) return;
-
-    if (totalRegistros === 0) {
-        contenedor.innerHTML = '';
-        return;
-    }
-
-    const selectPaginacion = document.getElementById('selectPaginacion')?.value;
-    if (selectPaginacion === 'todos') {
-        contenedor.innerHTML = `<span class="text-muted small">Mostrando todos los registros (${totalRegistros} en total)</span>`;
-        return;
-    }
-
-    const inicioRegistro = ((paginaActualFamilias - 1) * porPagina) + 1;
-    const finRegistro = Math.min(paginaActualFamilias * porPagina, totalRegistros);
-
-    contenedor.innerHTML = `
-        <span class="text-muted small">Mostrando ${inicioRegistro} a ${finRegistro} de ${totalRegistros} familias</span>
-        <ul class="pagination pagination-sm m-0">
-            <li class="page-item ${paginaActualFamilias === 1 ? 'disabled' : ''}">
-                <button class="page-link" onclick="window.cambiarPaginaFamilias(${paginaActualFamilias - 1})">Anterior</button>
-            </li>
-            <li class="page-item disabled">
-                <span class="page-link bg-light text-dark">Pág. ${paginaActualFamilias} de ${totalPaginas}</span>
-            </li>
-            <li class="page-item ${paginaActualFamilias >= totalPaginas ? 'disabled' : ''}">
-                <button class="page-link" onclick="window.cambiarPaginaFamilias(${paginaActualFamilias + 1})">Siguiente</button>
-            </li>
-        </ul>
-    `;
-}
-
-// Función auxiliar para asignar colores a la prioridad
-function obtenerColorUrgencia(urgencia) {
-    switch ((urgencia || '').toLowerCase()) {
-        case 'alta': return 'danger';
-        case 'media': return 'warning text-dark';
-        case 'baja': return 'success';
-        default: return 'secondary';
-    }
-}
-
-export function mostrarFormularioNuevaFamilia() {
-    cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
-        const inputId = document.getElementById('f_id_edicion');
-        if (inputId) inputId.value = '';
-
-        const titulo = document.getElementById('titulo-form-familia');
-        if (titulo) {
-            titulo.innerHTML = `<i class="bi bi-people-fill text-warning me-2"></i> Registrar Nueva Familia`;
-        }
-
-        if (typeof inicializarCalculoIntegrantes === 'function') {
-            inicializarCalculoIntegrantes();
-        }
-
-        const form = document.getElementById('form-nueva-familia');
-        if (form) {
-            form.removeEventListener('submit', guardarDatosFamiliaDefinitivo);
-            form.addEventListener('submit', guardarDatosFamiliaDefinitivo);
-        }
-    });
-}
-
-export async function eliminarFamiliar(idFamilia) {
+}export async function eliminarFamiliar(idFamilia) {
     if (!confirm("¿Está seguro de que desea eliminar esta familia del registro?")) {
         return;
     }
 
     try {
+        const token = localStorage.getItem('token');
         const respuesta = await fetch(`/api/familias/${idFamilia}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         const resultado = await respuesta.json();

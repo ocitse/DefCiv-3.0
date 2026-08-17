@@ -334,7 +334,14 @@ function renderizarFilasRelevamientos(relevamientos) {
         return;
     }
 
-    tbody.innerHTML = relevamientos.map(r => `
+    tbody.innerHTML = relevamientos.map(r => {
+        // Normalizamos el estado para limpiar espacios y evaluar con seguridad
+        const estadoRaw = (r.estado || '').toLowerCase().trim();
+        const esNuevo = estadoRaw === 'nuevo';
+        const esEnProceso = estadoRaw === 'en-proceso' || estadoRaw === 'en proceso';
+        const esActivo = esNuevo || esEnProceso;
+
+        return `
         <tr>
             <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
             <td><span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span></td>
@@ -348,13 +355,15 @@ function renderizarFilasRelevamientos(relevamientos) {
             <td class="text-center">${r.familias ? r.familias.length : 0}</td>
             <td class="text-center">
             <div class="d-flex justify-content-center gap-1">
-                ${['nuevo', 'en-proceso'].includes((r.estado || '').toLowerCase()) ? `
+                ${esActivo ? `
                     <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
                         <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
-                        <i class="bi bi-check-circle"></i>
-                    </button>
+                    ${esEnProceso ? `
+                        <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
+                            <i class="bi bi-check-circle"></i>
+                        </button>
+                    ` : ''}
                 ` : `
                     <span class="badge bg-secondary align-self-center">Bloqueado</span>
                 `}
@@ -367,7 +376,8 @@ function renderizarFilasRelevamientos(relevamientos) {
             </div>
         </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Renderiza los controles de paginación para Relevamientos
