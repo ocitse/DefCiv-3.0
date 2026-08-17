@@ -16,6 +16,12 @@ function getBadgePrioridad(prioridad) {
     if (prioridad === 'Media') return 'bg-warning text-dark';
     return 'bg-success';
 }
+function getBadgeEstado(estado) {
+    const est = (estado || 'Nuevo').toLowerCase();
+    if (est === 'completado' || est === 'finalizado') return 'bg-success';
+    if (est === 'en proceso' || est === 'en curso') return 'bg-warning text-dark';
+    return 'bg-info text-dark'; // Por defecto para 'Nuevo' u otros
+}
 
 function cargarDesplegablesUbicacion() {
     const selectDep = document.getElementById('r_departamento');
@@ -331,6 +337,7 @@ function renderizarFilasRelevamientos(relevamientos) {
     tbody.innerHTML = relevamientos.map(r => `
         <tr>
             <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
+            <td><span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span></td>
             <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D'}</td>
             <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
             <td>${r.barrio || ''}</td>
