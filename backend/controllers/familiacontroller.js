@@ -19,6 +19,13 @@ export const crearFamilia = async (req, res) => {
             return res.status(404).json({ mensaje: 'El relevamiento especificado no existe.' });
         }
 
+        // --- VALIDACIÓN DE SEGURIDAD: Evitar cambios si está completado/finalizado/cancelado ---
+        const estadoActual = (existeRelevamiento.estado || '').toLowerCase();
+        if (['completado', 'finalizado', 'cancelado'].includes(estadoActual)) {
+            return res.status(403).json({ mensaje: 'No se pueden agregar familias a un relevamiento que ya se encuentra completado o finalizado.' });
+        }
+        // ------------------------------------------------------------------------------------
+
         // Insertamos la familia con el resto de los campos
         const nuevaFamilia = await Familia.create({
             jefe_familia,
@@ -39,10 +46,8 @@ export const crearFamilia = async (req, res) => {
         }
 
         // --- REGLA DE BACKEND: Actualizar estado del relevamiento si está 'nuevo' ---
-        // Recargamos el objeto relevamiento para asegurar que tenemos el estado actual real
         await existeRelevamiento.reload(); 
 
-        // Actualizamos si el estado es 'nuevo' o si es nulo/vacío
         if (existeRelevamiento.estado === 'nuevo' || !existeRelevamiento.estado) {
             await existeRelevamiento.update({ estado: 'en proceso' });
         }
@@ -68,12 +73,10 @@ export const crearFamilia = async (req, res) => {
 };
 
 // 2. OBTENER FAMILIAS (Filtradas por Relevamiento si se provee el ID)
-// OBTENER FAMILIAS (Filtradas por Relevamiento y parámetros opcionales)
 export const obtenerFamilias = async (req, res) => {
     try {
         const { id_relevamiento, prioridad_familiar, zona } = req.query;
 
-        // Construimos un objeto dinámico para el WHERE de Sequelize
         const whereClause = {};
         if (id_relevamiento) whereClause.id_relevamiento = id_relevamiento;
         if (prioridad_familiar) whereClause.prioridad_familiar = prioridad_familiar;
@@ -118,11 +121,22 @@ export const obtenerFamiliaPorId = async (req, res) => {
 export const eliminarFamilia = async (req, res) => {
     try {
         const { id } = req.params;
-        const familia = await Familia.findByPk(id);
+        const familia = await Familia.findByPk(id, {
+            include: [{ model: Relevamiento }]
+        });
 
         if (!familia) {
             return res.status(404).json({ mensaje: 'La familia que intenta eliminar no existe.' });
         }
+
+        // --- VALIDACIÓN DE SEGURIDAD: Evitar eliminar si el relevamiento está bloqueado ---
+        if (familia.Relevamiento) {
+            const estadoRelevamiento = (familia.Relevamiento.estado || '').toLowerCase();
+            if (['completado', 'finalizado', 'cancelado'].includes(estadoRelevamiento)) {
+                return res.status(403).json({ mensaje: 'No se pueden eliminar familias de un relevamiento completado o finalizado.' });
+            }
+        }
+        // ------------------------------------------------------------------------------------
 
         await familia.destroy();
         res.json({ mensaje: 'Registro familiar eliminado correctamente.' });
@@ -138,11 +152,22 @@ export const actualizarFamilia = async (req, res) => {
         const { id } = req.params;
         const { necesidades, ...restoDeCampos } = req.body;
 
-        const familia = await Familia.findByPk(id);
+        const familia = await Familia.findByPk(id, {
+            include: [{ model: Relevamiento }]
+        });
 
         if (!familia) {
             return res.status(404).json({ mensaje: 'La familia que intenta actualizar no existe.' });
         }
+
+        // --- VALIDACIÓN DE SEGURIDAD: Evitar modificar si el relevamiento está bloqueado ---
+        if (familia.Relevamiento) {
+            const estadoRelevamiento = (familia.Relevamiento.estado || '').toLowerCase();
+            if (['completado', 'finalizado', 'cancelado'].includes(estadoRelevamiento)) {
+                return res.status(403).json({ mensaje: 'No se pueden modificar familias de un relevamiento completado o finalizado.' });
+            }
+        }
+        // ------------------------------------------------------------------------------------
 
         // Actualiza los campos principales de la familia
         await familia.update(restoDeCampos);
