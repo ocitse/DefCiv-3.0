@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
-const Documentacion = sequelize.define('documentacion', {
+const documentacion = sequelize.define('documentacion', {
     id_documento: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -29,4 +29,4 @@ const Documentacion = sequelize.define('documentacion', {
     timestamps: true
 });
 
-export default Documentacion;
+export default documentacion;
