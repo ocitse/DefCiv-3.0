@@ -267,9 +267,91 @@ export function verListaRelevamientos() {
         }
     });
 }
+// Función central que procesa búsqueda, ordenamiento y paginación local de Familias
+export function manejarCambioFiltros(resetPagina = true) {
+    if (resetPagina) paginaActualFamilias = 1;
+
+    const textoBusqueda = document.getElementById('inputBusquedaFamilias')?.value.toLowerCase().trim() || '';
+    const criterioOrden = document.getElementById('selectOrdenarFamilias')?.value || '';
+    const selectPaginacion = document.getElementById('selectPaginacionFamilias')?.value || '10';
+
+    // 1. Filtrado local por Jefe de Familia o DNI
+    let resultado = familiasOriginalesRelevamiento.filter(f => {
+        const jefe = (f.jefe_familia || '').toLowerCase();
+        const dni = (f.dni_jefe || '').toLowerCase();
+        return jefe.includes(textoBusqueda) || dni.includes(textoBusqueda);
+    });
+
+    // 2. Ordenamiento local
+    if (criterioOrden === 'jefe') {
+        resultado.sort((a, b) => (a.jefe_familia || '').localeCompare(b.jefe_familia || ''));
+    } else if (criterioOrden === 'integrantes') {
+        resultado.sort((a, b) => (b.cantidad_integrantes || 0) - (a.cantidad_integrantes || 0));
+    } else {
+        // Por defecto: Más recientes primero
+        resultado.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
+    // 3. Paginación local
+    let familiasPaginadas = resultado;
+    let totalPaginas = 1;
+
+    if (selectPaginacion !== 'todos') {
+        const porPagina = parseInt(selectPaginacion, 10);
+        totalPaginas = Math.ceil(resultado.length / porPagina) || 1;
+        
+        if (paginaActualFamilias > totalPaginas) paginaActualFamilias = totalPaginas;
+        if (paginaActualFamilias < 1) paginaActualFamilias = 1;
+
+        const inicio = (paginaActualFamilias - 1) * porPagina;
+        const fin = inicio + porPagina;
+        familiasPaginadas = resultado.slice(inicio, fin);
+    }
+
+    renderizarFilasFamilias(familiasPaginadas);
+}
+
+// Renderizado de filas en la tabla de familias (Permite visualización aun estando bloqueado/completado)
+function renderizarFilasFamilias(familias) {
+    const tbody = document.getElementById('tabla-familias-body');
+    if (!tbody) return;
+
+    if (!familias || familias.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No se encontraron familias registradas.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = familias.map(f => {
+        const idFamilia = f.id_familia || f.id;
+        return `
+            <tr>
+                <td><strong>${f.jefe_familia || 'Sin especificar'}</strong></td>
+                <td>${f.dni_jefe || 'N/D'}</td>
+                <td>${f.telefono || 'N/D'}</td>
+                <td class="text-center"><span class="badge bg-secondary">${f.cantidad_integrantes || 1}</span></td>
+                <td>${f.urgencia_familiar || 'Normal'}</td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-primary" onclick="window.verFichaNecesidades('${idFamilia}')" title="Ver Ficha">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${idFamilia}')" title="Editar Ficha">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${idFamilia}')" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
 // Exposiciones globales exclusivas para las funciones que realmente existen aquí
 window.ingresarARelevamiento = ingresarARelevamiento;
 window.verListaRelevamientos = verListaRelevamientos;
 window.eliminarFamiliar = eliminarFamiliar;
 window.verFichaNecesidades = verFichaNecesidades;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+window.manejarCambioFiltros = manejarCambioFiltros;
