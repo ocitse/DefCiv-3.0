@@ -3,6 +3,7 @@ import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
 let listaTemporalMateriales = [];
+let archivosTemporalesFamilia = []; // 🌟 Array para almacenar los archivos pendientes de adjuntar
 
 function renderizarListaVisual(tipo, arreglo) {
     const ul = document.getElementById(`lista-dinamica-${tipo}`);
@@ -21,6 +22,45 @@ function renderizarListaVisual(tipo, arreglo) {
             </button>
         </li>
     `).join('');
+}
+
+// 🌟 Renderizar la lista visual de archivos pendientes en el HTML provisto
+function renderizarListaArchivosPendientes() {
+    const ul = document.getElementById('lista-archivos-pendientes');
+    if (!ul) return;
+
+    if (archivosTemporalesFamilia.length === 0) {
+        ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-light opacity-75 small border-0">Ningún archivo adjuntado</li>`;
+        return;
+    }
+
+    ul.innerHTML = archivosTemporalesFamilia.map((file, index) => `
+        <li class="list-group-item d-flex justify-content-between align-items-center p-1 ps-2 bg-light border-secondary-subtle mb-1 rounded">
+            <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
+            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+        </li>
+    `).join('');
+}
+
+export function agregarArchivoALista() {
+    const input = document.getElementById('inputArchivo');
+    if (!input || input.files.length === 0) {
+        mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
+        return;
+    }
+
+    const archivo = input.files[0];
+    archivosTemporalesFamilia.push(archivo);
+    renderizarListaArchivosPendientes();
+
+    input.value = ""; // Limpiar el input para permitir elegir otro
+}
+
+export function eliminarArchivoDeLista(index) {
+    archivosTemporalesFamilia.splice(index, 1);
+    renderizarListaArchivosPendientes();
 }
 
 export function agregarItemLista(tipo) {
@@ -85,46 +125,53 @@ export async function guardarDatosFamiliaDefinitivo(e) {
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
 
-        const datosFamilia = {
-            id_relevamiento: window.idRelevamientoActivo,
-            jefe_familia: `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`,
-            dni_jefe: document.getElementById('f_dni').value.trim(),
-            telefono: document.getElementById('f_telefono').value.trim(),
-            direccion: document.getElementById('f_direccion').value.trim(),
-            mayores: parseInt(document.getElementById('f_mayores').value) || 1,
-            menores: parseInt(document.getElementById('f_menores').value) || 0,
-            cantidad_integrantes: parseInt(document.getElementById('f_total').value) || 1,
-            urgencia_familiar: document.getElementById('f_urgencia_familiar').value,
-            
-            // Daños
-            dano_techo: !!document.getElementById('f_dano_techo')?.checked,
-            dano_paredes: !!document.getElementById('f_dano_paredes')?.checked,
-            dano_pisos: !!document.getElementById('f_dano_pisos')?.checked,
-            dano_instalaciones: !!document.getElementById('f_dano_instalaciones')?.checked,
-            danos_estructurales: !!document.getElementById('f_dano_perdida_completa')?.checked,
-            requiere_evacuacion: !!document.getElementById('f_dano_perdida_completa')?.checked,
+        // 🌟 Usamos FormData para soportar campos de texto y múltiples archivos adjuntos simultáneamente
+        const formData = new FormData();
 
-            // Necesidades
-            unidades_alimentarias: parseInt(document.getElementById('f_need_alimentos')?.value) || 0,
-            abrigos: parseInt(document.getElementById('f_need_abrigos')?.value) || 0,
-            frazadas: parseInt(document.getElementById('f_need_frazadas')?.value) || 0,
-            bidones_agua: parseInt(document.getElementById('f_need_agua')?.value) || 0,
-            kits_higiene: parseInt(document.getElementById('f_need_higiene')?.value) || 0,
-            ropa: parseInt(document.getElementById('f_need_ropa')?.value) || 0,
-            colchones: parseInt(document.getElementById('f_need_colchones')?.value) || 0,
+        formData.append('id_relevamiento', window.idRelevamientoActivo);
+        formData.append('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+        formData.append('dni_jefe', document.getElementById('f_dni').value.trim());
+        formData.append('telefono', document.getElementById('f_telefono').value.trim());
+        formData.append('direccion', document.getElementById('f_direccion').value.trim());
+        formData.append('mayores', parseInt(document.getElementById('f_mayores').value) || 1);
+        formData.append('menores', parseInt(document.getElementById('f_menores').value) || 0);
+        formData.append('cantidad_integrantes', parseInt(document.getElementById('f_total').value) || 1);
+        formData.append('urgencia_familiar', document.getElementById('f_urgencia_familiar').value);
+        
+        // Daños
+        formData.append('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
+        formData.append('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
+        formData.append('dano_pisos', !!document.getElementById('f_dano_pisos')?.checked);
+        formData.append('dano_instalaciones', !!document.getElementById('f_dano_instalaciones')?.checked);
+        formData.append('danos_estructurales', !!document.getElementById('f_dano_perdida_completa')?.checked);
+        formData.append('requiere_evacuacion', !!document.getElementById('f_dano_perdida_completa')?.checked);
 
-            // Materiales y Observaciones
-            necesidades: listaTemporalMateriales,
-            observaciones: document.getElementById('f_observaciones').value.trim()
-        };
+        // Necesidades
+        formData.append('unidades_alimentarias', parseInt(document.getElementById('f_need_alimentos')?.value) || 0);
+        formData.append('abrigos', parseInt(document.getElementById('f_need_abrigos')?.value) || 0);
+        formData.append('frazadas', parseInt(document.getElementById('f_need_frazadas')?.value) || 0);
+        formData.append('bidones_agua', parseInt(document.getElementById('f_need_agua')?.value) || 0);
+        formData.append('kits_higiene', parseInt(document.getElementById('f_need_higiene')?.value) || 0);
+        formData.append('ropa', parseInt(document.getElementById('f_need_ropa')?.value) || 0);
+        formData.append('colchones', parseInt(document.getElementById('f_need_colchones')?.value) || 0);
+
+        // Necesidades/Materiales (enviado como string JSON para que el backend los procese)
+        formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
+        formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
+
+        // 🌟 Adjuntar todos los archivos de la lista temporal
+        if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
+            archivosTemporalesFamilia.forEach(archivo => {
+                formData.append('documentos', archivo);
+            });
+        }
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
 
         const respuesta = await fetch(url, {
             method: metodo,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosFamilia)
+            body: formData // ⚠️ No especificar 'Content-Type', el navegador asigna automáticamente multipart/form-data
         });
 
         const resultado = await respuesta.json();
@@ -156,6 +203,8 @@ export async function editarDatosFamilia(idFamilia) {
         if (inputIdEdicion) inputIdEdicion.value = idFamilia;
 
         inicializarCalculoIntegrantes();
+        archivosTemporalesFamilia = []; // Limpiamos archivos temporales nuevos al abrir edición
+        renderizarListaArchivosPendientes();
 
         try {
             const respuesta = await fetch(`/api/familias/${idFamilia}`);
@@ -203,6 +252,21 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
+            // 🌟 Pintar los archivos existentes ya guardados en la BD (opcionalmente puedes usar el mismo contenedor o uno independiente)
+            const contenedorDocs = document.getElementById('lista-archivos-guardados') || document.getElementById('lista-archivos-pendientes');
+            if (contenedorDocs && fam.documentacion && fam.documentacion.length > 0) {
+                fam.documentacion.forEach(doc => {
+                    contenedorDocs.innerHTML += `
+                        <div class="d-flex align-items-center justify-content-between p-2 mb-1 bg-light border rounded small">
+                            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-primary text-truncate">
+                                <i class="bi bi-file-earmark-text me-1"></i> ${doc.nombre_archivo}
+                            </a>
+                            <span class="badge bg-success">Guardado</span>
+                        </div>
+                    `;
+                });
+            }
+
         } catch (error) {
             console.error("Error al cargar datos para editar:", error);
             mostrarNotificacion("Error al recuperar los datos de la ficha.", "error");
@@ -246,6 +310,8 @@ export function cambiarPasoWizard(paso) {
 
 export function mostrarFormularioNuevaFamilia() {
     listaTemporalMateriales = []; // Reiniciamos la lista temporal al crear una nueva
+    archivosTemporalesFamilia = []; // Reiniciamos los archivos temporales
+    
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) {
@@ -257,6 +323,7 @@ export function mostrarFormularioNuevaFamilia() {
 
         inicializarCalculoIntegrantes();
         renderizarListaVisual('mat', listaTemporalMateriales);
+        renderizarListaArchivosPendientes();
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
@@ -273,3 +340,5 @@ window.cambiarPasoWizard = cambiarPasoWizard;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
+window.agregarArchivoALista = agregarArchivoALista;
+window.eliminarArchivoDeLista = eliminarArchivoDeLista;
