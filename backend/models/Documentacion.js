@@ -26,7 +26,10 @@ const documentacion = sequelize.define('documentacion', {
     }
 }, {
     tableName: 'documentacion_familias',
-    timestamps: true
+    timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    underscored: false
 });
 
 export default documentacion;
