@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import Familia from '../models/familia.js';
 import Relevamiento from '../models/relevamiento.js';
 import necesidadFamilia from '../models/necesidadFamilia.js';
-import Documentacion from '../models/documentacion.js'; // Asegúrate de tener este modelo creado
+import Documentacion from '../models/Documentacion.js'; // Asegúrate de tener este modelo creado
 
 // Configuración de Multer para la subida física de archivos
 const __filename = fileURLToPath(import.meta.url);
