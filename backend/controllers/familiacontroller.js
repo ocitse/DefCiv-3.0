@@ -1,7 +1,32 @@
 // backend/controllers/familiaController.js
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import Familia from '../models/familia.js';
 import Relevamiento from '../models/relevamiento.js';
 import necesidadFamilia from '../models/necesidadFamilia.js';
+import Documentacion from '../models/documentacion.js'; // Asegúrate de tener este modelo creado
+
+// Configuración de Multer para la subida física de archivos
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, '../../frontend/public/uploads/familias');
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+});
+
+// Exportamos este middleware para usarlo en tus rutas (familiaroutes.js)
+export const uploadDocumentos = multer({ storage: storage }).array('documentos', 10);
 
 // 1. CREAR UNA NUEVA FAMILIA VINCULADA A UN RELEVAMIENTO
 export const crearFamilia = async (req, res) => {
@@ -43,6 +68,15 @@ export const crearFamilia = async (req, res) => {
                 cantidad: nec.cantidad || 1
             }));
             await necesidadFamilia.bulkCreate(necesidadesAInsertar);
+        }
+        // Dentro de crearFamilia, justo después de guardar las necesidades, agrega esto:
+        if (req.files && req.files.length > 0) {
+            const docsAInsertar = req.files.map(file => ({
+                id_familia: nuevaFamilia.id_familia,
+                nombre_archivo: file.originalname,
+                ruta_archivo: `/uploads/familias/${file.filename}`
+            }));
+            await Documentacion.bulkCreate(docsAInsertar);
         }
 
         // --- REGLA DE BACKEND: Actualizar estado del relevamiento si está 'nuevo' ---
@@ -102,7 +136,8 @@ export const obtenerFamiliaPorId = async (req, res) => {
         const { id } = req.params;
         const familia = await Familia.findByPk(id, {
             include: [{ model: Relevamiento },
-                      { model: necesidadFamilia, as: 'necesidades' }    
+                      { model: necesidadFamilia, as: 'necesidades' },
+                      { model: Documentacion, as: 'documentacion' }    
             ]
         });
 
@@ -159,6 +194,15 @@ export const actualizarFamilia = async (req, res) => {
         if (!familia) {
             return res.status(404).json({ mensaje: 'La familia que intenta actualizar no existe.' });
         }
+        // Si llegan nuevos archivos al editar, los guardamos
+if (req.files && req.files.length > 0) {
+    const docsAInsertar = req.files.map(file => ({
+        id_familia: id,
+        nombre_archivo: file.originalname,
+        ruta_archivo: `/uploads/familias/${file.filename}`
+    }));
+    await Documentacion.bulkCreate(docsAInsertar);
+}
 
         // --- VALIDACIÓN DE SEGURIDAD: Evitar modificar si el relevamiento está bloqueado ---
         if (familia.Relevamiento) {
@@ -190,7 +234,8 @@ export const actualizarFamilia = async (req, res) => {
         const familiaActualizada = await Familia.findByPk(id, {
             include: [
                 { model: Relevamiento },
-                { model: necesidadFamilia, as: 'necesidades' }
+                { model: necesidadFamilia, as: 'necesidades' },
+                { model: Documentacion, as: 'documentacion' }
             ]
         });
 

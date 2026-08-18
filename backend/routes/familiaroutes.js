@@ -5,15 +5,16 @@ import {
     obtenerFamilias, 
     obtenerFamiliaPorId, 
     actualizarFamilia, 
-    eliminarFamilia 
+    eliminarFamilia,
+    uploadDocumentos 
 } from '../controllers/familiacontroller.js';
 
 const router = express.Router();
 
-router.post('/', crearFamilia);                   // POST /api/familias
+router.post('/', uploadDocumentos, crearFamilia);          // POST con archivos
 router.get('/', obtenerFamilias);                 // GET /api/familias
 router.get('/:id', obtenerFamiliaPorId);          // GET /api/familias/:id (Ficha)
-router.put('/:id', actualizarFamilia);            // PUT /api/familias/:id (Actualizar edición)
+router.put('/:id', uploadDocumentos, actualizarFamilia);   // PUT con archivos (para edición)
 router.delete('/:id', eliminarFamilia);           // DELETE /api/familias/:id
 
 export default router;
