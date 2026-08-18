@@ -320,15 +320,16 @@ function renderizarFilasFamilias(familias) {
         return;
     }
 
-    tbody.innerHTML = familias.map(f => {
+    tbody.innerHTML = familias.map((f, index) => {
         const idFamilia = f.id_familia || f.id;
         return `
             <tr>
-                <td><strong>${f.jefe_familia || 'Sin especificar'}</strong></td>
-                <td>${f.dni_jefe || 'N/D'}</td>
-                <td>${f.telefono || 'N/D'}</td>
-                <td class="text-center"><span class="badge bg-secondary">${f.cantidad_integrantes || 1}</span></td>
-                <td>${f.urgencia_familiar || 'Normal'}</td>
+                <td class="text-center">${index + 1}</td> <!-- Orden N° -->
+                <td>${f.dni_jefe || 'N/D'}</td>              <!-- DNI Jefe/a -->
+                <td><strong>${f.jefe_familia || 'Sin especificar'}</strong></td> <!-- Apellido y Nombre -->
+                <td class="text-center"><span class="badge bg-secondary">${f.cantidad_integrantes || 1}</span></td> <!-- Integrantes -->
+                <td>${f.urgencia_familiar || 'Normal'}</td> <!-- Urgencia Familiar -->
+                <td>${f.estado_asistencia || 'Pendiente'}</td> <!-- Estado Asistencia -->
                 <td class="text-center">
                     <div class="d-flex justify-content-center gap-1">
                         <button class="btn btn-sm btn-outline-primary" onclick="window.verFichaNecesidades('${idFamilia}')" title="Ver Ficha">
