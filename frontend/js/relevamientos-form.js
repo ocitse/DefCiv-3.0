@@ -66,11 +66,9 @@ export function inicializarCalculoIntegrantes() {
         inputTotal.value = mayores + menores;
     };
 
-    // Usar oninput directo previene duplicación de listeners si se llama varias veces
     inputMayores.oninput = calcular;
     inputMenores.oninput = calcular;
     
-    // Calcular por defecto al iniciar
     calcular();
 }
 
@@ -165,7 +163,6 @@ export async function editarDatosFamilia(idFamilia) {
             
             const fam = await respuesta.json();
             
-            // 1. Datos personales y de contacto
             if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
             if (fam.jefe_familia) {
                 const partes = fam.jefe_familia.split(',');
@@ -175,23 +172,19 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_telefono')) document.getElementById('f_telefono').value = fam.telefono || '';
             if (document.getElementById('f_direccion')) document.getElementById('f_direccion').value = fam.direccion || '';
             
-            // 2. Composición familiar
             if (document.getElementById('f_mayores')) document.getElementById('f_mayores').value = fam.mayores ?? 1;
             if (document.getElementById('f_menores')) document.getElementById('f_menores').value = fam.menores ?? 0;
             if (document.getElementById('f_total')) document.getElementById('f_total').value = fam.cantidad_integrantes || fam.total_personas || 1;
             
-            // 3. Prioridad de Atención
             const selectPrioridad = document.getElementById('f_urgencia_familiar');
             if (selectPrioridad) selectPrioridad.value = fam.urgencia_familiar || fam.prioridad || '';
 
-            // 4. Evaluación de Daños en Vivienda (Switches)
             if (document.getElementById('f_dano_techo')) document.getElementById('f_dano_techo').checked = Boolean(fam.dano_techo);
             if (document.getElementById('f_dano_paredes')) document.getElementById('f_dano_paredes').checked = Boolean(fam.dano_paredes);
             if (document.getElementById('f_dano_pisos')) document.getElementById('f_dano_pisos').checked = Boolean(fam.dano_pisos);
             if (document.getElementById('f_dano_instalaciones')) document.getElementById('f_dano_instalaciones').checked = Boolean(fam.dano_instalaciones || fam.instalaciones_afectadas);
             if (document.getElementById('f_dano_perdida_completa')) document.getElementById('f_dano_perdida_completa').checked = Boolean(fam.danos_estructurales || fam.requiere_evacuacion);
 
-            // 5. Necesidades Detectadas (Inputs numéricos)
             if (document.getElementById('f_need_alimentos')) document.getElementById('f_need_alimentos').value = fam.unidades_alimentarias || fam.alimentos || 0;
             if (document.getElementById('f_need_abrigos')) document.getElementById('f_need_abrigos').value = fam.abrigos || 0;
             if (document.getElementById('f_need_frazadas')) document.getElementById('f_need_frazadas').value = fam.frazadas || 0;
@@ -200,16 +193,14 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
             if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
 
-            // 6. Materiales de Construcción (Mapeando la relación `necesidades`)
             const materialesBrutos = fam.necesidades || fam.provisiones || [];
             listaTemporalMateriales = materialesBrutos.map(m => ({
-                tipo_material: m.tipo_material || m.nombre, // Aseguramos que guarde tipo_material
-                nombre: m.tipo_material || m.nombre,         // Y nombre para la visualización
+                tipo_material: m.tipo_material || m.nombre,
+                nombre: m.tipo_material || m.nombre,
                 cantidad: m.cantidad || 1
             }));
             renderizarListaVisual('mat', listaTemporalMateriales);
 
-            // 7. Observaciones
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
         } catch (error) {
@@ -224,8 +215,8 @@ export async function editarDatosFamilia(idFamilia) {
         }
     });
 }
+
 export function cambiarPasoWizard(paso) {
-    // Validar campos obligatorios del paso 1 antes de pasar al paso 2
     if (paso === 2) {
         const apellido = document.getElementById('f_apellido').value.trim();
         const nombre = document.getElementById('f_nombre').value.trim();
@@ -238,14 +229,11 @@ export function cambiarPasoWizard(paso) {
         }
     }
 
-    // Ocultar todos los pasos
     document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('d-none'));
     
-    // Mostrar el paso seleccionado
     const pasoActivo = document.getElementById(`step-${paso}`);
     if (pasoActivo) pasoActivo.classList.remove('d-none');
 
-    // Actualizar la barra de progreso
     const barra = document.getElementById('wizard-progress-bar');
     if (barra) {
         const porcentajes = { 1: '33%', 2: '66%', 3: '100%' };
@@ -253,24 +241,35 @@ export function cambiarPasoWizard(paso) {
         barra.setAttribute('aria-valuenow', parseInt(porcentajes[paso]));
     }
 
-    // Subir el scroll suavemente al inicio del formulario
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 export function mostrarFormularioNuevaFamilia() {
-    if (typeof window.abrirModalFormularioFamilia === 'function') {
-        window.abrirModalFormularioFamilia();
-    } else {
-        console.error("No se encontró la función para abrir el formulario de nueva familia.");
-    }
+    listaTemporalMateriales = []; // Reiniciamos la lista temporal al crear una nueva
+    cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
+        const titulo = document.getElementById('titulo-form-familia');
+        if (titulo) {
+            titulo.innerHTML = `<i class="bi bi-plus-circle text-primary me-2"></i> Registrar Nueva Familia`;
+        }
+        
+        const inputIdEdicion = document.getElementById('f_id_edicion');
+        if (inputIdEdicion) inputIdEdicion.value = '';
+
+        inicializarCalculoIntegrantes();
+        renderizarListaVisual('mat', listaTemporalMateriales);
+
+        const form = document.getElementById('form-nueva-familia');
+        if (form) {
+            form.reset();
+            form.classList.remove('was-validated');
+            form.removeEventListener('submit', guardarDatosFamiliaDefinitivo);
+            form.addEventListener('submit', guardarDatosFamiliaDefinitivo);
+        }
+    });
 }
 
+// Exponer funciones globales necesarias para eventos onclick en HTML
 window.cambiarPasoWizard = cambiarPasoWizard;
-window.abrirModalFormularioFamilia = function() {
-    // Implementa aquí la lógica para abrir el modal o formulario, por ejemplo:
-    const modal = document.getElementById('modal-nueva-familia');
-    if (modal) {
-        modal.style.display = 'block';
-    } else {
-        console.warn("Falta definir el elemento del modal en el HTML o la función real.");
-    }
-};
+window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+window.agregarItemLista = agregarItemLista;
+window.eliminarItemLista = eliminarItemLista;
