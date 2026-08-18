@@ -56,10 +56,17 @@ export const obtenerrelevamientos = async (req, res) => {
         if (!esAdministrador && rolUsuario === 'relevador') {
             if (usuarioLogueadoPerfil) {
                 const nombreCompletoLogueado = `${usuarioLogueadoPerfil.apellido || ''}, ${usuarioLogueadoPerfil.nombres || usuarioLogueadoPerfil.nombre || ''}`;
+                
+                // 🌟 AQUÍ ESTÁ EL CAMBIO: Agregamos la condición de estado
                 condicionesWhere = {
-                    [Op.or]: [
-                        { relevador_asignado: String(usuarioLogueadoPerfil.id_usuario || usuarioLogueadoPerfil.id) },
-                        { relevador_asignado: nombreCompletoLogueado }
+                    [Op.and]: [
+                        {
+                            [Op.or]: [
+                                { relevador_asignado: String(usuarioLogueadoPerfil.id_usuario || usuarioLogueadoPerfil.id) },
+                                { relevador_asignado: nombreCompletoLogueado }
+                            ]
+                        },
+                        { estado: { [Op.ne]: 'completado' } } // Excluimos los completados
                     ]
                 };
             } else {
