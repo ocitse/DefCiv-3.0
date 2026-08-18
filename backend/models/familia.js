@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import relevamiento from './relevamiento.js';
-import documentacion from './documentacion.js'; // <-- 1. Importas el nuevo modelo de adjuntos
+import documentacion from './Documentacion.js'; // <-- 1. Importas el nuevo modelo de adjuntos
 
 const familia = sequelize.define('familia', {
     id_familia: {
