@@ -6,6 +6,7 @@ import { guardarDatosFamiliaDefinitivo, inicializarCalculoIntegrantes, mostrarFo
 // Variable global en memoria para almacenar las familias del relevamiento activo
 let familiasOriginalesRelevamiento = [];
 let paginaActualFamilias = 1;
+let archivosParaSubir = [];
 
 // Función principal para cargar la vista del relevamiento y sus familias desde el Backend
 export async function ingresarARelevamiento(idRelevamiento) {
@@ -347,6 +348,26 @@ function renderizarFilasFamilias(familias) {
         `;
     }).join('');
 }
+
+window.agregarArchivoALista = () => {
+    const input = document.getElementById('inputArchivo');
+    if (input.files.length === 0) return alert("Selecciona un archivo.");
+
+    const archivo = input.files[0];
+    archivosParaSubir.push(archivo);
+
+    const lista = document.getElementById('lista-archivos-pendientes');
+    const li = document.createElement('li');
+    li.className = "list-group-item p-1 d-flex justify-content-between";
+    li.innerHTML = `
+        <span class="text-truncate">${archivo.name}</span>
+        <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="this.parentElement.remove()">
+            <i class="bi bi-trash"></i>
+        </button>
+    `;
+    lista.appendChild(li);
+    input.value = ''; // Reset
+};
 
 // Exposiciones globales exclusivas para las funciones que realmente existen aquí
 window.ingresarARelevamiento = ingresarARelevamiento;
