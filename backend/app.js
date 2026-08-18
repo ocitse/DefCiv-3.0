@@ -11,7 +11,7 @@ import sequelize from './config/database.js';
 import relevamiento from './models/relevamiento.js';
 import familia from './models/familia.js';
 import usuario from './models/usuario.js';
-import relevadorroutes from './routes/relevadorroutes.js';
+
 import relevamientoroutes from './routes/relevamientoroutes.js';
 import familiaroutes from './routes/familiaroutes.js';
 import authroutes from './routes/authroutes.js';
@@ -71,7 +71,7 @@ app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
-app.use('/api/relevadores', relevadorroutes);
+
 app.use('/api/solicitudes', solicitudroutes);
 app.use('/api/provisiones', provisionesroutes);
 
@@ -87,31 +87,22 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Función para verificar y crear la tabla relevadores si no existe
-async function asegurarTablaRelevadores() {
+// Función para asegurar la tabla de documentación / adjuntos
+async function asegurarTablaDocumentacion() {
     try {
-        // 1. Creamos la tabla base si no existe
         await sequelize.query(`
-            CREATE TABLE IF NOT EXISTS relevadores (
-                id SERIAL PRIMARY KEY,
-                nombre VARCHAR(150) NOT NULL,
-                dni VARCHAR(20) NOT NULL UNIQUE,
-                email VARCHAR(150),
-                activo SMALLINT DEFAULT 1,
+            CREATE TABLE IF NOT EXISTS documentacion_familias (
+                id_documento SERIAL PRIMARY KEY,
+                id_familia INTEGER REFERENCES familias(id_familia) ON DELETE CASCADE,
+                nombre_archivo VARCHAR(255) NOT NULL,
+                ruta_archivo VARCHAR(255) NOT NULL,
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `, { type: QueryTypes.RAW });
-
-        // 2. Nos aseguramos de agregar las columnas faltantes de forma independiente
-        await sequelize.query(`
-            ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(50);
-            ALTER TABLE relevadores ADD COLUMN IF NOT EXISTS zona_asignada VARCHAR(100);
-        `, { type: QueryTypes.RAW });
-
-        console.log('✅ Verificación y actualización de la tabla "relevadores" y sus columnas completada.');
+        console.log('✅ Verificación/Creación de la tabla "documentacion_familias" completada.');
     } catch (error) {
-        console.error('⚠️ Error al asegurar la tabla relevadores:', error.message);
+        console.error('⚠️ Aviso al verificar la tabla documentacion_familias:', error.message);
     }
 }
 
@@ -175,8 +166,8 @@ async function iniciarServidor() {
         await sequelize.authenticate();
         console.log('✅ Conexión a la base de datos establecida.');
         
-        // Asegurar que la tabla relevadores exista antes de que operen las rutas
-        await asegurarTablaRelevadores();
+        
+        await asegurarTablaDocumentacion();
         await asegurarColumnasRelevamientos();
         await crearAdminPorDefecto();
         await asegurarTablaProvisiones();
