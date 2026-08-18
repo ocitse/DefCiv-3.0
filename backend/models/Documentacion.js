@@ -29,4 +29,4 @@ const Documentacion = sequelize.define('Documentacion', {
     timestamps: true
 });
 
-module.exports = Documentacion;
+module.exports = Documentacion; 
