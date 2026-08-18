@@ -1,7 +1,7 @@
-// backend/models/familia.js
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import relevamiento from './relevamiento.js';
+import documentacion from './documentacion.js'; // <-- 1. Importas el nuevo modelo de adjuntos
 
 const familia = sequelize.define('familia', {
     id_familia: {
@@ -105,13 +105,17 @@ const familia = sequelize.define('familia', {
 }, {
     tableName: 'familias',
     timestamps: true,
-    createdAt: 'createdAt', // <-- FUERZA ESTO
-  updatedAt: 'updatedAt', // <-- FUERZA ESTO
-  underscored: false      // <-- Y ESTO ES LO MÁS IMPORTANTE
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    underscored: false
 });
 
-// 🌟 CONFIGURACIÓN DE LA RELACIÓN (Clave Foránea)
+// 🌟 CONFIGURACIÓN DE RELACIONES
 relevamiento.hasMany(familia, { foreignKey: 'id_relevamiento', onDelete: 'CASCADE' });
 familia.belongsTo(relevamiento, { foreignKey: 'id_relevamiento' });
+
+// Relación con Documentación (Adjuntos / Fotos / PDFs)
+familia.hasMany(documentacion, { foreignKey: 'id_familia', as: 'documentacion', onDelete: 'CASCADE' });
+documentacion.belongsTo(familia, { foreignKey: 'id_familia' });
 
 export default familia;

@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); 
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
 const Documentacion = sequelize.define('Documentacion', {
     id_documento: {
@@ -11,10 +11,10 @@ const Documentacion = sequelize.define('Documentacion', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Familias',
+            model: 'familias',
             key: 'id_familia'
         },
-        onDelete: 'CASCADE' // Si se borra la familia, se borran sus adjuntos automáticamente
+        onDelete: 'CASCADE'
     },
     nombre_archivo: {
         type: DataTypes.STRING,
@@ -29,4 +29,4 @@ const Documentacion = sequelize.define('Documentacion', {
     timestamps: true
 });
 
-module.exports = Documentacion; 
+export default Documentacion;
