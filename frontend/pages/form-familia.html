@@ -137,41 +137,59 @@
             </div>
         </div>
 
-        <!-- ==================== PASO 3: Materiales y Observaciones ==================== -->
-        <div class="wizard-step d-none" id="step-3">
-            <h5 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-tools"></i> Paso 3: Materiales de Construcción y Observaciones</h5>
-            
-            <div class="row g-3 mb-4">
-                <div class="col-md-8">
-                    <label class="form-label fw-semibold">Seleccionar Material Requerido</label>
-                    <div class="input-group mb-2">
-                        <!-- Selector controlado en lugar de texto libre -->
-                        <select id="input-item-mat" class="form-select form-select-sm">
-                            <option value="" selected disabled>Seleccione insumo del catálogo...</option>
-                            <option value="Chapas de zinc">Chapas de zinc</option>
-                            <option value="Tirantes de madera">Tirantes de madera</option>
-                            <option value="Perfiles C">Perfiles C</option>
-                            <option value="Cemento (bolsas)">Cemento (bolsas)</option>
-                            <option value="Ladrillos comunes">Ladrillos comunes</option>
-                            <option value="Membrana asfáltica">Membrana asfáltica</option>
-                            <option value="Caños de PVC">Caños de PVC</option>
-                        </select>
-                        <input type="number" id="input-cant-mat" class="form-control form-control-sm" style="max-width: 90px;" placeholder="Cant." min="1" value="1">
-                        <button class="btn btn-outline-primary btn-sm" type="button" onclick="agregarItemLista('mat')"><i class="bi bi-plus-lg"></i> Agregar</button>
-                    </div>
-                    <ul class="list-group small border rounded p-1 bg-white" id="lista-dinamica-mat" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
-                </div>
+        <!-- ==================== PASO 3: Materiales, Evidencias y Observaciones ==================== -->
+<div class="wizard-step d-none" id="step-3">
+    <h5 class="text-primary fw-bold border-bottom pb-2 mb-3">
+        <i class="bi bi-tools"></i> Paso 3: Materiales, Evidencias y Observaciones
+    </h5>
+    
+    <div class="row g-3 mb-4">
+        <!-- Columna Izquierda: Materiales (Tu código original adaptado a col-md-6) -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Seleccionar Material Requerido</label>
+            <div class="input-group mb-2">
+                <select id="input-item-mat" class="form-select form-select-sm">
+                    <option value="" selected disabled>Seleccione insumo del catálogo...</option>
+                    <option value="Chapas de zinc">Chapas de zinc</option>
+                    <option value="Tirantes de madera">Tirantes de madera</option>
+                    <option value="Perfiles C">Perfiles C</option>
+                    <option value="Cemento (bolsas)">Cemento (bolsas)</option>
+                    <option value="Ladrillos comunes">Ladrillos comunes</option>
+                    <option value="Membrana asfáltica">Membrana asfáltica</option>
+                    <option value="Caños de PVC">Caños de PVC</option>
+                </select>
+                <input type="number" id="input-cant-mat" class="form-control form-control-sm" style="max-width: 70px;" placeholder="Cant." min="1" value="1">
+                <button class="btn btn-outline-primary btn-sm" type="button" onclick="agregarItemLista('mat')">
+                    <i class="bi bi-plus-lg"></i> Agregar
+                </button>
             </div>
-
-            <div class="mb-4">
-                <label for="f_observaciones" class="form-label fw-semibold">Observaciones o Datos Críticos de Campo</label>
-                <textarea id="f_observaciones" class="form-control" rows="3" placeholder="Cualquier información relevante detectada por el relevador..."></textarea>
-            </div>
-
-            <div class="d-flex justify-content-between border-top pt-3">
-                <button type="button" class="btn btn-outline-secondary" onclick="cambiarPasoWizard(2)"><i class="bi bi-arrow-left"></i> Anterior</button>
-                <button type="submit" class="btn btn-success fw-bold px-4">Guardar Ficha Familiar</button>
-            </div>
+            <ul class="list-group small border rounded p-1 bg-white" id="lista-dinamica-mat" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
         </div>
+
+        <!-- Columna Derecha: NUEVO - Adjuntar Archivos / Cámara -->
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Adjuntar Evidencia (PDF / Foto)</label>
+            <div class="input-group mb-2">
+                <input type="file" id="inputArchivo" class="form-control form-control-sm" accept="image/*,application/pdf" capture="environment">
+                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="agregarArchivoALista()">
+                    <i class="bi bi-paperclip"></i> Agregar
+                </button>
+            </div>
+            <ul class="list-group small border rounded p-1 bg-white" id="lista-archivos-pendientes" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="f_observaciones" class="form-label fw-semibold">Observaciones o Datos Críticos de Campo</label>
+        <textarea id="f_observaciones" class="form-control" rows="3" placeholder="Cualquier información relevante detectada por el relevador..."></textarea>
+    </div>
+
+    <div class="d-flex justify-content-between border-top pt-3">
+        <button type="button" class="btn btn-outline-secondary" onclick="cambiarPasoWizard(2)">
+            <i class="bi bi-arrow-left"></i> Anterior
+        </button>
+        <button type="submit" class="btn btn-success fw-bold px-4">Guardar Ficha Familiar</button>
+    </div>
+</div>
     </form>
 </div>
