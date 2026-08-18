@@ -310,7 +310,6 @@ export function manejarCambioFiltros(resetPagina = true) {
 
     renderizarFilasFamilias(familiasPaginadas);
 }
-
 // Renderizado de filas en la tabla de familias (Permite visualización aun estando bloqueado/completado)
 function renderizarFilasFamilias(familias) {
     const tbody = document.getElementById('tabla-familias-body');
