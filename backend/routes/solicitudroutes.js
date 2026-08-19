@@ -44,14 +44,14 @@ router.post('/', async (req, res) => {
             where: { id: relevamientoId }
         });
 
-        // C. ¡EL PUENTE AUTOMÁTICO HACIA PROVISIONES!
+        // C. ¡EL PUENTE AUTOMÁTICO HACIA PROVISIONES! (Corregido con comillas simples para el texto 'Enviado')
         const detalleInsumos = observaciones || 'Insumos / Ayuda solicitada según relevamiento';
         const destinoEntrega = relevamientoInfo ? (relevamientoInfo.direccion || 'Dirección no especificada') : 'Destino general';
 
         await sequelize.query(
-            'INSERT INTO provisiones (solicitud_id, detalle, destino, estado) VALUES (?, ?, ?, "Enviado")',
+            'INSERT INTO provisiones (solicitud_id, detalle, destino, estado) VALUES (?, ?, ?, ?)',
             { 
-                replacements: [relevamientoId, detalleInsumos, destinoEntrega], 
+                replacements: [relevamientoId, detalleInsumos, destinoEntrega, 'Enviado'], 
                 type: QueryTypes.INSERT 
             }
         );
