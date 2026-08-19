@@ -1,19 +1,16 @@
 // frontend/js/solicitudes.js
 
 const CONTENEDOR_APP = 'content-principal';
-
 let solicitandoVista = false;
 
 /**
- * Muestra la vista principal de Solicitudes inyectando el HTML sin recargar la URL
+ * Muestra la vista principal de Solicitudes inyectando el HTML
  */
 export async function verListaSolicitudes() {
     const contenedor = document.querySelector('.content-principal');
     if (!contenedor) return;
 
-    if (document.getElementById('seccion-nueva-solicitud')) {
-        return; 
-    }
+    if (document.getElementById('seccion-nueva-solicitud')) return;
 
     if (solicitandoVista) return;
     solicitandoVista = true;
@@ -133,7 +130,7 @@ export async function verHistorialSolicitudes() {
 }
 
 /**
- * Función auxiliar para calcular los totales de insumos y personas
+ * Calcula la sumatoria de personas e insumos
  */
 function calcularTotales(familias) {
     return familias.reduce((acc, f) => {
@@ -150,7 +147,7 @@ function calcularTotales(familias) {
 }
 
 /**
- * Inicializa el evento del formulario para enviar el relevamiento seleccionado
+ * Procesa la solicitud y genera el PDF oficial
  */
 export function inicializarFormularioSolicitud() {
     const botonOriginal = document.getElementById('btn-enviar-solicitud');
@@ -175,29 +172,29 @@ export function inicializarFormularioSolicitud() {
         const idTexto = fila.cells[1]?.innerText || `#${idRelevamiento}`;
         const fecha = fila.cells[2]?.innerText || 'Sin fecha';
         const ubicacion = fila.cells[3]?.innerText || 'Sin ubicación';
-        const estado = fila.cells[4]?.innerText || '';
         const evento = fila.cells[5]?.innerText || 'Sin evento';
         const relevador = fila.cells[6]?.innerText || 'Sin relevador';
         const urgencia = fila.cells[7]?.innerText || 'Media';
 
         try {
-            // 1. Obtenemos las familias reales asociadas a este relevamiento desde la API
+            // 1. Petición al endpoint de familias
             let familiasData = [];
             try {
-                const respFamilias = await fetch(`/api/relevamientos/${idRelevamiento}/familias`);
+                let respFamilias = await fetch(`/api/familias/relevamiento/${idRelevamiento}`);
+                if (!respFamilias.ok) {
+                    respFamilias = await fetch(`/api/familias?relevamiento_id=${idRelevamiento}`);
+                }
                 if (respFamilias.ok) {
                     familiasData = await respFamilias.json();
                 }
             } catch (err) {
-                console.warn('No se pudieron cargar las familias específicas via API, se procederá con resumen general:', err);
+                console.warn('Advertencia al consultar familias en la API:', err);
             }
 
-            // 2. Enviar la solicitud principal al backend (crea provisión y actualiza estado)
+            // 2. Enviar solicitud al servidor
             const respuesta = await fetch('/api/solicitudes', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     relevamientoId: idRelevamiento,
                     observaciones: observaciones
@@ -209,70 +206,74 @@ export function inicializarFormularioSolicitud() {
             if (respuesta.ok && resultado.success) {
                 alert('¡Solicitud enviada correctamente a Desarrollo Social!');
                 
-                const campoObservaciones = document.querySelector('#seccion-nueva-solicitud textarea');
-                if (campoObservaciones) {
-                    campoObservaciones.value = '';
-                }
+                const campoObs = document.querySelector('#seccion-nueva-solicitud textarea');
+                if (campoObs) campoObs.value = '';
 
-                // 3. Construir las filas de la tabla de familias para el PDF
+                // 3. Estructuración de la tabla de familias para el PDF
                 let cuerpoTablaFamilias = [
                     [
-                        { text: 'DNI', bold: true, fillColor: '#e9ecef', fontSize: 8 },
-                        { text: 'Apellido y Nombre', bold: true, fillColor: '#e9ecef', fontSize: 8 },
+                        { text: 'DNI Jefe', bold: true, fillColor: '#e9ecef', fontSize: 8 },
+                        { text: 'Jefe de Familia', bold: true, fillColor: '#e9ecef', fontSize: 8 },
                         { text: 'Int.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
                         { text: 'Alim.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
-                        { text: 'Fraz.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
-                        { text: 'Colch.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Abrigos', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Frazadas', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Colchones', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
                         { text: 'Agua', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
-                        { text: 'Kits', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' }
+                        { text: 'Kits Hig.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Ropa', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' }
                     ]
                 ];
 
-                if (familiasData && familiasData.length > 0) {
+                if (Array.isArray(familiasData) && familiasData.length > 0) {
                     familiasData.forEach(fam => {
                         cuerpoTablaFamilias.push([
-                            { text: fam.dni_jefe || fam.dni || 'N/D', fontSize: 7 },
-                            { text: fam.apellido_nombre || fam.nombre || 'N/D', fontSize: 7 },
-                            { text: String(fam.cantidad_integrantes || fam.integrantes || '1'), fontSize: 7, alignment: 'center' },
-                            { text: String(fam.unidades_alimentarias || '0'), fontSize: 7, alignment: 'center' },
-                            { text: String(fam.frazadas || '0'), fontSize: 7, alignment: 'center' },
-                            { text: String(fam.colchones || '0'), fontSize: 7, alignment: 'center' },
-                            { text: String(fam.bidones_agua || '0'), fontSize: 7, alignment: 'center' },
-                            { text: String(fam.kits_higiene || '0'), fontSize: 7, alignment: 'center' }
+                            { text: String(fam.dni_jefe || fam.dni || 'N/D'), fontSize: 8 },
+                            { text: String(fam.jefe_familia || fam.nombre || 'N/D'), fontSize: 8 },
+                            { text: String(fam.cantidad_integrantes || '1'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.unidades_alimentarias || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.abrigos || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.frazadas || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.colchones || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.bidones_agua || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.kits_higiene || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.ropa || '0'), fontSize: 8, alignment: 'center' }
                         ]);
                     });
 
-                    // Añadir la fila de totales al final de la tabla de familias
-                    const t = calcularTotales(familiasData);
+                    // Fila de sumatorias/totales
+                    const tot = calcularTotales(familiasData);
                     cuerpoTablaFamilias.push([
-                        { text: 'TOTALES', bold: true, colSpan: 2, fillColor: '#dee2e6', fontSize: 8 },
+                        { text: 'TOTALES ACUMULADOS', bold: true, colSpan: 2, fillColor: '#dee2e6', fontSize: 8 },
                         {},
-                        { text: String(t.integrantes), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
-                        { text: String(t.unidades_alimentarias), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
-                        { text: String(t.frazadas), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
-                        { text: String(t.colchones), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
-                        { text: String(t.bidones_agua), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
-                        { text: String(t.kits_higiene), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' }
+                        { text: String(tot.integrantes), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.unidades_alimentarias), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.abrigos), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.frazadas), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.colchones), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.bidones_agua), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.kits_higiene), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.ropa), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' }
                     ]);
-
                 } else {
                     cuerpoTablaFamilias.push([
-                        { text: 'Asistencia y provisión solicitada en base al relevamiento operativo general.', colSpan: 8, alignment: 'center', fontSize: 9, italics: true },
-                        {}, {}, {}, {}, {}, {}, {}
+                        { text: 'No se encontraron registros individuales de familias para este relevamiento.', colSpan: 10, alignment: 'center', fontSize: 9, italics: true },
+                        {}, {}, {}, {}, {}, {}, {}, {}, {}
                     ]);
                 }
 
-                // Definición del documento PDF
+                // Documento PDF con Orientación Horizontal (landscape) para máximo espacio disponible
                 const docDefinition = {
-                    pageOrientation: 'portrait',
+                    pageSize: 'A4',
+                    pageOrientation: 'landscape',
+                    pageMargins: [30, 30, 30, 30],
                     content: [
                         { text: 'DEFENSA CIVIL - PROVINCIA DE SANTIAGO DEL ESTERO', style: 'header', alignment: 'center' },
-                        { text: 'INFORME OFICIAL DE SOLICITUD DE PROVISIÓN', style: 'subheader', alignment: 'center', margin: [0, 0, 0, 15] },
+                        { text: 'INFORME OFICIAL DE SOLICITUD DE PROVISIÓN', style: 'subheader', alignment: 'center', margin: [0, 0, 0, 12] },
                         
                         {
-                            style: 'tableExample',
                             table: {
-                                widths: ['20%', '30%', '20%', '30%'],
+                                widths: ['15%', '35%', '15%', '35%'],
                                 body: [
                                     [
                                         { text: 'ID Relevamiento:', bold: true, fontSize: 9 }, { text: idTexto, fontSize: 9 },
@@ -289,33 +290,33 @@ export function inicializarFormularioSolicitud() {
                                 ]
                             },
                             layout: 'lightHorizontalLines',
-                            margin: [0, 0, 0, 15]
+                            margin: [0, 0, 0, 12]
                         },
 
-                        { text: 'Detalle de Familias Damnificadas y Requerimientos:', bold: true, fontSize: 10, margin: [0, 0, 0, 5] },
+                        { text: 'Detalle de Familias Damnificadas y Requerimientos de Insumos:', bold: true, fontSize: 10, margin: [0, 0, 0, 5] },
                         {
                             table: {
                                 headerRows: 1,
-                                widths: ['18%', '32%', '10%', '10%', '10%', '10%', '10%', '10%'],
+                                widths: ['12%', '26%', '7%', '7%', '8%', '8%', '8%', '8%', '8%', '8%'],
                                 body: cuerpoTablaFamilias
                             },
                             margin: [0, 0, 0, 15]
                         },
                         
                         { text: 'Observaciones / Justificación:', bold: true, fontSize: 10 },
-                        { text: observaciones || 'Sin observaciones adicionales.', fontSize: 9, margin: [0, 0, 0, 30] },
+                        { text: observaciones || 'Sin observaciones adicionales.', fontSize: 9, margin: [0, 0, 0, 25] },
                         
                         {
                             columns: [
                                 { text: '___________________________\nFirma Operativo / Defensa Civil', alignment: 'center', fontSize: 9 },
                                 { text: '___________________________\nRecibe Desarrollo Social', alignment: 'center', fontSize: 9 }
                             ],
-                            margin: [0, 20, 0, 0]
+                            margin: [0, 15, 0, 0]
                         }
                     ],
                     styles: {
-                        header: { fontSize: 14, bold: true, color: '#0d6efd' },
-                        subheader: { fontSize: 10, italics: true, color: '#6c757d' }
+                        header: { fontSize: 13, bold: true, color: '#0d6efd' },
+                        subheader: { fontSize: 9, italics: true, color: '#6c757d' }
                     }
                 };
 
@@ -329,10 +330,9 @@ export function inicializarFormularioSolicitud() {
                     `*Urgencia:* ${urgencia}\n` +
                     `*Observaciones:* ${observaciones || 'Ninguna'}\n` +
                     `----------------------------------\n` +
-                    `_Se ha generado el documento PDF correspondiente._`;
+                    `_Se adjunta documento PDF de solicitud._`;
 
-                const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`;
-                window.open(urlWhatsApp, '_blank');
+                window.open(`https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`, '_blank');
 
                 await cargarRelevamientosEnEspera();
             } else {

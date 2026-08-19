@@ -106,20 +106,22 @@ export const crearFamilia = async (req, res) => {
     }
 };
 
-// 2. OBTENER FAMILIAS (Filtradas por Relevamiento si se provee el ID)
+// backend/controllers/familiacontroller.js
 export const obtenerFamilias = async (req, res) => {
     try {
-        const { id_relevamiento, prioridad_familiar, zona } = req.query;
+        // Obtenemos el id tanto si viene por ruta (/relevamiento/:id) como por query (?id_relevamiento=X)
+        const idRelevamiento = req.params.id || req.query.id_relevamiento;
+        const { prioridad_familiar, zona } = req.query;
 
         const whereClause = {};
-        if (id_relevamiento) whereClause.id_relevamiento = id_relevamiento;
+        if (idRelevamiento) whereClause.id_relevamiento = idRelevamiento;
         if (prioridad_familiar) whereClause.prioridad_familiar = prioridad_familiar;
         if (zona) whereClause.zona = zona;
 
-        const familias = await Familia.findAll({
+        const familias = await familia.findAll({
             where: whereClause,
             include: [
-                { model: Relevamiento },
+                { model: relevamiento },
                 { model: necesidadFamilia, as: 'necesidades' }    
             ]
         });
@@ -129,7 +131,6 @@ export const obtenerFamilias = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.' });
     }
 };
-
 // OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
 export const obtenerFamiliaPorId = async (req, res) => {
     try {
