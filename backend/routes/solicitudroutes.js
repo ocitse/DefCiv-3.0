@@ -30,18 +30,18 @@ router.post('/', async (req, res) => {
 
         console.log(`Guardando solicitud del relevamiento ID: ${relevamientoId} con observaciones: ${observaciones}`);
 
-        // A. Actualizamos el relevamiento a 'En Proceso'
+        // A. Actualizamos el relevamiento a 'En Proceso' (usando 'id' en lugar de 'id_relevamiento')
         await Relevamiento.update(
             { 
                 estado: 'En Proceso', 
                 observaciones: observaciones 
             }, 
-            { where: { id_relevamiento: relevamientoId } }
+            { where: { id: relevamientoId } }
         );
 
         // B. Buscamos los datos del relevamiento para asignarlos al detalle y destino de la provisión
         const relevamientoInfo = await Relevamiento.findOne({
-            where: { id_relevamiento: relevamientoId }
+            where: { id: relevamientoId }
         });
 
         // C. ¡EL PUENTE AUTOMÁTICO HACIA PROVISIONES!
