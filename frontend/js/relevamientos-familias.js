@@ -27,23 +27,40 @@ export async function ingresarARelevamiento(idRelevamiento) {
             if (respuestaRel.ok) {
                 const rel = await respuestaRel.json();
                 
-                // 🌟 NUEVO: Gestionar la alerta de devolución del administrador
-                const contenedorAlerta = document.getElementById('alerta-devolucion-container');
+                // 🌟 Depuración rápida en consola para verificar qué llega exactamente
+                console.log("Estado:", rel.estado, "| Observaciones:", rel.observaciones);
+
+                // 🌟 Buscamos el contenedor o lo creamos dinámicamente si falta en el HTML
+                let contenedorAlerta = document.getElementById('alerta-devolucion-container');
+                
+                if (!contenedorAlerta) {
+                    // Si por algún motivo el HTML viejo sigue cargado, lo insertamos arriba del contexto
+                    const contextoDiv = document.getElementById('contexto-relevamiento-activo');
+                    if (contextoDiv && contextoDiv.parentNode) {
+                        contenedorAlerta = document.createElement('div');
+                        contenedorAlerta.id = 'alerta-devolucion-container';
+                        contextoDiv.parentNode.insertBefore(contenedorAlerta, contextoDiv);
+                    }
+                }
+
                 if (contenedorAlerta) {
-                    if (rel.observaciones && rel.observaciones.trim() !== '' && (rel.estado === 'en_proceso' || rel.estado === 'en-proceso')) {
+                    // Comprobamos si tiene observaciones (independiente de espacios) y estado en_proceso
+                    if (rel.observaciones && rel.observaciones.trim() !== '' && rel.estado === 'en_proceso') {
                         contenedorAlerta.innerHTML = `
-                            <div class="alert alert-warning border-warning shadow-sm mb-3 d-flex align-items-center" role="alert">
+                            <div class="alert alert-warning border-warning shadow-sm mb-3 d-flex align-items-center" role="alert" style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 5px; width: 100%;">
                                 <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
                                 <div>
-                                    <h6 class="alert-heading fw-bold mb-1 text-dark">¡Relevamiento Devuelto con Observaciones!</h6>
-                                    <p class="mb-0 small text-dark">${rel.observaciones}</p>
+                                    <h6 class="alert-heading fw-bold mb-1 text-dark" style="margin: 0 0 5px 0; font-weight: bold;">¡Relevamiento Devuelto con Observaciones!</h6>
+                                    <p class="mb-0 small text-dark" style="margin: 0;">${rel.observaciones}</p>
                                 </div>
                             </div>
                         `;
                     } else {
-                        contenedorAlerta.innerHTML = ''; // Se limpia si no hay observaciones
+                        contenedorAlerta.innerHTML = ''; 
                     }
                 }
+
+                // Carga normal del contexto territorial
                 const contenedorContexto = document.getElementById('contexto-relevamiento-activo');
                 if (contenedorContexto) {
                     contenedorContexto.innerHTML = `
