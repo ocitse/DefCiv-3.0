@@ -194,7 +194,13 @@ export function inicializarFormularioSolicitud() {
             if (respuesta.ok && resultado.success) {
                 alert('¡Solicitud enviada correctamente a Desarrollo Social!');
                 
-                // 3. Construir las filas de la tabla de familias para el PDF
+                // 3. Limpiar el cuadro de observaciones / justificación inmediatamente
+                const textareaObs = document.querySelector('#seccion-nueva-solicitud textarea');
+                if (textareaObs) {
+                    textareaObs.value = '';
+                }
+
+                // 4. Construir las filas de la tabla de familias para el PDF
                 let cuerpoTablaFamilias = [
                     [
                         { text: 'DNI', bold: true, fillColor: '#e9ecef', fontSize: 9 },
@@ -220,7 +226,7 @@ export function inicializarFormularioSolicitud() {
                     ]);
                 }
 
-                // 4. Definición completa y formal del diseño del PDF oficial
+                // Resto del código del PDF y recarga...
                 const docDefinition = {
                     pageOrientation: 'portrait',
                     content: [
@@ -277,10 +283,8 @@ export function inicializarFormularioSolicitud() {
                     }
                 };
 
-                // Generar y descargar el PDF automáticamente
                 pdfMake.createPdf(docDefinition).download(`Solicitud-Relevamiento-${idRelevamiento}.pdf`);
 
-                // Armar el texto para WhatsApp avisando que el PDF fue generado
                 const textoWhatsApp = `*SOLICITUD DE PROVISIÓN - DEFENSA CIVIL*\n` +
                     `----------------------------------\n` +
                     `*ID Relevamiento:* ${idTexto}\n` +
@@ -289,10 +293,13 @@ export function inicializarFormularioSolicitud() {
                     `*Urgencia:* ${urgencia}\n` +
                     `*Observaciones:* ${observaciones || 'Ninguna'}\n` +
                     `----------------------------------\n` +
-                    `_Se ha generado el documento PDF completo con el detalle de familias y provisiones._`;
+                    `_Se ha generado el documento PDF correspondiente._`;
 
                 const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`;
                 window.open(urlWhatsApp, '_blank');
+
+                const textareaObs = document.querySelector('#seccion-nueva-solicitud textarea');
+                if (textareaObs) textareaObs.value = '';
 
                 await cargarRelevamientosEnEspera();
             } else {
