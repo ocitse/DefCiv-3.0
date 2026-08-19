@@ -166,16 +166,9 @@ export function inicializarFormularioSolicitud() {
         const urgencia = fila.cells[7]?.innerText || 'Media';
 
         try {
-            // 1. Consultar el detalle de las familias asociadas a este relevamiento
+            // 1. Eliminamos el fetch a /familias que da 404 y dejamos un array vacío 
+            // (o puedes mapearlo si los datos vienen en el mismo objeto).
             let familiasData = [];
-            try {
-                const respFamilias = await fetch(`/api/relevamientos/${idRelevamiento}/familias`);
-                if (respFamilias.ok) {
-                    familiasData = await respFamilias.json();
-                }
-            } catch (err) {
-                console.warn('No se pudieron cargar las familias adicionales para el PDF:', err);
-            }
 
             // 2. Enviar la solicitud principal al backend (crea provisión y actualiza estado)
             const respuesta = await fetch('/api/solicitudes', {
@@ -193,14 +186,14 @@ export function inicializarFormularioSolicitud() {
 
             if (respuesta.ok && resultado.success) {
                 alert('¡Solicitud enviada correctamente a Desarrollo Social!');
-
-                // 3. Limpiar el cuadro de observaciones / justificación inmediatamente
-                const textareaObs = document.querySelector('#seccion-nueva-solicitud textarea');
-                if (textareaObs) {
-                    textareaObs.value = '';
+                
+                // Limpiamos el cuadro de observaciones de forma limpia
+                const campoObservaciones = document.querySelector('#seccion-nueva-solicitud textarea');
+                if (campoObservaciones) {
+                    campoObservaciones.value = '';
                 }
 
-                // 4. Construir las filas de la tabla de familias para el PDF
+                // 3. Construir las filas de la tabla de familias para el PDF
                 let cuerpoTablaFamilias = [
                     [
                         { text: 'DNI', bold: true, fillColor: '#e9ecef', fontSize: 9 },
@@ -221,7 +214,7 @@ export function inicializarFormularioSolicitud() {
                     });
                 } else {
                     cuerpoTablaFamilias.push([
-                        { text: 'Detalle general asociado al relevamiento (Sin desglose individual de familias registrado).', colSpan: 4, alignment: 'center', fontSize: 9, italics: true },
+                        { text: 'Asistencia y provisión solicitada en base al relevamiento operativo general.', colSpan: 4, alignment: 'center', fontSize: 9, italics: true },
                         {}, {}, {}
                     ]);
                 }
