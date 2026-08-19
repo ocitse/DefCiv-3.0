@@ -109,7 +109,6 @@ export const crearFamilia = async (req, res) => {
 // backend/controllers/familiacontroller.js
 export const obtenerFamilias = async (req, res) => {
     try {
-        // Capturamos el id tanto si viene en la ruta (/relevamiento/:id) como por query (?id_relevamiento=X)
         const idRelevamiento = req.params.id || req.query.id_relevamiento;
         const { prioridad_familiar, zona } = req.query;
 
@@ -124,12 +123,10 @@ export const obtenerFamilias = async (req, res) => {
             whereClause.zona = zona;
         }
 
+        // Consultamos directo sobre el modelo de familia para evitar errores de asociaciones cruzadas
         const familias = await familia.findAll({
             where: whereClause,
-            include: [
-                { model: relevamiento, required: false },
-                { model: necesidadFamilia, as: 'necesidades', required: false }    
-            ]
+            order: [['id_familia', 'ASC']]
         });
         
         return res.json(familias);
