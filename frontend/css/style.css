@@ -2,7 +2,6 @@
    DEFENSA CIVIL — SANTIAGO DEL ESTERO
    Reskin de Bootstrap 5 con la identidad institucional
    ============================================ */
-
    :root {
     --navy-900: #0d1730;
     --navy-800: #131f42;
@@ -139,7 +138,8 @@
   .section-alt { background-color: var(--gray-50); }
   
   /* CICLO (etapas oficiales) */
-  .stage-card { border: none; border-top: 3px solid var(--navy-700); border-radius: 0.5rem; box-shadow: 0 6px 20px rgba(13,23,48,0.06); height: 100%; }
+  .stage-card { border: none; border-top: 3px solid var(--navy-700); border-radius: 0.5rem; box-shadow: 0 6px 20px rgba(13,23,48,0.06); height: 100%; transition: transform .2s ease, box-shadow .2s ease; }
+  .stage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(13,23,48,0.12); }
   .stage-card .stage-number { font-family: var(--font-mono); font-size: 0.75rem; color: var(--red-alert); letter-spacing: 1px; }
   
   /* BALANCE / ESTADISTICAS */
@@ -162,13 +162,20 @@
     font-family: var(--font-mono); font-size: 0.8rem;
     background: linear-gradient(135deg, var(--navy-700), var(--navy-900));
   }
+  .news-carousel .slide-image {
+    height: 200px;
+    width: 100%;
+    border-radius: 0.4rem;
+    object-fit: cover;
+  }
   .news-carousel .badge-tag { font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.5px; background-color: rgba(214,40,40,0.1); color: var(--red-alert); }
   .news-carousel .carousel-control-prev, .news-carousel .carousel-control-next { width: 3rem; }
   .news-carousel .carousel-control-prev-icon, .news-carousel .carousel-control-next-icon { background-color: var(--navy-700); border-radius: 50%; padding: 0.7rem; }
   .news-carousel .carousel-indicators [data-bs-target] { background-color: var(--navy-500); }
   
   /* ALERTAS */
-  .alert-scale .alert-level { padding: 1.5rem 1.3rem 1.7rem; color: #fff; border-radius: 0.4rem; height: 100%; }
+  .alert-scale .alert-level { padding: 1.5rem 1.3rem 1.7rem; color: #fff; border-radius: 0.4rem; height: 100%; transition: transform .2s ease, box-shadow .2s ease; }
+  .alert-scale .alert-level:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(13,23,48,0.12); }
   .alert-scale .alert-level.verde { background-color: var(--alert-green); }
   .alert-scale .alert-level.amarillo { background-color: var(--alert-yellow); color: var(--navy-900); }
   .alert-scale .alert-level.naranja { background-color: var(--alert-orange); }
@@ -210,6 +217,5 @@
   .back-to-top .icon { width: 1.1em; height: 1.1em; }
   
   @media (max-width: 767px) {
-    .news-carousel .slide-image-placeholder { height: 140px; }
+    .news-carousel .slide-image-placeholder, .news-carousel .slide-image { height: 140px; }
   }
-  

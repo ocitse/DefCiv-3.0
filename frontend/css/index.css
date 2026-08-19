@@ -63,6 +63,18 @@ body {
     color: white;
 }
 
+.dash-card-btn {
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.dash-card-btn:hover,
+.dash-card-btn:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Tablas compactas */
 .table th, 
 .table td {
