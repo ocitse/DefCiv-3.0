@@ -80,7 +80,7 @@ export async function cargarRelevamientosEnEspera() {
         const data = await respuesta.json();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">No hay relevamientos nuevos disponibles</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay relevamientos nuevos disponibles</td></tr>`;
             return;
         }
         tbody.innerHTML = data.map(item => `
@@ -99,7 +99,7 @@ export async function cargarRelevamientosEnEspera() {
         `).join('');
     } catch (error) {
         console.error("Error al cargar relevamientos en espera:", error);
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
     }
 }
 
@@ -154,15 +154,30 @@ export function inicializarFormularioSolicitud() {
         const idRelevamiento = seleccionado.value;
         const observaciones = document.querySelector('#seccion-nueva-solicitud textarea')?.value || '';
 
-        // Buscamos la fila completa en la tabla para extraer los datos visuales y armar el mensaje de WhatsApp
+        // Extraemos los datos de la fila respetando las 8 columnas exactas de la tabla:
+        // [0] Checkbox, [1] ID, [2] Fecha, [3] Ubicación, [4] Estado, [5] Tipo Evento, [6] Relevador, [7] Urgencia
         const fila = seleccionado.closest('tr');
+        const idTexto = fila.cells[1]?.innerText || `#${idRelevamiento}`;
         const fecha = fila.cells[2]?.innerText || 'Sin fecha';
         const ubicacion = fila.cells[3]?.innerText || 'Sin ubicación';
-        const evento = fila.cells[4]?.innerText || 'Sin evento';
-        const relevador = fila.cells[5]?.innerText || 'Sin relevador';
-        const urgencia = fila.cells[6]?.innerText || 'Media';
+        const estado = fila.cells[4]?.innerText || '';
+        const evento = fila.cells[5]?.innerText || 'Sin evento';
+        const relevador = fila.cells[6]?.innerText || 'Sin relevador';
+        const urgencia = fila.cells[7]?.innerText || 'Media';
 
         try {
+            // 1. Consultar el detalle de las familias asociadas a este relevamiento
+            let familiasData = [];
+            try {
+                const respFamilias = await fetch(`/api/relevamientos/${idRelevamiento}/familias`);
+                if (respFamilias.ok) {
+                    familiasData = await respFamilias.json();
+                }
+            } catch (err) {
+                console.warn('No se pudieron cargar las familias adicionales para el PDF:', err);
+            }
+
+            // 2. Enviar la solicitud principal al backend (crea provisión y actualiza estado)
             const respuesta = await fetch('/api/solicitudes', {
                 method: 'POST',
                 headers: {
@@ -176,59 +191,111 @@ export function inicializarFormularioSolicitud() {
 
             const resultado = await respuesta.json();
 
-            // Dentro de tu evento 'click' del botón de envío en solicitudes.js:
-if (respuesta.ok && resultado.success) {
-    alert('¡Solicitud enviada correctamente a Desarrollo Social!');
-    
-    // Definición del diseño del PDF oficial
-    const docDefinition = {
-        content: [
-            { text: 'DEFENSA CIVIL - PROVINCIA DE SANTIAGO DEL ESTERO', style: 'header', alignment: 'center' },
-            { text: 'INFORME DE SOLICITUD DE PROVISIÓN', style: 'subheader', alignment: 'center', margin: [0, 0, 0, 20] },
-            
-            { text: `ID Relevamiento: #${idRelevamiento}`, bold: true },
-            { text: `Fecha de Emisión: ${fecha}` },
-            { text: `Ubicación: ${ubicacion}` },
-            { text: `Tipo de Evento: ${evento}` },
-            { text: `Relevador Asignado: ${relevador}` },
-            { text: `Nivel de Urgencia: ${urgencia}`, margin: [0, 0, 0, 15] },
-            
-            { text: 'Observaciones / Justificación:', bold: true },
-            { text: observaciones || 'Sin observaciones adicionales.', margin: [0, 0, 0, 30] },
-            
-            {
-                columns: [
-                    { text: '___________________________\nFirma Operativo / Defensa Civil', alignment: 'center' },
-                    { text: '___________________________\nRecibe Desarrollo Social', alignment: 'center' }
-                ],
-                margin: [0, 50, 0, 0]
-            }
-        ],
-        styles: {
-            header: { fontSize: 16, bold: true, color: '#0d6efd' },
-            subheader: { fontSize: 12, italics: true, color: '#6c757d' }
-        }
-    };
+            if (respuesta.ok && resultado.success) {
+                alert('¡Solicitud enviada correctamente a Desarrollo Social!');
+                
+                // 3. Construir las filas de la tabla de familias para el PDF
+                let cuerpoTablaFamilias = [
+                    [
+                        { text: 'DNI', bold: true, fillColor: '#e9ecef', fontSize: 9 },
+                        { text: 'Apellido y Nombre', bold: true, fillColor: '#e9ecef', fontSize: 9 },
+                        { text: 'Integrantes', bold: true, fillColor: '#e9ecef', fontSize: 9 },
+                        { text: 'Requerimientos / Asistencia', bold: true, fillColor: '#e9ecef', fontSize: 9 }
+                    ]
+                ];
 
-    // Generar y descargar el PDF automáticamente
-    pdfMake.createPdf(docDefinition).download(`Solicitud-Relevamiento-${idRelevamiento}.pdf`);
+                if (familiasData && familiasData.length > 0) {
+                    familiasData.forEach(fam => {
+                        cuerpoTablaFamilias.push([
+                            { text: fam.dni_jefe || fam.dni || 'N/D', fontSize: 8 },
+                            { text: fam.apellido_nombre || fam.nombre || 'N/D', fontSize: 8 },
+                            { text: String(fam.integrantes || '1'), fontSize: 8, alignment: 'center' },
+                            { text: fam.requerimientos || fam.detalle || 'Asistencia general solicitada', fontSize: 8 }
+                        ]);
+                    });
+                } else {
+                    cuerpoTablaFamilias.push([
+                        { text: 'Detalle general asociado al relevamiento (Sin desglose individual de familias registrado).', colSpan: 4, alignment: 'center', fontSize: 9, italics: true },
+                        {}, {}, {}
+                    ]);
+                }
 
-    // Armar el texto para WhatsApp avisando que el PDF fue generado
-    const textoWhatsApp = `*SOLICITUD DE PROVISIÓN - DEFENSA CIVIL*\n` +
-        `----------------------------------\n` +
-        `*ID Relevamiento:* #${idRelevamiento}\n` +
-        `*Ubicación:* ${ubicacion}\n` +
-        `*Evento:* ${evento}\n` +
-        `*Urgencia:* ${urgencia}\n` +
-        `*Observaciones:* ${observaciones || 'Ninguna'}\n` +
-        `----------------------------------\n` +
-        `_Se ha generado el documento PDF correspondiente en el sistema._`;
+                // 4. Definición completa y formal del diseño del PDF oficial
+                const docDefinition = {
+                    pageOrientation: 'portrait',
+                    content: [
+                        { text: 'DEFENSA CIVIL - PROVINCIA DE SANTIAGO DEL ESTERO', style: 'header', alignment: 'center' },
+                        { text: 'INFORME OFICIAL DE SOLICITUD DE PROVISIÓN', style: 'subheader', alignment: 'center', margin: [0, 0, 0, 15] },
+                        
+                        {
+                            style: 'tableExample',
+                            table: {
+                                widths: ['20%', '30%', '20%', '30%'],
+                                body: [
+                                    [
+                                        { text: 'ID Relevamiento:', bold: true, fontSize: 9 }, { text: idTexto, fontSize: 9 },
+                                        { text: 'Fecha Emisión:', bold: true, fontSize: 9 }, { text: fecha, fontSize: 9 }
+                                    ],
+                                    [
+                                        { text: 'Ubicación:', bold: true, fontSize: 9 }, { text: ubicacion, fontSize: 9 },
+                                        { text: 'Tipo de Evento:', bold: true, fontSize: 9 }, { text: evento, fontSize: 9 }
+                                    ],
+                                    [
+                                        { text: 'Relevador:', bold: true, fontSize: 9 }, { text: relevador, fontSize: 9 },
+                                        { text: 'Nivel Urgencia:', bold: true, fontSize: 9 }, { text: urgencia, fontSize: 9 }
+                                    ]
+                                ]
+                            },
+                            layout: 'lightHorizontalLines',
+                            margin: [0, 0, 0, 15]
+                        },
 
-    const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`;
-    window.open(urlWhatsApp, '_blank');
+                        { text: 'Detalle de Familias Damnificadas y Requerimientos:', bold: true, fontSize: 10, margin: [0, 0, 0, 5] },
+                        {
+                            table: {
+                                headerRows: 1,
+                                widths: ['15%', '35%', '15%', '35%'],
+                                body: cuerpoTablaFamilias
+                            },
+                            margin: [0, 0, 0, 15]
+                        },
+                        
+                        { text: 'Observaciones / Justificación:', bold: true, fontSize: 10 },
+                        { text: observaciones || 'Sin observaciones adicionales.', fontSize: 9, margin: [0, 0, 0, 30] },
+                        
+                        {
+                            columns: [
+                                { text: '___________________________\nFirma Operativo / Defensa Civil', alignment: 'center', fontSize: 9 },
+                                { text: '___________________________\nRecibe Desarrollo Social', alignment: 'center', fontSize: 9 }
+                            ],
+                            margin: [0, 20, 0, 0]
+                        }
+                    ],
+                    styles: {
+                        header: { fontSize: 14, bold: true, color: '#0d6efd' },
+                        subheader: { fontSize: 10, italics: true, color: '#6c757d' }
+                    }
+                };
 
-    await cargarRelevamientosEnEspera();
-} else {
+                // Generar y descargar el PDF automáticamente
+                pdfMake.createPdf(docDefinition).download(`Solicitud-Relevamiento-${idRelevamiento}.pdf`);
+
+                // Armar el texto para WhatsApp avisando que el PDF fue generado
+                const textoWhatsApp = `*SOLICITUD DE PROVISIÓN - DEFENSA CIVIL*\n` +
+                    `----------------------------------\n` +
+                    `*ID Relevamiento:* ${idTexto}\n` +
+                    `*Ubicación:* ${ubicacion}\n` +
+                    `*Evento:* ${evento}\n` +
+                    `*Urgencia:* ${urgencia}\n` +
+                    `*Observaciones:* ${observaciones || 'Ninguna'}\n` +
+                    `----------------------------------\n` +
+                    `_Se ha generado el documento PDF completo con el detalle de familias y provisiones._`;
+
+                const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`;
+                window.open(urlWhatsApp, '_blank');
+
+                await cargarRelevamientosEnEspera();
+            } else {
                 alert(resultado.error || 'Error al enviar la solicitud.');
             }
         } catch (error) {
