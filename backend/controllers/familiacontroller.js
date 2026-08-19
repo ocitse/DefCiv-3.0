@@ -109,26 +109,33 @@ export const crearFamilia = async (req, res) => {
 // backend/controllers/familiacontroller.js
 export const obtenerFamilias = async (req, res) => {
     try {
-        // Obtenemos el id tanto si viene por ruta (/relevamiento/:id) como por query (?id_relevamiento=X)
+        // Capturamos el id tanto si viene en la ruta (/relevamiento/:id) como por query (?id_relevamiento=X)
         const idRelevamiento = req.params.id || req.query.id_relevamiento;
         const { prioridad_familiar, zona } = req.query;
 
         const whereClause = {};
-        if (idRelevamiento) whereClause.id_relevamiento = idRelevamiento;
-        if (prioridad_familiar) whereClause.prioridad_familiar = prioridad_familiar;
-        if (zona) whereClause.zona = zona;
+        if (idRelevamiento) {
+            whereClause.id_relevamiento = idRelevamiento;
+        }
+        if (prioridad_familiar) {
+            whereClause.prioridad_familiar = prioridad_familiar;
+        }
+        if (zona) {
+            whereClause.zona = zona;
+        }
 
         const familias = await familia.findAll({
             where: whereClause,
             include: [
-                { model: relevamiento },
-                { model: necesidadFamilia, as: 'necesidades' }    
+                { model: relevamiento, required: false },
+                { model: necesidadFamilia, as: 'necesidades', required: false }    
             ]
         });
-        res.json(familias);
+        
+        return res.json(familias);
     } catch (error) {
         console.error('Error al obtener familias:', error);
-        res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.' });
+        return res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.', error: error.message });
     }
 };
 // OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
