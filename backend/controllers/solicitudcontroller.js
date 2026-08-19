@@ -1,3 +1,4 @@
+// backend/controllers/solicitudcontroller.js
 import { QueryTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import Relevamiento from '../models/relevamiento.js';
@@ -24,16 +25,16 @@ export const enviarSolicitud = async (req, res) => {
             return res.status(400).json({ success: false, error: "Falta el ID del relevamiento." });
         }
 
-        // A. Actualizamos el relevamiento
+        // A. Cambiamos el estado a 'En Espera' según el flujo correcto
         await Relevamiento.update(
             { 
-                estado: 'En Proceso', 
+                estado: 'En Espera', 
                 observaciones: observaciones 
             }, 
             { where: { id_relevamiento: relevamientoId } }
         );
 
-        // B. Buscamos info para el puente
+        // B. Buscamos la información para la provisión
         const relevamientoInfo = await Relevamiento.findOne({
             where: { id_relevamiento: relevamientoId }
         });
@@ -41,7 +42,7 @@ export const enviarSolicitud = async (req, res) => {
         const detalleInsumos = observaciones || 'Insumos / Ayuda solicitada según relevamiento';
         const destinoEntrega = relevamientoInfo ? (relevamientoInfo.direccion || 'Dirección no especificada') : 'Destino general';
 
-        // C. Insertamos automáticamente en la tabla provisiones
+        // C. Insertamos en la tabla de provisiones
         await sequelize.query(
             'INSERT INTO provisiones (solicitud_id, detalle, destino, estado) VALUES (?, ?, ?, "Enviado")',
             { 
@@ -50,7 +51,7 @@ export const enviarSolicitud = async (req, res) => {
             }
         );
 
-        res.status(201).json({ success: true, message: "Solicitud enviada y provisión generada correctamente." });
+        res.status(201).json({ success: true, message: "Solicitud enviada correctamente y relevamiento en espera." });
     } catch (error) {
         console.error("Error al guardar la solicitud y crear la provisión:", error);
         res.status(500).json({ success: false, error: "Error al procesar la solicitud" });
