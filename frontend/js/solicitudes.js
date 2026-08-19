@@ -83,7 +83,6 @@ export async function cargarRelevamientosEnEspera() {
             tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">No hay relevamientos nuevos disponibles</td></tr>`;
             return;
         }
-
         tbody.innerHTML = data.map(item => `
             <tr>
                 <td>
