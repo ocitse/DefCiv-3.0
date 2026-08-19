@@ -5,13 +5,14 @@ import {
     obtenerRelevamientoPorId, 
     actualizarRelevamiento,
     eliminarRelevamiento,
-    completarRelevamiento,
+    devolverRelevamiento,
 } from '../controllers/relevamientocontroller.js';
 import { verificarToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Rutas protegidas y ordenadas del circuito
+router.put('/devolver/:id', verificarToken, devolverRelevamiento);
 router.get('/', verificarToken, obtenerrelevamientos);
 router.post('/', verificarToken, crearrelevamiento);
 router.get('/:id', verificarToken, obtenerRelevamientoPorId);

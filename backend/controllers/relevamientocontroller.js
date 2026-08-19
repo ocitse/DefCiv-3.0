@@ -244,3 +244,28 @@ export const completarRelevamiento = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al procesar el cambio de estado.' });
     }
 };
+// 6. DEVOLVER UN RELEVAMIENTO (Solo para Admin)
+export const devolverRelevamiento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { motivo } = req.body; // Recibimos el motivo de devolución desde el frontend
+
+        const rel = await relevamiento.findByPk(id);
+        if (!rel) return res.status(404).json({ mensaje: 'No se encontró el relevamiento.' });
+
+        // Preparamos el texto de observación (puedes concatenarlo con las observaciones anteriores si ya existían)
+        const observacionesActuales = rel.observaciones ? rel.observaciones + "\n" : "";
+        const nuevaObservacion = `${observacionesActuales}[DEVUELTO POR ADMIN]: ${motivo || 'Sin especificar motivo'}`;
+
+        // Lo devolvemos a 'en_proceso' y guardamos la justificación
+        await rel.update({ 
+            estado: 'en_proceso',
+            observaciones: nuevaObservacion
+        });
+        
+        res.json({ mensaje: 'Relevamiento devuelto al relevador con éxito.', data: rel });
+    } catch (error) {
+        console.error('Error al devolver relevamiento:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al devolver el relevamiento.' });
+    }
+};
