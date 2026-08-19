@@ -6,11 +6,11 @@ import Relevamiento from '../models/relevamiento.js';
 
 const router = express.Router();
 
-// 1. Obtener relevamientos en espera (los que están como 'Nuevo')
+// 1. Obtener relevamientos en espera (los que ya están 'completado' listos para solicitud)
 router.get('/en-espera', async (req, res) => {
     try {
         const enEspera = await Relevamiento.findAll({ 
-            where: { estado: 'Nuevo' } 
+            where: { estado: 'completado' } 
         });
         res.json(enEspera);
     } catch (error) {
