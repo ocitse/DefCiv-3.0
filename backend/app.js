@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -16,8 +16,6 @@ import familiaroutes from './routes/familiaroutes.js';
 import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
 import solicitudroutes from './routes/solicitudroutes.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
