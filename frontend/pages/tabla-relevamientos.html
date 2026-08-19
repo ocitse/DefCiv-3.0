@@ -69,3 +69,30 @@
     <!-- Controles de Paginación Local -->
     <div id="contenedor-paginacion-relevamientos" class="d-flex justify-content-between align-items-center mt-3"></div>
 </div>
+
+<!-- Modal para Devolver Relevamiento con Observaciones -->
+<div class="modal fade" id="modalDevolucionRelevamiento" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalDevolucionLabel">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i> Devolver Relevamiento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="devolucion_id_relevamiento">
+                <div class="mb-3">
+                    <label for="devolucion_motivo" class="form-label fw-semibold">Motivo de la devolución / Observaciones:</label>
+                    <textarea class="form-control" id="devolucion_motivo" rows="4" placeholder="Indique qué correcciones o ajustes debe realizar el relevador..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning btn-sm text-dark fw-bold" onclick="confirmarDevolucionRelevamiento()">
+                    <i class="bi bi-send me-1"></i> Confirmar Devolución
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

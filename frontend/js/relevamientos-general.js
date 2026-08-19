@@ -340,6 +340,7 @@ function renderizarFilasRelevamientos(relevamientos) {
         const esNuevo = estadoRaw === 'nuevo';
         const esEnProceso = estadoRaw === 'en-proceso' || estadoRaw === 'en proceso';
         const esActivo = esNuevo || esEnProceso;
+        const esCompletado = estadoRaw === 'completado' || estadoRaw === 'finalizado';
 
         return `
         <tr>
@@ -363,6 +364,11 @@ function renderizarFilasRelevamientos(relevamientos) {
                         <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
                             <i class="bi bi-check-circle"></i>
                         </button>
+                        ` : esCompletado ? `
+                    <!-- 🌟 AQUÍ APARECE EL BOTÓN DE DEVOLVER CUANDO ESTÁ COMPLETADO -->
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${r.id_relevamiento || r.id}')" title="Devolver al relevador con observaciones">
+                        <i class="bi bi-arrow-counterclockwise"></i> Devolver
+                    </button>
                     ` : ''}
                 ` : `
                     <span class="badge bg-secondary align-self-center">Bloqueado</span>
@@ -514,6 +520,66 @@ export async function completarRelevamientoGeneral(idRelevamiento) {
         mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
     }
 }
+
+// 1. Función para abrir el modal y guardar temporalmente el ID del relevamiento
+window.abrirModalDevolucion = function(idRelevamiento) {
+    const inputId = document.getElementById('devolucion_id_relevamiento');
+    const inputMotivo = document.getElementById('devolucion_motivo');
+    
+    if (inputId) inputId.value = idRelevamiento;
+    if (inputMotivo) inputMotivo.value = ''; // Limpiar campo anterior
+
+    // Mostrar el modal usando Bootstrap
+    const modalElement = document.getElementById('modalDevolucionRelevamiento');
+    if (modalElement && typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+};
+
+// 2. Función para confirmar la devolución y enviarla al servidor
+window.confirmarDevolucionRelevamiento = async function() {
+    const idRelevamiento = document.getElementById('devolucion_id_relevamiento')?.value;
+    const motivo = document.getElementById('devolucion_motivo')?.value.trim();
+
+    if (!motivo) {
+        mostrarNotificacion('Por favor, ingrese el motivo de la devolución.', 'error');
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}/devolver`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ motivo })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            mostrarNotificacion(resultado.mensaje || 'Relevamiento devuelto con éxito.', 'success');
+            
+            // Cerrar el modal
+            const modalElement = document.getElementById('modalDevolucionRelevamiento');
+            if (modalElement && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+            }
+
+            // Recargar la tabla para ver reflejado el cambio de estado
+            cargarTablaRelevamientos();
+        } else {
+            mostrarNotificacion(resultado.mensaje || 'Error al intentar devolver el relevamiento.', 'error');
+        }
+    } catch (error) {
+        console.error('Error de red al devolver relevamiento:', error);
+        mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
+    }
+};
 
 // No olvides exponerla en el objeto window al final del archivo:
 window.completarRelevamientoGeneral = completarRelevamientoGeneral;
