@@ -338,9 +338,9 @@ function renderizarFilasRelevamientos(relevamientos) {
         // Normalizamos el estado para limpiar espacios y evaluar con seguridad
         const estadoRaw = (r.estado || '').toLowerCase().trim();
         const esNuevo = estadoRaw === 'nuevo';
-        const esEnProceso = estadoRaw === 'en-proceso' || estadoRaw === 'en proceso';
+        const esEnProceso = estadoRaw === 'en_proceso' || estadoRaw === 'en-proceso' || estadoRaw === 'en proceso';
         const esActivo = esNuevo || esEnProceso;
-        const esCompletado = estadoRaw === 'completado' || estadoRaw === 'finalizado';
+        const esCompletado = estadoRaw === 'completado';
 
         console.log(`Relevamiento ID: ${r.id_relevamiento || r.id} - Estado leído: "${estadoRaw}" - ¿Es completado?: ${esCompletado}`);
 
@@ -356,42 +356,39 @@ function renderizarFilasRelevamientos(relevamientos) {
             <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
             <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
             <td class="text-center">${r.familias ? r.familias.length : 0}</td>
+            
             <td class="text-center">
-    <div class="d-flex justify-content-center gap-1">
-        
-        ${esActivo ? `
-            <!-- Si está Nuevo o En Proceso -->
-            <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
-                <i class="bi bi-pencil-square"></i>
-            </button>
-            ${esEnProceso ? `
-                <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
-                    <i class="bi bi-check-circle"></i>
-                </button>
-            ` : ''}
-        ` : esCompletado ? `
-            <!-- 🌟 SI ESTÁ COMPLETADO: Aquí aparece el botón de Devolver que queríamos -->
-            <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${r.id_relevamiento || r.id}')" title="Devolver al relevador con observaciones">
-                <i class="bi bi-arrow-counterclockwise"></i> Devolver
-            </button>
-        ` : `
-            <span class="badge bg-secondary align-self-center">Bloqueado</span>
-        `}
+                <div class="d-flex justify-content-center gap-1">
+                ${esCompletado ? `
+                    <!-- 🌟 SI ESTÁ COMPLETADO: Aquí aparece el botón de Devolver -->
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${r.id_relevamiento || r.id}')" title="Devolver al relevador con observaciones">
+                        <i class="bi bi-arrow-counterclockwise"></i> Devolver
+                    </button>
+                ` : `
+                    <!-- Si está Nuevo o En Proceso (incluyendo los devueltos) -->
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    ${esEnProceso ? `
+                    <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
+                        <i class="bi bi-check-circle"></i>
+                    </button>
+                    ` : ''}
+                `}
 
-        <!-- Botones que aparecen siempre para todos los estados -->
-        <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
-            <i class="bi bi-eye"></i>
-        </button>
-        <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
-            <i class="bi bi-trash"></i>
-        </button>
-    </div>
-</td>
+                <!-- Botones que aparecen siempre para todos los estados -->
+                <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
+                    <i class="bi bi-trash"></i>
+                </button>
+                </div>
+            </td>
         </tr>
     `;
     }).join('');
 }
-
 // Renderiza los controles de paginación para Relevamientos
 function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, totalPaginas) {
     const contenedor = document.getElementById('contenedor-paginacion-relevamientos');
