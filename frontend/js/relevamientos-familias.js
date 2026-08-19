@@ -30,7 +30,7 @@ export async function ingresarARelevamiento(idRelevamiento) {
                 // 🌟 NUEVO: Gestionar la alerta de devolución del administrador
                 const contenedorAlerta = document.getElementById('alerta-devolucion-container');
                 if (contenedorAlerta) {
-                    if (rel.observaciones && rel.observaciones.trim() !== '' && rel.estado === 'en-proceso') {
+                    if (rel.observaciones && rel.observaciones.trim() !== '' && (rel.estado === 'en_proceso' || rel.estado === 'en-proceso')) {
                         contenedorAlerta.innerHTML = `
                             <div class="alert alert-warning border-warning shadow-sm mb-3 d-flex align-items-center" role="alert">
                                 <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
