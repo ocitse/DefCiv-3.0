@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import Familia from '../models/familia.js';
+import FamiliaModel from '../models/familia.js';
 import Relevamiento from '../models/relevamiento.js';
 import necesidadFamilia from '../models/necesidadFamilia.js';
 import Documentacion from '../models/Documentacion.js'; // Asegúrate de tener este modelo creado
@@ -110,26 +110,18 @@ export const crearFamilia = async (req, res) => {
 export const obtenerFamilias = async (req, res) => {
     try {
         const idRelevamiento = req.params.id || req.query.id_relevamiento;
-        const { prioridad_familiar, zona } = req.query;
-
+        
         const whereClause = {};
         if (idRelevamiento) {
             whereClause.id_relevamiento = idRelevamiento;
         }
-        if (prioridad_familiar) {
-            whereClause.prioridad_familiar = prioridad_familiar;
-        }
-        if (zona) {
-            whereClause.zona = zona;
-        }
 
-        // Consultamos directo sobre el modelo de familia para evitar errores de asociaciones cruzadas
-        const familias = await familias.findAll({
-            where: whereClause,
-            order: [['id_familia', 'ASC']]
+        // Consultamos usando el nombre único del modelo
+        const listaFamilias = await FamiliaModel.findAll({
+            where: whereClause
         });
         
-        return res.json(familias);
+        return res.json(listaFamilias);
     } catch (error) {
         console.error('Error al obtener familias:', error);
         return res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.', error: error.message });
