@@ -124,7 +124,7 @@ export const obtenerFamilias = async (req, res) => {
         }
 
         // Consultamos directo sobre el modelo de familia para evitar errores de asociaciones cruzadas
-        const familias = await familia.findAll({
+        const familias = await familias.findAll({
             where: whereClause,
             order: [['id_familia', 'ASC']]
         });
