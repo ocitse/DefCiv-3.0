@@ -342,6 +342,8 @@ function renderizarFilasRelevamientos(relevamientos) {
         const esActivo = esNuevo || esEnProceso;
         const esCompletado = estadoRaw === 'completado' || estadoRaw === 'finalizado';
 
+        console.log(`Relevamiento ID: ${r.id_relevamiento || r.id} - Estado leído: "${estadoRaw}" - ¿Es completado?: ${esCompletado}`);
+
         return `
         <tr>
             <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
