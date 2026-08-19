@@ -260,7 +260,7 @@ export const devolverRelevamiento = async (req, res) => {
         // Lo devolvemos a 'en_proceso' y guardamos la justificación
         await rel.update({ 
             estado: 'en_proceso',
-            observaciones: nuevaObservacion
+            observaciones: motivo // Guardamos el motivo directo del admin aquí
         });
         
         res.json({ mensaje: 'Relevamiento devuelto al relevador con éxito.', data: rel });
