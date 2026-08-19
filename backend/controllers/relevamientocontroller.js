@@ -66,7 +66,7 @@ export const obtenerrelevamientos = async (req, res) => {
                                 { relevador_asignado: nombreCompletoLogueado }
                             ]
                         },
-                        { estado: { [Op.ne]: ['completado', 'En Espera'] } }
+                        { estado: { [Op.notIn]: ['completado', 'En Espera'] } }
                     ]
                 };
             } else {

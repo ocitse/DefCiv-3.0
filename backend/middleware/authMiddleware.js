@@ -31,10 +31,9 @@ export const verificarToken = (req, res, next) => {
 // 2. Middleware para controlar el acceso por roles a secciones/recursos específicos
 export const verificarRolPermitido = (seccionRequerida) => {
     return (req, res, next) => {
-        // Normalizamos el rol de forma segura
+        // Normalizamos quitando espacios, pero mantenemos la consistencia
         const rolUsuario = req.user && req.user.rol ? String(req.user.rol).trim().toLowerCase() : '';
         
-        // Mapeo de permisos
         const permisos = {
             administrador: ['usuarios', 'relevamientos', 'familias', 'relevadores', 'solicitudes', 'provisiones'],
             operador: ['relevamientos', 'familias', 'solicitudes', 'provisiones'],
@@ -42,8 +41,8 @@ export const verificarRolPermitido = (seccionRequerida) => {
             consulta: ['relevamientos']
         };
 
-        // Si es administrador por las dudas le damos acceso total para evitar bloqueos
-        if (rolUsuario === 'administrador' || (permisos[rolUsuario] && permisos[rolUsuario].includes(seccionRequerida))) {
+        // Verificamos si es administrador (cubriendo 'administrador' y 'admin' por seguridad estructural)
+        if (rolUsuario === 'administrador' || rolUsuario === 'admin' || (permisos[rolUsuario] && permisos[rolUsuario].includes(seccionRequerida))) {
             next();
         } else {
             console.warn(`❌ Acceso denegado para el rol: "${rolUsuario}" en la sección: "${seccionRequerida}"`);
