@@ -84,25 +84,22 @@ export async function cargarRelevamientosEnEspera() {
             return;
         }
 
-        // ... dentro del map de cargarRelevamientosEnEspera
-tbody.innerHTML = data.map(item => `
-    <tr>
-        <td>
-            <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${item.id_relevamiento}">
-        </td>
-        <td>#${item.id_relevamiento}</td>
-        <!-- Ocultamos la fecha en móviles (d-none d-md-table-cell) -->
-        <td class="d-none d-md-table-cell">${item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Sin fecha'}</td>
-        <td>${item.departamento} - ${item.localidad}</td>
-        <!-- Agregamos el ESTADO aquí -->
-        <td><span class="badge bg-secondary">${item.estado}</span></td>
-        <!-- Ocultamos el tipo de evento en móviles -->
-        <td class="d-none d-md-table-cell">${item.tipo_evento}</td>
-        <td>${item.relevador_asignado}</td>
-        <td><span class="badge bg-warning text-dark">${item.urgencia_general}</span></td>
-    </tr>
-`).join('');
+        tbody.innerHTML = data.map(item => `
+            <tr>
+                <td>
+                    <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${item.id || item.id_relevamiento}">
+                </td>
+                <td>#${item.id || item.id_relevamiento}</td>
+                <td class="d-none d-md-table-cell">${item.createdAt || item.created_at ? new Date(item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha'}</td>
+                <td>${item.departamento} - ${item.localidad}</td>
+                <td><span class="badge bg-secondary">${item.estado}</span></td>
+                <td class="d-none d-md-table-cell">${item.tipo_evento || 'N/D'}</td>
+                <td>${item.relevador_asignado || 'N/D'}</td>
+                <td><span class="badge bg-warning text-dark">${item.prioridad || item.urgencia_general || 'Normal'}</span></td>
+            </tr>
+        `).join('');
     } catch (error) {
+        console.error("Error al cargar relevamientos en espera:", error);
         tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
     }
 }
