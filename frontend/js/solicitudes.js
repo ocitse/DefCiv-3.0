@@ -194,11 +194,6 @@ export function inicializarFormularioSolicitud() {
             if (respuesta.ok && resultado.success) {
                 alert('¡Solicitud enviada correctamente a Desarrollo Social!');
 
-                const textareaObs = document.querySelector('#seccion-nueva-solicitud textarea');
-                if (textareaObs) {
-                    textareaObs.value = '';
-                }
-                
                 // 3. Limpiar el cuadro de observaciones / justificación inmediatamente
                 const textareaObs = document.querySelector('#seccion-nueva-solicitud textarea');
                 if (textareaObs) {
