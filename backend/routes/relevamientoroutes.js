@@ -6,6 +6,7 @@ import {
     actualizarRelevamiento,
     eliminarRelevamiento,
     devolverRelevamiento,
+    completarRelevamiento,
 } from '../controllers/relevamientocontroller.js';
 import { verificarToken } from '../middleware/authMiddleware.js';
 
