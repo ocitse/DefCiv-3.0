@@ -357,32 +357,36 @@ function renderizarFilasRelevamientos(relevamientos) {
             <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
             <td class="text-center">${r.familias ? r.familias.length : 0}</td>
             <td class="text-center">
-            <div class="d-flex justify-content-center gap-1">
-                ${esActivo ? `
-                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
-                        <i class="bi bi-pencil-square"></i>
-                    </button>
-                    ${esEnProceso ? `
-                        <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
-                            <i class="bi bi-check-circle"></i>
-                        </button>
-                        ` : esCompletado ? `
-                    <!-- 🌟 AQUÍ APARECE EL BOTÓN DE DEVOLVER CUANDO ESTÁ COMPLETADO -->
-                    <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${r.id_relevamiento || r.id}')" title="Devolver al relevador con observaciones">
-                        <i class="bi bi-arrow-counterclockwise"></i> Devolver
-                    </button>
-                    ` : ''}
-                ` : `
-                    <span class="badge bg-secondary align-self-center">Bloqueado</span>
-                `}
-                <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
-                    <i class="bi bi-eye"></i>
+    <div class="d-flex justify-content-center gap-1">
+        
+        ${esActivo ? `
+            <!-- Si está Nuevo o En Proceso -->
+            <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            ${esEnProceso ? `
+                <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
+                    <i class="bi bi-check-circle"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        </td>
+            ` : ''}
+        ` : esCompletado ? `
+            <!-- 🌟 SI ESTÁ COMPLETADO: Aquí aparece el botón de Devolver que queríamos -->
+            <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${r.id_relevamiento || r.id}')" title="Devolver al relevador con observaciones">
+                <i class="bi bi-arrow-counterclockwise"></i> Devolver
+            </button>
+        ` : `
+            <span class="badge bg-secondary align-self-center">Bloqueado</span>
+        `}
+
+        <!-- Botones que aparecen siempre para todos los estados -->
+        <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+            <i class="bi bi-eye"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</td>
         </tr>
     `;
     }).join('');
