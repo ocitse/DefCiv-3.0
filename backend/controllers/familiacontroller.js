@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import FamiliaModel from '../models/familia.js';
+import Familia from '../models/familia.js';
 import Relevamiento from '../models/relevamiento.js';
 import necesidadFamilia from '../models/necesidadFamilia.js';
 import Documentacion from '../models/Documentacion.js'; // Asegúrate de tener este modelo creado
