@@ -212,16 +212,29 @@ if (req.files && req.files.length > 0) {
         await familia.update(restoDeCampos);
 
         // Si el formulario envía el array de necesidades, sincronizamos la tabla relacional
-        if (necesidades && Array.isArray(necesidades)) {
-            await necesidadFamilia.destroy({ where: { id_familia: id } });
+        if (necesidades) {
+            let necesidadesParsed = necesidades;
+            
+            // Si viene como string desde el FormData del frontend, lo parseamos a JSON
+            if (typeof necesidades === 'string') {
+                try {
+                    necesidadesParsed = JSON.parse(necesidades);
+                } catch (e) {
+                    necesidadesParsed = [];
+                }
+            }
 
-            if (necesidades.length > 0) {
-                const necesidadesAInsertar = necesidades.map(nec => ({
-                    id_familia: id,
-                    tipo_material: nec.tipo_material,
-                    cantidad: nec.cantidad || 1
-                }));
-                await necesidadFamilia.bulkCreate(necesidadesAInsertar);
+            if (Array.isArray(necesidadesParsed)) {
+                await necesidadFamilia.destroy({ where: { id_familia: id } });
+
+                if (necesidadesParsed.length > 0) {
+                    const necesidadesAInsertar = necesidadesParsed.map(nec => ({
+                        id_familia: id,
+                        tipo_material: nec.tipo_material,
+                        cantidad: nec.cantidad || 1
+                    }));
+                    await necesidadFamilia.bulkCreate(necesidadesAInsertar);
+                }
             }
         }
 
