@@ -31,6 +31,8 @@ export const uploadDocumentos = multer({ storage: storage }).array('documentos',
 // 1. CREAR UNA NUEVA FAMILIA VINCULADA A UN RELEVAMIENTO
 export const crearFamilia = async (req, res) => {
     try {
+        console.log("FILES RECIBIDOS EN BACKEND ->", req.files);
+        console.log("BODY RECIBIDO EN BACKEND ->", req.body);
         const { jefe_familia, dni_jefe, direccion, id_relevamiento, necesidades, ...restoDeCampos } = req.body;
 
         // Validaciones básicas de campos obligatorios
