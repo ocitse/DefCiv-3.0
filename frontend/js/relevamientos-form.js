@@ -159,12 +159,20 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // 🌟 Adjuntar todos los archivos de la lista temporal
-        if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
-            archivosTemporalesFamilia.forEach(archivo => {
-                formData.append('documentos', archivo);
-            });
+        // 🌟 Adjuntar archivos desde el array temporal
+    if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
+        archivosTemporalesFamilia.forEach(archivo => {
+            formData.append('documentos', archivo);
+        });
+    }
+
+    // 🌟 SEGURIDAD EXTRA: Si el usuario seleccionó un archivo en el input pero olvidó darle al botón "Agregar"
+    const inputArchivoDirecto = document.getElementById('inputArchivo');
+    if (inputArchivoDirecto && inputArchivoDirecto.files && inputArchivoDirecto.files.length > 0) {
+        for (let i = 0; i < inputArchivoDirecto.files.length; i++) {
+            formData.append('documentos', inputArchivoDirecto.files[i]);
         }
+    }
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
