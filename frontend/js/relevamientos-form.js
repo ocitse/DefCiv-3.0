@@ -169,6 +169,10 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
 
+        for (let pair of formData.entries()) {
+            console.log('CAMPO FORMING ->', pair[0], pair[1]);
+        }
+
         const respuesta = await fetch(url, {
             method: metodo,
             body: formData // ⚠️ No especificar 'Content-Type', el navegador asigna automáticamente multipart/form-data
