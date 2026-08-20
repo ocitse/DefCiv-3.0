@@ -50,8 +50,8 @@ export const crearFamilia = async (req, res) => {
             return res.status(403).json({ mensaje: 'No se pueden agregar familias a un relevamiento que ya se encuentra completado o finalizado.' });
         }
 
-        // CORRECCIÓN: Usamos FamiliaModel en lugar de Familia
-        const nuevaFamilia = await FamiliaModel.create({
+        // CORRECCIÓN: Usamos Familia en lugar de Familia
+        const nuevaFamilia = await Familia.create({
             jefe_familia,
             dni_jefe,
             direccion,
@@ -85,8 +85,8 @@ export const crearFamilia = async (req, res) => {
             await existeRelevamiento.update({ estado: 'en proceso' });
         }
 
-        // CORRECCIÓN: Usamos FamiliaModel para buscar la familia completa
-        const familiaCompleta = await FamiliaModel.findByPk(nuevaFamilia.id_familia, {
+        // CORRECCIÓN: Usamos Familia para buscar la familia completa
+        const familiaCompleta = await Familia.findByPk(nuevaFamilia.id_familia, {
             include: [
                 { model: Relevamiento },
                 { model: necesidadFamilia, as: 'necesidades' }
@@ -115,7 +115,7 @@ export const obtenerFamilias = async (req, res) => {
         }
 
         // Consultamos usando el nombre único del modelo
-        const listaFamilias = await FamiliaModel.findAll({
+        const listaFamilias = await Familia.findAll({
             where: whereClause
         });
         
