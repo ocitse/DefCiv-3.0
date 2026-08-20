@@ -49,10 +49,9 @@ export const crearFamilia = async (req, res) => {
         if (['completado', 'finalizado', 'cancelado'].includes(estadoActual)) {
             return res.status(403).json({ mensaje: 'No se pueden agregar familias a un relevamiento que ya se encuentra completado o finalizado.' });
         }
-        // ------------------------------------------------------------------------------------
 
-        // Insertamos la familia con el resto de los campos
-        const nuevaFamilia = await Familia.create({
+        // CORRECCIÓN: Usamos FamiliaModel en lugar de Familia
+        const nuevaFamilia = await FamiliaModel.create({
             jefe_familia,
             dni_jefe,
             direccion,
@@ -69,7 +68,7 @@ export const crearFamilia = async (req, res) => {
             }));
             await necesidadFamilia.bulkCreate(necesidadesAInsertar);
         }
-        // Dentro de crearFamilia, justo después de guardar las necesidades, agrega esto:
+
         if (req.files && req.files.length > 0) {
             const docsAInsertar = req.files.map(file => ({
                 id_familia: nuevaFamilia.id_familia,
@@ -85,10 +84,9 @@ export const crearFamilia = async (req, res) => {
         if (existeRelevamiento.estado === 'nuevo' || !existeRelevamiento.estado) {
             await existeRelevamiento.update({ estado: 'en proceso' });
         }
-        // --------------------------------------------------------------------------
 
-        // Buscamos la familia completa con sus relaciones para devolverla
-        const familiaCompleta = await Familia.findByPk(nuevaFamilia.id_familia, {
+        // CORRECCIÓN: Usamos FamiliaModel para buscar la familia completa
+        const familiaCompleta = await FamiliaModel.findByPk(nuevaFamilia.id_familia, {
             include: [
                 { model: Relevamiento },
                 { model: necesidadFamilia, as: 'necesidades' }
