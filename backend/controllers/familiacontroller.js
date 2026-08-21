@@ -127,43 +127,25 @@ export const obtenerFamilias = async (req, res) => {
         return res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.', error: error.message });
     }
 };
+// OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
 export const obtenerFamiliaPorId = async (req, res) => {
     try {
         const { id } = req.params;
-        
-        // Buscamos la familia principal
-        const familiaEncontrada = await familia.findByPk(id);
-        
-        if (!familiaEncontrada) {
-            return res.status(404).json({ message: 'Familia no encontrada' });
-        }
-
-        // Intentamos buscar las relaciones de forma segura por separado para evitar caídas
-        let necesidades = [];
-        let documentacionAdjunta = [];
-
-        try {
-            necesidades = await necesidadFamilia.findAll({ where: { id_familia: id } });
-        } catch (err) {
-            console.log("Aviso: No se pudieron cargar las necesidades:", err.message);
-        }
-
-        try {
-            documentacionAdjunta = await documentacion.findAll({ where: { id_familia: id } });
-        } catch (err) {
-            console.log("Aviso: No se pudo cargar la documentación:", err.message);
-        }
-
-        // Retornamos el objeto completo unificado de forma segura
-        return res.json({
-            ...familiaEncontrada.toJSON(),
-            necesidades: necesidades || [],
-            documentacion: documentacionAdjunta || []
+        const familia = await Familia.findByPk(id, {
+            include: [{ model: Relevamiento },
+                      { model: necesidadFamilia, as: 'necesidades' },
+                      { model: Documentacion, as: 'documentacion' }    
+            ]
         });
 
+        if (!familia) {
+            return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
+        }
+
+        res.json(familia);
     } catch (error) {
-        console.error("ERROR CRITICO EN OBTENER FAMILIA:", error);
-        return res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+        console.error('Error al obtener la familia:', error);
+        res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
     }
 };
 
