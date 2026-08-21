@@ -51,10 +51,13 @@ export function agregarArchivoALista() {
         return;
     }
 
-    const archivo = input.files[0];
-    archivosTemporalesFamilia.push(archivo);
-    renderizarListaArchivosPendientes();
+    // Agregamos todos los seleccionados al array temporal
+    for (let i = 0; i < input.files.length; i++) {
+        archivosTemporalesFamilia.push(input.files[i]);
+    }
+    
 
+    renderizarListaArchivosPendientes();
     input.value = ""; // Limpiar el input para permitir elegir otro
 }
 
