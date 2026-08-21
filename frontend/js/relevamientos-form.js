@@ -53,6 +53,14 @@ export function agregarArchivoALista() {
 
     // Añadimos el archivo al array temporal
     const archivo = input.files[0];
+
+    // 🌟 Guardamos el archivo de forma segura en un espacio global de la ventana del navegador
+    if (!window.archivosSegurosParaGuardar) {
+        window.archivosSegurosParaGuardar = [];
+    }
+    window.archivosSegurosParaGuardar.push(archivo);
+
+
     archivosTemporalesFamilia.push(archivo);
     renderizarListaArchivosPendientes();
 
@@ -164,14 +172,19 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        console.log("🚨 CONTENIDO EXACTO DE ARCHIVOS ANTES DE ENVIAR:", archivosTemporalesFamilia);
+        console.log("🚨 CONTENIDO EXACTO DE ARCHIVOS EN CAJA FUERTE:", window.archivosSegurosParaGuardar);
 
-
-    // 1. Adjuntar los archivos de la lista temporal (si usaron el botón "Agregar")
-    if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
-        archivosTemporalesFamilia.forEach(archivo => {
+    // 🌟 Leer directamente desde la caja fuerte global del navegador
+    const archivosAEnviar = window.archivosSegurosParaGuardar || archivosTemporalesFamilia;
+    
+    if (archivosAEnviar && archivosAEnviar.length > 0) {
+        archivosAEnviar.forEach(archivo => {
             formData.append('documentos', archivo);
         });
+        console.log("🚀 ARCHIVOS ADJUNTADOS EXITOSAMENTE AL FORMDATA:", archivosAEnviar.length);
+    } else {
+        console.log("⚠️ No hay archivos para adjuntar en este envío.");
+    
     }
 
     // 2. BLINDAJE TOTAL: Si hay un archivo seleccionado en el input en este mismo instante, lo agregamos sí o sí
@@ -228,6 +241,10 @@ if (inputPrueba && inputPrueba.files.length > 0) {
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
+        // 🌟 PUNTO 3: Limpiar la caja fuerte al empezar a editar
+        window.archivosSegurosParaGuardar = [];
+        archivosTemporalesFamilia = []; 
+        renderizarListaArchivosPendientes();
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
@@ -349,6 +366,8 @@ export function cambiarPasoWizard(paso) {
 }
 
 export function mostrarFormularioNuevaFamilia() {
+    // 🌟 PUNTO 3: Limpiar la caja fuerte al registrar nueva familia
+    window.archivosSegurosParaGuardar = [];
     listaTemporalMateriales = []; // Reiniciamos la lista temporal al crear una nueva
     archivosTemporalesFamilia = []; // Reiniciamos los archivos temporales
     
