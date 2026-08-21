@@ -175,7 +175,11 @@ export async function guardarDatosFamiliaDefinitivo(e) {
     console.log("ARRAY TEMPORAL ARCHIVOS:", archivosTemporalesFamilia);
     if (inputArchivoDirecto && inputArchivoDirecto.files && inputArchivoDirecto.files.length > 0) {
         for (let i = 0; i < inputArchivoDirecto.files.length; i++) {
-            formData.append('documentos', inputArchivoDirecto.files[i]);
+            const archivoActual = inputArchivoDirecto.files[i];
+            const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivoActual.name);
+            if (!yaExiste) {
+                formData.append('documentos', archivoActual);
+            }
         }
     }
 
