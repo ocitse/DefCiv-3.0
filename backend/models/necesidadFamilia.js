@@ -9,6 +9,10 @@ const necesidadFamilia = sequelize.define('necesidad_familia', {
         primaryKey: true,
         autoIncrement: true
     },
+    id_familia: { // <--- ESTO ES LO QUE FALTABA DECLARAR AQUÍ
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
     tipo_material: {
         type: DataTypes.STRING(100),
         allowNull: false // Lo que viene del menú desplegable (ej: "Chapas de zinc", "Tirantes de madera", etc.)
