@@ -11,6 +11,8 @@ import sequelize from './config/database.js';
 import relevamiento from './models/relevamiento.js';
 import familia from './models/familia.js';
 import usuario from './models/usuario.js';
+import necesidadFamilia from './models/necesidadFamilia.js'; // 🌟 Súbelo aquí junto al resto
+import documentacion from './models/Documentacion.js'; // (Si lo usas aquí también)
 
 import relevamientoroutes from './routes/relevamientoroutes.js';
 import familiaroutes from './routes/familiaroutes.js';
