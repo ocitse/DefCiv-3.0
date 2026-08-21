@@ -215,7 +215,7 @@ export async function editarDatosFamilia(idFamilia) {
         if (inputIdEdicion) inputIdEdicion.value = idFamilia;
 
         inicializarCalculoIntegrantes();
-        archivosTemporalesFamilia = []; // Limpiamos archivos temporales nuevos al abrir edición
+        archivosTemporalesFamilia = []; 
         renderizarListaArchivosPendientes();
 
         try {
@@ -223,7 +223,7 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
-            console.log("📦 DATOS COMPLETOS RECIBIDOS DE LA FAMILIA:", fam); // <--- ¡Añade esto aquí!
+            console.log("📦 DATOS COMPLETOS RECIBIDOS DE LA FAMILIA:", fam);
             
             if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
             if (fam.jefe_familia) {
@@ -255,20 +255,20 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
             if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
 
-            // Cambia únicamente estas líneas dentro de editarDatosFamilia:
-const rawNecesidades = fam.necesidades || fam.provisiones || [];
-const materialesBrutos = typeof rawNecesidades === 'string' ? JSON.parse(rawNecesidades) : rawNecesidades;
+            // 🌟 Procesar materiales asegurando que el DOM ya está listo
+            const rawNecesidades = fam.necesidades || fam.provisiones || [];
+            const materialesBrutos = typeof rawNecesidades === 'string' ? JSON.parse(rawNecesidades) : rawNecesidades;
 
-listaTemporalMateriales = materialesBrutos.map(m => ({
-    tipo_material: m.tipo_material || m.nombre,
-    nombre: m.tipo_material || m.nombre,
-    cantidad: m.cantidad || 1
-}));
-renderizarListaVisual('mat', listaTemporalMateriales);
+            listaTemporalMateriales = Array.isArray(materialesBrutos) ? materialesBrutos.map(m => ({
+                tipo_material: m.tipo_material || m.nombre,
+                nombre: m.tipo_material || m.nombre,
+                cantidad: m.cantidad || 1
+            })) : [];
+
+            renderizarListaVisual('mat', listaTemporalMateriales);
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
-            // 🌟 Pintar los archivos existentes ya guardados en la BD (opcionalmente puedes usar el mismo contenedor o uno independiente)
             const contenedorDocs = document.getElementById('lista-archivos-guardados') || document.getElementById('lista-archivos-pendientes');
             if (contenedorDocs && fam.documentacion && fam.documentacion.length > 0) {
                 fam.documentacion.forEach(doc => {
