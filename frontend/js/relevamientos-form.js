@@ -255,15 +255,19 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
             if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
 
-            // 🌟 Procesar materiales asegurando que el DOM ya está listo
-            const rawNecesidades = fam.necesidades || fam.provisiones || [];
-            const materialesBrutos = typeof rawNecesidades === 'string' ? JSON.parse(rawNecesidades) : rawNecesidades;
+            // 🌟 Procesar materiales de forma segura desde la relación Sequelize
+            let rawNecesidades = [];
+            if (fam.necesidades && Array.isArray(fam.necesidades)) {
+                rawNecesidades = fam.necesidades;
+            } else if (fam.data && fam.data.necesidades && Array.isArray(fam.data.necesidades)) {
+                rawNecesidades = fam.data.necesidades;
+            }
 
-            listaTemporalMateriales = Array.isArray(materialesBrutos) ? materialesBrutos.map(m => ({
+            listaTemporalMateriales = rawNecesidades.map(m => ({
                 tipo_material: m.tipo_material || m.nombre,
                 nombre: m.tipo_material || m.nombre,
                 cantidad: m.cantidad || 1
-            })) : [];
+            }));
 
             renderizarListaVisual('mat', listaTemporalMateriales);
 
