@@ -189,6 +189,13 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             console.log('CAMPO FORMING ->', pair[0], pair[1]);
         }
 
+        const inputPrueba = document.getElementById('inputArchivo');
+console.log("🔍 ¿Cual es el valor del input en el DOM?", inputPrueba);
+console.log("🔍 ¿Cuántos archivos tiene el input?", inputPrueba ? inputPrueba.files.length : "No existe");
+if (inputPrueba && inputPrueba.files.length > 0) {
+    console.log("🔍 Nombre del archivo en el input:", inputPrueba.files[0].name);
+}
+
         const respuesta = await fetch(url, {
             method: metodo,
             body: formData // ⚠️ No especificar 'Content-Type', el navegador asigna automáticamente multipart/form-data
