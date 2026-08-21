@@ -168,6 +168,8 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     // 🌟 SEGURIDAD EXTRA: Si el usuario seleccionó un archivo en el input pero olvidó darle al botón "Agregar"
     const inputArchivoDirecto = document.getElementById('inputArchivo');
+    console.log("ESTADO INPUT ARCHIVO DOM:", inputArchivoDirecto?.files);
+    console.log("ARRAY TEMPORAL ARCHIVOS:", archivosTemporalesFamilia);
     if (inputArchivoDirecto && inputArchivoDirecto.files && inputArchivoDirecto.files.length > 0) {
         for (let i = 0; i < inputArchivoDirecto.files.length; i++) {
             formData.append('documentos', inputArchivoDirecto.files[i]);
