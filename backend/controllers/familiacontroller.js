@@ -106,41 +106,25 @@ export const crearFamilia = async (req, res) => {
     }
 };
 
-// OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
-export const obtenerFamiliaPorId = async (req, res) => {
+// backend/controllers/familiacontroller.js
+export const obtenerFamilias = async (req, res) => {
     try {
-        const { id } = req.params;
+        const idRelevamiento = req.params.id || req.query.id_relevamiento;
         
-        // 1. Buscamos la familia con Sequelize normal
-        let familia = await Familia.findByPk(id, {
-            include: [
-                { model: Relevamiento },
-                { model: necesidadFamilia, as: 'necesidades' },
-                { model: Documentacion, as: 'documentacion' }
-            ]
+        const whereClause = {};
+        if (idRelevamiento) {
+            whereClause.id_relevamiento = idRelevamiento;
+        }
+
+        // Consultamos usando el nombre único del modelo
+        const listaFamilias = await Familia.findAll({
+            where: whereClause
         });
-
-        if (!familia) {
-            return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
-        }
-
-        // 2. RESPALDO MANUAL: Si por cosas de Sequelize el include viene vacío, lo buscamos a mano de las tablas
-        let familiaJson = familia.toJSON();
-
-        if (!familiaJson.necesidades || familiaJson.necesidades.length === 0) {
-            const materialesExtra = await necesidadFamilia.findAll({ where: { id_familia: id } });
-            familiaJson.necesidades = materialesExtra;
-        }
-
-        if (!familiaJson.documentacion || familiaJson.documentacion.length === 0) {
-            const docsExtra = await Documentacion.findAll({ where: { id_familia: id } });
-            familiaJson.documentacion = docsExtra;
-        }
-
-        res.json(familiaJson);
+        
+        return res.json(listaFamilias);
     } catch (error) {
-        console.error('Error al obtener la familia:', error);
-        res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
+        console.error('Error al obtener familias:', error);
+        return res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.', error: error.message });
     }
 };
 // OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
