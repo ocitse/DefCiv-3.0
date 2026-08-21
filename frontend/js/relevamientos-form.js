@@ -223,6 +223,7 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
+            console.log("📦 DATOS COMPLETOS RECIBIDOS DE LA FAMILIA:", fam); // <--- ¡Añade esto aquí!
             
             if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
             if (fam.jefe_familia) {
