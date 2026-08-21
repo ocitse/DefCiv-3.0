@@ -181,6 +181,8 @@ export const eliminarFamilia = async (req, res) => {
 // ACTUALIZAR UNA FAMILIA POR SU ID
 export const actualizarFamilia = async (req, res) => {
     try {
+        console.log("FILES EN EDITAR ->", req.files);
+        console.log("BODY EN EDITAR ->", req.body);
         const { id } = req.params;
         const { necesidades, ...restoDeCampos } = req.body;
 
