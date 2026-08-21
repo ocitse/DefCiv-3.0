@@ -54,9 +54,12 @@ export function agregarArchivoALista() {
     // Añadimos el archivo al array temporal
     const archivo = input.files[0];
     archivosTemporalesFamilia.push(archivo);
-    
-
     renderizarListaArchivosPendientes();
+
+    console.log("📁 Archivo agregado al array temporal:", archivo.name);
+    console.log("📁 Total archivos en array temporal:", archivosTemporalesFamilia.length);
+
+    input.value = "";
     //input.value = ""; // Limpiar el input para permitir elegir otro
 }
 
@@ -160,6 +163,9 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         // Necesidades/Materiales (enviado como string JSON para que el backend los procese)
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
+
+        console.log("🚨 CONTENIDO EXACTO DE ARCHIVOS ANTES DE ENVIAR:", archivosTemporalesFamilia);
+
 
     // 1. Adjuntar los archivos de la lista temporal (si usaron el botón "Agregar")
     if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
