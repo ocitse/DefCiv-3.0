@@ -162,23 +162,22 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // 🌟 Adjuntar archivos desde el array temporal
+    // 1. Adjuntar los archivos de la lista temporal (si usaron el botón "Agregar")
     if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
         archivosTemporalesFamilia.forEach(archivo => {
             formData.append('documentos', archivo);
         });
     }
 
-    // 🌟 SEGURIDAD EXTRA: Si el usuario seleccionó un archivo en el input pero olvidó darle al botón "Agregar"
+    // 2. BLINDAJE TOTAL: Si hay un archivo seleccionado en el input en este mismo instante, lo agregamos sí o sí
     const inputArchivoDirecto = document.getElementById('inputArchivo');
-    console.log("ESTADO INPUT ARCHIVO DOM:", inputArchivoDirecto?.files);
-    console.log("ARRAY TEMPORAL ARCHIVOS:", archivosTemporalesFamilia);
     if (inputArchivoDirecto && inputArchivoDirecto.files && inputArchivoDirecto.files.length > 0) {
         for (let i = 0; i < inputArchivoDirecto.files.length; i++) {
-            const archivoActual = inputArchivoDirecto.files[i];
-            const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivoActual.name);
+            const archivoInput = inputArchivoDirecto.files[i];
+            // Verificamos que no esté duplicado con los de la lista temporal
+            const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivoInput.name);
             if (!yaExiste) {
-                formData.append('documentos', archivoActual);
+                formData.append('documentos', archivoInput);
             }
         }
     }
