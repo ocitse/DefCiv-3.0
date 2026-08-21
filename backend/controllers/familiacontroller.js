@@ -127,25 +127,35 @@ export const obtenerFamilias = async (req, res) => {
         return res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.', error: error.message });
     }
 };
-// OBTENER UNA FAMILIA POR SU ID (Para ver la ficha y editarla)
 export const obtenerFamiliaPorId = async (req, res) => {
     try {
         const { id } = req.params;
-        const familia = await Familia.findByPk(id, {
-            include: [{ model: Relevamiento },
-                      { model: necesidadFamilia, as: 'necesidades' },
-                      { model: Documentacion, as: 'documentacion' }    
-            ]
-        });
-
-        if (!familia) {
-            return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
+        
+        // 1. Buscamos la familia sola
+        const familiaEncontrada = await familia.findByPk(id);
+        
+        if (!familiaEncontrada) {
+            return res.status(404).json({ message: 'Familia no encontrada' });
         }
 
-        res.json(familia);
+        // 2. Buscamos los datos relacionados de forma manual para ver si existen
+        const necesidades = await necesidadFamilia.findAll({ where: { id_familia: id } });
+        const docs = await documentacion.findAll({ where: { id_familia: id } });
+
+        console.log("DEBUG - Familia:", familiaEncontrada.id_familia);
+        console.log("DEBUG - Cantidad de necesidades encontradas:", necesidades.length);
+        console.log("DEBUG - Cantidad de docs encontrados:", docs.length);
+
+        // 3. Devolvemos el objeto armado manualmente
+        return res.json({
+            ...familiaEncontrada.toJSON(),
+            necesidades: necesidades,
+            documentacion: docs
+        });
+
     } catch (error) {
-        console.error('Error al obtener la familia:', error);
-        res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
+        console.error("ERROR EN OBTENER FAMILIA:", error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
 
