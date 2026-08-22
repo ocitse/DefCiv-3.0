@@ -2,8 +2,7 @@
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
-// Aseguramos que la estructura global exista siempre en la ventana del navegador
-if (!window.archivosTemporalesFamiliaGlobal) {
+if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
     window.archivosTemporalesFamiliaGlobal = [];
 }
 
