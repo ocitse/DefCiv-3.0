@@ -59,9 +59,11 @@ export function agregarArchivoALista() {
         window.archivosSegurosParaGuardar = [];
     }
     window.archivosSegurosParaGuardar.push(archivo);
-
-
     archivosTemporalesFamilia.push(archivo);
+
+    // 🟢 ESTA LÍNEA AQUÍ:
+    console.log("🟢 1. Archivo añadido. Elementos en caja fuerte ahora:", window.archivosSegurosParaGuardar);
+
     renderizarListaArchivosPendientes();
 
     console.log("📁 Archivo agregado al array temporal:", archivo.name);
@@ -184,7 +186,6 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         console.log("🚀 ARCHIVOS ADJUNTADOS EXITOSAMENTE AL FORMDATA:", archivosAEnviar.length);
     } else {
         console.log("⚠️ No hay archivos para adjuntar en este envío.");
-    
     }
 
     // 2. BLINDAJE TOTAL: Si hay un archivo seleccionado en el input en este mismo instante, lo agregamos sí o sí
