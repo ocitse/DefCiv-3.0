@@ -2,12 +2,12 @@
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
+// Inicialización global única para los archivos
 if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
     window.archivosTemporalesFamiliaGlobal = [];
 }
 
-let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; // Hacemos que compartan el mismo espacio
-
+let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; 
 let listaTemporalMateriales = [];
 
 function renderizarListaVisual(tipo, arreglo) {
@@ -29,7 +29,6 @@ function renderizarListaVisual(tipo, arreglo) {
     `).join('');
 }
 
-// 🌟 Renderizar la lista visual de archivos pendientes en el HTML provisto
 function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
@@ -51,29 +50,22 @@ function renderizarListaArchivosPendientes() {
 
 export function agregarArchivoALista() {
     const input = document.getElementById('inputArchivo');
-    
-    // 🚨 CHIVATO DIRECTO
-    console.log("⚡ PASO 1: Se hizo clic en Agregar.");
-    console.log("⚡ PASO 2: ¿Existe el input?", !!input);
-    console.log("⚡ PASO 3: ¿Cuántos archivos hay en el input?", input ? input.files.length : 0);
-
     if (!input || input.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
         return;
     }
 
     const archivo = input.files[0];
-    console.log("⚡ PASO 4: Archivo detectado:", archivo.name);
 
-    if (!window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal = [];
+    const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivo.name);
+    if (!yaExiste) {
+        archivosTemporalesFamilia.push(archivo);
+        renderizarListaArchivosPendientes();
+        mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
+        input.value = ""; // Limpiamos el input visualmente
+    } else {
+        mostrarNotificacion("Ese archivo ya está en la lista.", "error");
     }
-
-    window.archivosTemporalesFamiliaGlobal.push(archivo);
-    console.log("⚡ PASO 5: ¡Archivo guardado con éxito! Total en global:", window.archivosTemporalesFamiliaGlobal.length);
-
-    renderizarListaArchivosPendientes();
-    input.value = "";
 }
 
 export function eliminarArchivoDeLista(index) {
@@ -110,7 +102,6 @@ export function eliminarItemLista(tipo, index) {
     renderizarListaVisual('mat', listaTemporalMateriales);
 }
 
-// 1. Autocálculo de integrantes (mayores + menores = total)
 export function inicializarCalculoIntegrantes() {
     const inputMayores = document.getElementById('f_mayores');
     const inputMenores = document.getElementById('f_menores');
@@ -142,8 +133,6 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-
-        // 🌟 Usamos FormData para soportar campos de texto y múltiples archivos adjuntos simultáneamente
         const formData = new FormData();
 
         formData.append('id_relevamiento', window.idRelevamientoActivo);
@@ -173,61 +162,22 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('ropa', parseInt(document.getElementById('f_need_ropa')?.value) || 0);
         formData.append('colchones', parseInt(document.getElementById('f_need_colchones')?.value) || 0);
 
-        // Necesidades/Materiales (enviado como string JSON para que el backend los procese)
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        console.log("🚨 CONTENIDO EXACTO DE ARCHIVOS EN CAJA FUERTE:", window.archivosSegurosParaGuardar);
-
-    // Leer estrictamente de la persistencia global unificada
-    const archivosAEnviar = window.archivosTemporalesFamiliaGlobal || [];
-    
-    if (archivosAEnviar && archivosAEnviar.length > 0) {
-        archivosAEnviar.forEach(archivo => {
-            formData.append('documentos', archivo);
-        });
-        console.log("🚀 ARCHIVOS DE LA LISTA TEMPORAL ADJUNTADOS:", archivosAEnviar.length);
-    } else {
-        console.log("⚠️ La lista temporal global está vacía.");
-    }
-
-    // 2. BLINDAJE TOTAL: Si hay un archivo seleccionado en el input en este mismo instante, lo agregamos sí o sí
-    const inputArchivoDirecto = document.getElementById('inputArchivo');
-    if (inputArchivoDirecto && inputArchivoDirecto.files && inputArchivoDirecto.files.length > 0) {
-        for (let i = 0; i < inputArchivoDirecto.files.length; i++) {
-            const archivoInput = inputArchivoDirecto.files[i];
-            // Verificamos que no esté duplicado con los de la lista temporal
-            const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivoInput.name);
-            if (!yaExiste) {
-                formData.append('documentos', archivoInput);
-            }
+        // Adjuntar archivos desde la lista temporal
+        if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
+            archivosTemporalesFamilia.forEach(archivo => {
+                formData.append('documentos', archivo);
+            });
         }
-    }
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
 
-        for (let pair of formData.entries()) {
-            console.log('CAMPO FORMING ->', pair[0], pair[1]);
-        }
-
-        const inputPrueba = document.getElementById('inputArchivo');
-console.log("🔍 ¿Cual es el valor del input en el DOM?", inputPrueba);
-console.log("🔍 ¿Cuántos archivos tiene el input?", inputPrueba ? inputPrueba.files.length : "No existe");
-if (inputPrueba && inputPrueba.files.length > 0) {
-    console.log("🔍 Nombre del archivo en el input:", inputPrueba.files[0].name);
-}
-
-// --- INSPECCIÓN DE ÚLTIMO MOMENTO ---
-console.log("🔍 ¿Qué contiene FormData realmente?");
-for (let pair of formData.entries()) {
-    console.log("👉 CAMPO:", pair[0], "VALOR:", pair[1]);
-}
-// -------------------------------------
-
         const respuesta = await fetch(url, {
             method: metodo,
-            body: formData // ⚠️ No especificar 'Content-Type', el navegador asigna automáticamente multipart/form-data
+            body: formData
         });
 
         const resultado = await respuesta.json();
@@ -252,11 +202,10 @@ for (let pair of formData.entries()) {
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
-        // 🌟 PUNTO 3: Limpiar la caja fuerte al empezar a editar
         window.archivosTemporalesFamiliaGlobal = [];
-        window.archivosSegurosParaGuardar = [];
-        archivosTemporalesFamilia = []; 
+        archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal;
         renderizarListaArchivosPendientes();
+
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
@@ -264,15 +213,12 @@ export async function editarDatosFamilia(idFamilia) {
         if (inputIdEdicion) inputIdEdicion.value = idFamilia;
 
         inicializarCalculoIntegrantes();
-        archivosTemporalesFamilia = []; 
-        renderizarListaArchivosPendientes();
 
         try {
             const respuesta = await fetch(`/api/familias/${idFamilia}`);
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
-            console.log("📦 DATOS COMPLETOS RECIBIDOS DE LA FAMILIA:", fam);
             
             if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
             if (fam.jefe_familia) {
@@ -304,7 +250,6 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_need_ropa')) document.getElementById('f_need_ropa').value = fam.ropa || 0;
             if (document.getElementById('f_need_colchones')) document.getElementById('f_need_colchones').value = fam.colchones || 0;
 
-            // 🌟 Procesar materiales de forma segura desde la relación Sequelize
             let rawNecesidades = [];
             if (fam.necesidades && Array.isArray(fam.necesidades)) {
                 rawNecesidades = fam.necesidades;
@@ -321,20 +266,6 @@ export async function editarDatosFamilia(idFamilia) {
             renderizarListaVisual('mat', listaTemporalMateriales);
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
-
-            const contenedorDocs = document.getElementById('lista-archivos-guardados') || document.getElementById('lista-archivos-pendientes');
-            if (contenedorDocs && fam.documentacion && fam.documentacion.length > 0) {
-                fam.documentacion.forEach(doc => {
-                    contenedorDocs.innerHTML += `
-                        <div class="d-flex align-items-center justify-content-between p-2 mb-1 bg-light border rounded small">
-                            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-primary text-truncate">
-                                <i class="bi bi-file-earmark-text me-1"></i> ${doc.nombre_archivo}
-                            </a>
-                            <span class="badge bg-success">Guardado</span>
-                        </div>
-                    `;
-                });
-            }
 
         } catch (error) {
             console.error("Error al cargar datos para editar:", error);
@@ -378,11 +309,9 @@ export function cambiarPasoWizard(paso) {
 }
 
 export function mostrarFormularioNuevaFamilia() {
-    // 🌟 PUNTO 3: Limpiar la caja fuerte al registrar nueva familia
-    window.archivosSegurosParaGuardar = [];
     window.archivosTemporalesFamiliaGlobal = [];
-    listaTemporalMateriales = []; // Reiniciamos la lista temporal al crear una nueva
-    archivosTemporalesFamilia = []; // Reiniciamos los archivos temporales
+    archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal;
+    listaTemporalMateriales = [];
     
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
         const titulo = document.getElementById('titulo-form-familia');
@@ -408,14 +337,9 @@ export function mostrarFormularioNuevaFamilia() {
 }
 
 // Exponer funciones globales necesarias para eventos onclick en HTML
-
 window.cambiarPasoWizard = cambiarPasoWizard;
+window.agregarArchivoALista = agregarArchivoALista;
 window.eliminarArchivoDeLista = eliminarArchivoDeLista;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
-window.cambiarPasoWizard = cambiarPasoWizard;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
-
-
-
-
