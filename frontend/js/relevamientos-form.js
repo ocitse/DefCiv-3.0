@@ -2,6 +2,11 @@
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
+// Aseguramos que la estructura global exista siempre en la ventana del navegador
+if (!window.archivosTemporalesFamiliaGlobal) {
+    window.archivosTemporalesFamiliaGlobal = [];
+}
+
 let listaTemporalMateriales = [];
 let archivosTemporalesFamilia = []; // 🌟 Array para almacenar los archivos pendientes de adjuntar
 
@@ -54,15 +59,22 @@ export function agregarArchivoALista() {
     // Añadimos el archivo al array temporal
     const archivo = input.files[0];
 
-    // 🌟 Guardamos el archivo de forma segura en un espacio global de la ventana del navegador
-    if (!window.archivosSegurosParaGuardar) {
-        window.archivosSegurosParaGuardar = [];
+    // Usamos estrictamente la variable global de la ventana para evitar pérdida de contexto
+    if (!window.archivosTemporalesFamiliaGlobal) {
+        window.archivosTemporalesFamiliaGlobal = [];
     }
+
     window.archivosSegurosParaGuardar.push(archivo);
-    archivosTemporalesFamilia.push(archivo);
+    
+    //archivosTemporalesFamilia.push(archivo);
 
     // 🟢 ESTA LÍNEA AQUÍ:
     console.log("🟢 1. Archivo añadido. Elementos en caja fuerte ahora:", window.archivosSegurosParaGuardar);
+
+    // Mantenemos tu array local sincronizado por si otras funciones lo leen directamente
+    if (typeof archivosTemporalesFamilia !== 'undefined') {
+        archivosTemporalesFamilia.push(archivo);
+    }
 
     renderizarListaArchivosPendientes();
 
