@@ -49,13 +49,23 @@ function renderizarListaArchivosPendientes() {
 }
 
 export function agregarArchivoALista() {
+    console.log("⚡ 1. ¡ENTRÓ A agregarArchivoALista!");
+    
     const input = document.getElementById('inputArchivo');
+    console.log("⚡ 2. Estado del input:", input);
+    console.log("⚡ 3. Archivos en el input:", input ? input.files.length : "No hay input");
+
     if (!input || input.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
         return;
     }
 
     const archivo = input.files[0];
+    console.log("⚡ 4. Archivo seleccionado:", archivo.name);
+
+    if (typeof archivosTemporalesFamilia === 'undefined') {
+        archivosTemporalesFamilia = [];
+    }
 
     const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivo.name);
     if (!yaExiste) {
@@ -63,6 +73,7 @@ export function agregarArchivoALista() {
         renderizarListaArchivosPendientes();
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
         input.value = ""; // Limpiamos el input visualmente
+        console.log("⚡ 5. Archivo agregado exitosamente a la lista temporal.");
     } else {
         mostrarNotificacion("Ese archivo ya está en la lista.", "error");
     }
