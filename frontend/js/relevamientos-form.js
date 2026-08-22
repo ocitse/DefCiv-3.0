@@ -33,12 +33,15 @@ function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    if (archivosTemporalesFamilia.length === 0) {
+    // Leemos siempre directo de la fuente global para evitar desincronizaciones
+    const archivos = window.archivosTemporalesFamiliaGlobal || [];
+
+    if (archivos.length === 0) {
         ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-light opacity-75 small border-0">Ningún archivo adjuntado</li>`;
         return;
     }
 
-    ul.innerHTML = archivosTemporalesFamilia.map((file, index) => `
+    ul.innerHTML = archivos.map((file, index) => `
         <li class="list-group-item d-flex justify-content-between align-items-center p-1 ps-2 bg-light border-secondary-subtle mb-1 rounded">
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
             <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
@@ -51,25 +54,22 @@ function renderizarListaArchivosPendientes() {
 export function agregarArchivoALista() {
     console.log("⚡ 1. ¡ENTRÓ A agregarArchivoALista!");
     
-    const input = document.getElementById('inputArchivo');
-    console.log("⚡ 2. Estado del input:", input);
-    console.log("⚡ 3. Archivos en el input:", input ? input.files.length : "No hay input");
+    // Asegurarnos de que el array global exista
+    if (!window.archivosTemporalesFamiliaGlobal) {
+        window.archivosTemporalesFamiliaGlobal = [];
+    }
 
+    const input = document.getElementById('inputArchivo');
     if (!input || input.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
         return;
     }
 
     const archivo = input.files[0];
-    console.log("⚡ 4. Archivo seleccionado:", archivo.name);
-
-    if (typeof archivosTemporalesFamilia === 'undefined') {
-        archivosTemporalesFamilia = [];
-    }
-
-    const yaExiste = archivosTemporalesFamilia.some(f => f.name === archivo.name);
+    const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
+    
     if (!yaExiste) {
-        archivosTemporalesFamilia.push(archivo);
+        window.archivosTemporalesFamiliaGlobal.push(archivo);
         renderizarListaArchivosPendientes();
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
         input.value = ""; // Limpiamos el input visualmente
@@ -80,8 +80,10 @@ export function agregarArchivoALista() {
 }
 
 export function eliminarArchivoDeLista(index) {
-    archivosTemporalesFamilia.splice(index, 1);
-    renderizarListaArchivosPendientes();
+    if (window.archivosTemporalesFamiliaGlobal) {
+        window.archivosTemporalesFamiliaGlobal.splice(index, 1);
+        renderizarListaArchivosPendientes();
+    }
 }
 
 export function agregarItemLista(tipo) {
@@ -176,9 +178,9 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // Adjuntar archivos desde la lista temporal
-        if (archivosTemporalesFamilia && archivosTemporalesFamilia.length > 0) {
-            archivosTemporalesFamilia.forEach(archivo => {
+        // Adjuntar archivos desde la lista temporal global
+        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
+            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
                 formData.append('documentos', archivo);
             });
         }
