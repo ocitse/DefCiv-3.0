@@ -215,6 +215,13 @@ if (inputPrueba && inputPrueba.files.length > 0) {
     console.log("🔍 Nombre del archivo en el input:", inputPrueba.files[0].name);
 }
 
+// --- INSPECCIÓN DE ÚLTIMO MOMENTO ---
+console.log("🔍 ¿Qué contiene FormData realmente?");
+for (let pair of formData.entries()) {
+    console.log("👉 CAMPO:", pair[0], "VALOR:", pair[1]);
+}
+// -------------------------------------
+
         const respuesta = await fetch(url, {
             method: metodo,
             body: formData // ⚠️ No especificar 'Content-Type', el navegador asigna automáticamente multipart/form-data
