@@ -50,10 +50,11 @@ function renderizarListaArchivosPendientes() {
 
 export function agregarArchivoALista() {
     const input = document.getElementById('inputArchivo');
-
-    // 🚨 AÑADE ESTO:
-    console.log("⚡ SE DISPARÓ EL BOTÓN AGREGAR. Archivos en input:", input ? input.files : "No hay input");
-
+    
+    // 🚨 CHIVATO DIRECTO
+    console.log("⚡ PASO 1: Se hizo clic en Agregar.");
+    console.log("⚡ PASO 2: ¿Existe el input?", !!input);
+    console.log("⚡ PASO 3: ¿Cuántos archivos hay en el input?", input ? input.files.length : 0);
 
     if (!input || input.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
@@ -61,19 +62,16 @@ export function agregarArchivoALista() {
     }
 
     const archivo = input.files[0];
+    console.log("⚡ PASO 4: Archivo detectado:", archivo.name);
 
-    // Usamos estrictamente la variable global unificada
     if (!window.archivosTemporalesFamiliaGlobal) {
         window.archivosTemporalesFamiliaGlobal = [];
     }
-    
+
     window.archivosTemporalesFamiliaGlobal.push(archivo);
-    
+    console.log("⚡ PASO 5: ¡Archivo guardado con éxito! Total en global:", window.archivosTemporalesFamiliaGlobal.length);
+
     renderizarListaArchivosPendientes();
-
-    console.log("🟢 Archivo agregado a la lista global:", archivo.name);
-    console.log("🟢 Total archivos:", window.archivosTemporalesFamiliaGlobal.length);
-
     input.value = "";
 }
 
