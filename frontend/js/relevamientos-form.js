@@ -5,9 +5,9 @@ import { cargarVistaDinamica } from './utils.js';
 if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
     window.archivosTemporalesFamiliaGlobal = [];
 }
+let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; // Hacemos que compartan el mismo espacio
 
 let listaTemporalMateriales = [];
-let archivosTemporalesFamilia = []; // 🌟 Array para almacenar los archivos pendientes de adjuntar
 
 function renderizarListaVisual(tipo, arreglo) {
     const ul = document.getElementById(`lista-dinamica-${tipo}`);
@@ -55,33 +55,21 @@ export function agregarArchivoALista() {
         return;
     }
 
-    // Añadimos el archivo al array temporal
     const archivo = input.files[0];
 
-    // Usamos estrictamente la variable global de la ventana para evitar pérdida de contexto
+    // Usamos estrictamente la variable global unificada
     if (!window.archivosTemporalesFamiliaGlobal) {
         window.archivosTemporalesFamiliaGlobal = [];
     }
-
-    window.archivosSegurosParaGuardar.push(archivo);
     
-    //archivosTemporalesFamilia.push(archivo);
-
-    // 🟢 ESTA LÍNEA AQUÍ:
-    console.log("🟢 1. Archivo añadido. Elementos en caja fuerte ahora:", window.archivosSegurosParaGuardar);
-
-    // Mantenemos tu array local sincronizado por si otras funciones lo leen directamente
-    if (typeof archivosTemporalesFamilia !== 'undefined') {
-        archivosTemporalesFamilia.push(archivo);
-    }
-
+    window.archivosTemporalesFamiliaGlobal.push(archivo);
+    
     renderizarListaArchivosPendientes();
 
-    console.log("📁 Archivo agregado al array temporal:", archivo.name);
-    console.log("📁 Total archivos en array temporal:", archivosTemporalesFamilia.length);
+    console.log("🟢 Archivo agregado a la lista global:", archivo.name);
+    console.log("🟢 Total archivos:", window.archivosTemporalesFamiliaGlobal.length);
 
     input.value = "";
-    //input.value = ""; // Limpiar el input para permitir elegir otro
 }
 
 export function eliminarArchivoDeLista(index) {
@@ -187,7 +175,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
         console.log("🚨 CONTENIDO EXACTO DE ARCHIVOS EN CAJA FUERTE:", window.archivosSegurosParaGuardar);
 
-    // 🌟 Leer estrictamente de la persistencia global de la ventana
+    // Leer estrictamente de la persistencia global unificada
     const archivosAEnviar = window.archivosTemporalesFamiliaGlobal || [];
     
     if (archivosAEnviar && archivosAEnviar.length > 0) {
