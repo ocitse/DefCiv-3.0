@@ -5,6 +5,37 @@ import { cargarVistaDinamica } from './utils.js';
 if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
     window.archivosTemporalesFamiliaGlobal = [];
 }
+
+// Al inicio de relevamientos-form.js
+import { mostrarNotificacion } from './ui.js';
+import { cargarVistaDinamica } from './utils.js';
+
+if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
+    window.archivosTemporalesFamiliaGlobal = [];
+}
+
+// 🌟 Forzamos que la función sea global de inmediato
+window.agregarArchivoALista = function() {
+    const input = document.getElementById('inputArchivo');
+    console.log("⚡ BOTÓN CLICKEADO. Archivos en input:", input ? input.files.length : "No hay input");
+
+    if (!input || input.files.length === 0) {
+        mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
+        return;
+    }
+
+    const archivo = input.files[0];
+    window.archivosTemporalesFamiliaGlobal.push(archivo);
+    console.log("⚡ ARCHIVO GUARDADO. Total en global:", window.archivosTemporalesFamiliaGlobal.length);
+
+    // Llamamos a la renderización visual
+    if (typeof renderizarListaArchivosPendientes === 'function') {
+        renderizarListaArchivosPendientes();
+    }
+    
+    input.value = "";
+};
+
 let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; // Hacemos que compartan el mismo espacio
 
 let listaTemporalMateriales = [];
@@ -48,32 +79,7 @@ function renderizarListaArchivosPendientes() {
     `).join('');
 }
 
-export function agregarArchivoALista() {
-    const input = document.getElementById('inputArchivo');
-    
-    // 🚨 CHIVATO DIRECTO
-    console.log("⚡ PASO 1: Se hizo clic en Agregar.");
-    console.log("⚡ PASO 2: ¿Existe el input?", !!input);
-    console.log("⚡ PASO 3: ¿Cuántos archivos hay en el input?", input ? input.files.length : 0);
 
-    if (!input || input.files.length === 0) {
-        mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
-        return;
-    }
-
-    const archivo = input.files[0];
-    console.log("⚡ PASO 4: Archivo detectado:", archivo.name);
-
-    if (!window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal = [];
-    }
-
-    window.archivosTemporalesFamiliaGlobal.push(archivo);
-    console.log("⚡ PASO 5: ¡Archivo guardado con éxito! Total en global:", window.archivosTemporalesFamiliaGlobal.length);
-
-    renderizarListaArchivosPendientes();
-    input.value = "";
-}
 
 export function eliminarArchivoDeLista(index) {
     archivosTemporalesFamilia.splice(index, 1);
