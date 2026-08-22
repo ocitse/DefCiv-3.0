@@ -50,6 +50,11 @@ function renderizarListaArchivosPendientes() {
 
 export function agregarArchivoALista() {
     const input = document.getElementById('inputArchivo');
+
+    // 🚨 AÑADE ESTO:
+    console.log("⚡ SE DISPARÓ EL BOTÓN AGREGAR. Archivos en input:", input ? input.files : "No hay input");
+
+
     if (!input || input.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
         return;
