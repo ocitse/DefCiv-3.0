@@ -409,9 +409,14 @@ export function mostrarFormularioNuevaFamilia() {
 }
 
 // Exponer funciones globales necesarias para eventos onclick en HTML
+
 window.cambiarPasoWizard = cambiarPasoWizard;
-window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+window.eliminarArchivoDeLista = eliminarArchivoDeLista;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
-window.agregarArchivoALista = agregarArchivoALista;
-window.eliminarArchivoDeLista = eliminarArchivoDeLista;
+window.cambiarPasoWizard = cambiarPasoWizard;
+window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+
+
+
+
