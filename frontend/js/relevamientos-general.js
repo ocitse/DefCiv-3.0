@@ -208,8 +208,8 @@ export async function verPanelPrincipal() {
                     <tr>
                         <td><strong>${r.departamento || 'N/D'}</strong> (${r.localidad || 'N/D'})</td>
                         <td>${r.tipo_evento || 'N/D'}</td>
-                        <td><small>${r.relevador_asignado || r.relevador_assigned || 'N/D'}</small></td>
-                        <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
+                        <td><small>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</small></td>
+                        <td><span class="badge ${r.prioridad === 'Alta' ? 'bg-danger' : r.prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-secondary'}">${r.prioridad || 'Normal'}</span></td>
                     </tr>
                 `).join('');
             }
