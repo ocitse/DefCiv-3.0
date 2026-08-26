@@ -106,9 +106,9 @@ body {
     #sidebar-mobile .navbar-collapse {
         position: absolute;
         top: 55px;
-        left: 15px; /* <--- Alineado a la izquierda */
-        width: calc(100% - 30px); /* Opcional: para que se adapte al ancho del celu con un pequeño margen, o dejale un ancho fijo de 240px si preferís la cajita compacta */
-        max-width: 260px;
+        right: 15px; /* <--- Alineado al botón de la hamburguesa a la derecha */
+        left: auto;  /* <--- Nos aseguramos que no pise con la izquierda */
+        width: 240px;
         background-color: #212529;
         z-index: 1040; 
         border-radius: 8px;
