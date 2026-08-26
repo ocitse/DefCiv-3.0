@@ -85,16 +85,22 @@ body {
 /* ========================================================
    2. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
    ======================================================== */
-@media (max-width: 767.98px) {
+   @media (max-width: 767.98px) {
     #sidebar-app, .sidebar {
         display: none !important;
     }
 
     .main-content-wrapper {
-        width: 100%;
+        width: 100% !important;
+        margin-left: 0 !important; /* <--- Esto saca el hueco en blanco de la izquierda */
         display: block;
         min-height: calc(100vh - 60px); 
         position: relative;
+    }
+
+    .main-content {
+        padding: 10px !important; /* Ajusta un poco el margen interno para ganar espacio en celulares */
+        width: 100% !important;
     }
 
     #sidebar-mobile .navbar-collapse {
