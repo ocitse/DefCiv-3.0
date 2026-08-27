@@ -127,6 +127,9 @@ body {
     .solo-escritorio {
         display: none !important;
     }
+    .head-desktop {
+        display: none !important;
+    }
 }
 
 /* ========================================================
