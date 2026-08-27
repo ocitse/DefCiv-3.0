@@ -123,10 +123,6 @@ body {
         box-shadow: none !important;
         background-color: transparent !important;
     }
-    /* Oculta los elementos de escritorio en celulares */
-    .solo-escritorio {
-        display: none !important;
-    }
     .head-desktop {
         display: none !important;
     }
