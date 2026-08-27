@@ -126,6 +126,33 @@ body {
     .head-desktop {
         display: none !important;
     }
+    /* Asegura que la barra superior distribuya bien el espacio y empuje el toggler a la derecha */
+    .navbar .container-fluid, .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Permite que el texto largo del usuario baje a dos líneas y ajuste su tamaño */
+    .navbar .nav-link, .navbar-brand {
+        white-space: normal !important; /* Permite salto de línea */
+        word-break: break-word;     /* Evita que desborde si hay una palabra muy larga */
+        font-size: 0.85rem;          /* Letra un toque más compacta para que luzca prolijo */
+        line-height: 1.2;
+    }
+
+    /* Forzar que el botón de hamburguesa quede anclado al margen derecho exacto */
+    .navbar-toggler {
+        margin-left: auto;
+        padding: 4px 8px;
+    }
+    /* Anula los márgenes laterales de la barra para que toque los bordes de la pantalla */
+    #sidebar-mobile.navbar {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
 }
 
 /* ========================================================
