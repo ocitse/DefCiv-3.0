@@ -1,4 +1,4 @@
-/**
+/**ui.js 
  * Muestra una notificación visual en la esquina superior derecha de la pantalla
  * @param {string} mensaje - El texto a mostrar
  * @param {string} tipo - 'success' (verde), 'error'/'danger' (rojo) o 'info'/'warning' (amarillo)

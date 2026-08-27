@@ -324,7 +324,7 @@ window.cambiarPaginaRelevamientos = function(nuevaPagina) {
     manejarCambioFiltrosRelevamientos(false);
 }
 
-// Renderizado de filas en la tabla
+// Renderizado de filas en la tabla y tarjetas para móviles
 function renderizarFilasRelevamientos(relevamientos) {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
@@ -335,54 +335,78 @@ function renderizarFilasRelevamientos(relevamientos) {
     }
 
     tbody.innerHTML = relevamientos.map(r => {
-        // Normalizamos el estado para limpiar espacios y evaluar con seguridad
         const estadoRaw = (r.estado || '').toLowerCase().trim();
         const esNuevo = estadoRaw === 'nuevo';
         const esEnProceso = estadoRaw === 'en_proceso' || estadoRaw === 'en-proceso' || estadoRaw === 'en proceso';
-        const esActivo = esNuevo || esEnProceso;
         const esCompletado = estadoRaw === 'completado';
 
-        console.log(`Relevamiento ID: ${r.id_relevamiento || r.id} - Estado leído: "${estadoRaw}" - ¿Es completado?: ${esCompletado}`);
+        const idRel = r.id_relevamiento || r.id;
+        const codigo = r.codigo_relevamiento || 'N/D';
+        const fecha = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D';
+        const ubicacion = `<strong>${r.departamento || ''}</strong> / ${r.localidad || ''}`;
+        const barrio = r.barrio || 'Sin barrio';
+        const evento = r.tipo_evento || 'N/D';
+        const solicitante = r.solicitante || 'N/D';
+        const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
+        const cantFamilias = r.familias ? r.familias.length : 0;
 
-        return `
-        <tr>
-            <td><strong>${r.codigo_relevamiento || 'N/D'}</strong></td>
-            <td><span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span></td>
-            <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/D'}</td>
-            <td><strong>${r.departamento}</strong> / ${r.localidad}</td>
-            <td>${r.barrio || ''}</td>
-            <td>${r.tipo_evento || ''}</td>
-            <td>${r.solicitante || ''}</td>
-            <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
-            <td>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</td>
-            <td class="text-center">${r.familias ? r.familias.length : 0}</td>
-            
-            <td class="text-center">
-                <div class="d-flex justify-content-center gap-1">
+        // Bloque de botones reutilizable para ambos diseños
+        const botonesAccion = `
+            <div class="d-flex justify-content-center gap-1 flex-wrap">
                 ${esCompletado ? `
-                    <!-- 🌟 SI ESTÁ COMPLETADO: Aquí aparece el botón de Devolver -->
-                    <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${r.id_relevamiento || r.id}')" title="Devolver al relevador con observaciones">
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador">
                         <i class="bi bi-arrow-counterclockwise"></i> Devolver
                     </button>
                 ` : `
-                    <!-- Si está Nuevo o En Proceso (incluyendo los devueltos) -->
-                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${r.id_relevamiento || r.id}')" title="Editar Configuración">
+                    <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${idRel}')" title="Editar Configuración">
                         <i class="bi bi-pencil-square"></i>
                     </button>
                     ${esEnProceso ? `
-                    <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${r.id_relevamiento || r.id}')" title="Marcar como Completado">
+                    <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${idRel}')" title="Marcar como Completado">
                         <i class="bi bi-check-circle"></i>
                     </button>
                     ` : ''}
                 `}
-
-                <!-- Botones que aparecen siempre para todos los estados -->
-                <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${r.id_relevamiento || r.id}')" title="Ver Familias">
+                <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${idRel}')" title="Ver Familias">
                     <i class="bi bi-eye"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${r.id_relevamiento || r.id}')" title="Eliminar Relevamiento">
+                <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${idRel}')" title="Eliminar Relevamiento">
                     <i class="bi bi-trash"></i>
                 </button>
+            </div>
+        `;
+
+        return `
+        <!-- 1. VISTA DE ESCRITORIO (Tabla tradicional de 11 columnas) -->
+        <tr class="d-none d-md-table-row">
+            <td><strong>${codigo}</strong></td>
+            <td><span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span></td>
+            <td>${fecha}</td>
+            <td>${ubicacion}</td>
+            <td>${barrio}</td>
+            <td>${evento}</td>
+            <td>${solicitante}</td>
+            <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
+            <td>${relevador}</td>
+            <td class="text-center">${cantFamilias}</td>
+            <td class="text-center">${botonesAccion}</td>
+        </tr>
+
+        <!-- 2. VISTA MÓVIL (Tarjeta adaptable para celulares) -->
+        <tr class="d-block d-md-none mb-3 border rounded shadow-sm bg-white p-3">
+            <td>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>${codigo}</strong>
+                    <span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span>
+                </div>
+                <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>${ubicacion} (${barrio})</div>
+                <div class="small mb-1"><strong>Evento:</strong> ${evento} | <strong>Solicitante:</strong> ${solicitante}</div>
+                <div class="small mb-1"><strong>Prioridad:</strong> <span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></div>
+                <div class="small mb-1"><strong>Relevador:</strong> ${relevador}</div>
+                <div class="small mb-2"><strong>Familias cargadas:</strong> ${cantFamilias}</div>
+                <div class="dropdown-divider"></div>
+                <div class="mt-2">
+                    ${botonesAccion}
                 </div>
             </td>
         </tr>
