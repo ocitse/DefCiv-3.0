@@ -123,8 +123,8 @@ body {
         box-shadow: none !important;
         background-color: transparent !important;
     }
-    /* Oculta la cabecera de la tabla en celulares para dar paso a las tarjetas */
-    .table thead {
+    /* Oculta los elementos de escritorio en celulares */
+    .solo-escritorio {
         display: none !important;
     }
 }
@@ -159,10 +159,6 @@ body {
         display: block;
         margin-top: 0; 
         animation: fadeIn 0.2s;
-    }
-    /* Muestra la cabecera con formato normal de tabla en computadoras */
-    .table thead {
-        display: table-header-group !important;
     }
 }
 /* ========================================================
