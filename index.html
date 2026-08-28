@@ -31,17 +31,17 @@
         <hr>
         
         <!-- Versión Escritorio -->
-<ul class="nav nav-pills flex-column mb-auto gap-1" id="sidebar-app-desktop">
-    <li class="nav-item">
-        <a href="#" class="nav-link active text-white" id="btn-menu-inicio">
-            <i class="bi bi-house-door-fill me-2"></i> Inicio
-        </a>
-    </li>
-    <li>
-        <a href="#" class="nav-link text-white" id="btn-menu-relevamientos">
-            <i class="bi bi-journal-text me-2"></i> Relevamientos
-        </a>
-    </li>
+        <ul class="nav nav-pills flex-column mb-auto gap-1" id="sidebar-app-desktop">
+            <li class="nav-item">
+                <a href="#" class="nav-link active text-white" id="btn-menu-inicio">
+                    <i class="bi bi-house-door-fill me-2"></i> Inicio
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white" id="btn-menu-relevamientos">
+                    <i class="bi bi-journal-text me-2"></i> Relevamientos
+                </a>
+            </li>
             <li>
                 <a href="#" class="nav-link text-white" id="btn-menu-solicitudes">
                     <i class="bi bi-file-earmark-text me-2"></i> Solicitudes
@@ -53,7 +53,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link text-white dropdown-toggle" id="btn-menu-config" data-bs-toggle="dropdown" aria-expanded="false">
+                <a href="#" class="nav-link text-white dropdown-toggle" id="btn-menu-config" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                     <i class="bi bi-gear-fill me-2"></i> Configuración
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="btn-menu-config" style="position: absolute; left: 100%; top: 0; margin-left: 5px;">
@@ -77,7 +77,7 @@
     
             <div class="d-flex align-items-center gap-2">
                 <div class="dropdown">
-                    <a class="text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-1" href="#" id="dropdownUserMobile" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 11px;">
+                    <a class="text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-1" href="#" id="dropdownUserMobile" role="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" style="font-size: 11px;">
                         <i class="bi bi-person-circle fs-5"></i>
                         <span id="nombre-usuario-mobile" style="display: inline-block; max-width: 110px; white-space: normal; line-height: 1.1; text-align: left;">Cavalieri Omar</span>
                     </a>
@@ -110,7 +110,7 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="btn-mobile-config" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="btn-mobile-config" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <i class="bi bi-gear-fill me-2"></i> Configuración
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark border-secondary" aria-labelledby="btn-mobile-config">
@@ -139,195 +139,203 @@
         import { verListaSolicitudes } from './frontend/js/solicitudes.js';
 
         document.addEventListener('DOMContentLoaded', () => {
-    window.editarRelevamientoGeneral = editarRelevamientoGeneral;
-    
-    const token = localStorage.getItem('token');
-    const usuarioRaw = localStorage.getItem('usuario');
+            window.editarRelevamientoGeneral = editarRelevamientoGeneral;
+            
+            const token = localStorage.getItem('token');
+            const usuarioRaw = localStorage.getItem('usuario');
 
-    if (!token || !usuarioRaw) {
-        console.warn("⚠️ Faltan credenciales, redirigiendo al login...");
-        window.location.replace('/login'); 
-        return;
-    }
-
-    const cuerpoSistema = document.getElementById('cuerpo-sistema');
-    if (cuerpoSistema) {
-        cuerpoSistema.style.display = 'block';
-    }
-
-    // Declaramos la variable de forma global para todo este ámbito
-    let usuarioLogueado = {};
-    try {
-        usuarioLogueado = JSON.parse(usuarioRaw);
-        if (usuarioLogueado.requiereCambioPass) {
-            window.location.replace('/cambiar-password');
-            return; 
-        }
-
-        if (usuarioLogueado && usuarioLogueado.nombres && usuarioLogueado.apellido) {
-            const nombreCompleto = usuarioLogueado.nombres + ' ' + usuarioLogueado.apellido;
-            const elDesktop = document.getElementById('nombre-usuario-desktop');
-            const elMobile = document.getElementById('nombre-usuario-mobile');
-            if (elDesktop) elDesktop.textContent = nombreCompleto;
-            if (elMobile) elMobile.textContent = nombreCompleto;
-        }
-    } catch (e) {
-        console.error("❌ Error al parsear el usuario del localStorage:", e);
-    }
-
-    // ==========================================
-    // FILTRADO DE MENÚ SEGÚN EL ROL (Seguro)
-    // ==========================================
-    const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
-    
-    // Referencias comunes para escritorio y móvil
-    const menuRelevamientosDesk = document.getElementById('btn-menu-relevamientos')?.closest('li'); // Ajusta el ID si es distinto
-    const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
-    const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
-    const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
-
-    const menuRelevamientosMob = document.getElementById('btn-mobile-relevamientos')?.closest('li'); // Ajusta el ID si es distinto
-    const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
-    const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
-    const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
-
-    if (rolUsuario === 'consulta') {
-        // Consulta solo ve el inicio: ocultamos todo lo demás
-        if (menuRelevamientosDesk) menuRelevamientosDesk.style.display = 'none';
-        if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
-        if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
-        if (menuConfigDesk) menuConfigDesk.style.display = 'none';
-
-        if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
-        if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
-        if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
-        if (menuConfigMob) menuConfigMob.style.display = 'none';
-
-    } else if (rolUsuario === 'operador') {
-        // Operador ve solicitudes y provisiones: ocultamos relevamientos y configuración
-        if (menuRelevamientosDesk) menuRelevamientosDesk.style.display = 'none';
-        if (menuConfigDesk) menuConfigDesk.style.display = 'none';
-
-        if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
-        if (menuConfigMob) menuConfigMob.style.display = 'none';
-
-    } else if (rolUsuario === 'relevador') {
-        // Relevador (reglas existentes)
-        if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
-        if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
-        if (menuConfigDesk) menuConfigDesk.style.display = 'none';
-
-        if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
-        if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
-        if (menuConfigMob) menuConfigMob.style.display = 'none';
-    }
-    // ==========================================
-    // Disparador inicial del panel principal
-    try {
-        verPanelPrincipal();
-    } catch (err) {
-        console.error("❌ Error al intentar ejecutar verPanelPrincipal:", err);
-    }
-
-    const realizarSalida = (e) => {
-        e.preventDefault();
-        if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
-            localStorage.clear(); 
-            window.location.replace('/login'); 
-        }
-    };
-
-    const btnSalirDesk = document.getElementById('btn-salir-desktop');
-    const btnSalirMob = document.getElementById('btn-salir-mobile');
-    if (btnSalirDesk) btnSalirDesk.addEventListener('click', realizarSalida);
-    if (btnSalirMob) btnSalirMob.addEventListener('click', realizarSalida);
-
-    const abrirModalCambioClave = (e) => {
-        e.preventDefault();
-        window.location.replace('/cambiar-password');
-    };
-    const btnPassDesk = document.getElementById('btn-cambiar-pass-desktop');
-    const btnPassMob = document.getElementById('btn-cambiar-pass-mobile');
-    if (btnPassDesk) btnPassDesk.addEventListener('click', abrirModalCambioClave);
-    if (btnPassMob) btnPassMob.addEventListener('click', abrirModalCambioClave);
-    
-    function cambiarEnlaceActivo(idBotonDesktop, idBotonMobile) {
-        document.querySelectorAll('.sidebar .nav-link, .navbar-nav .nav-link').forEach(enlace => {
-            enlace.classList.remove('active');
-        });
-        const desk = document.getElementById(idBotonDesktop);
-        const mob = document.getElementById(idBotonMobile);
-        if (desk) desk.classList.add('active');
-        if (mob) mob.classList.add('active');
-    }
-
-    const btnInicioDesk = document.getElementById('btn-menu-inicio');
-    const btnInicioMob = document.getElementById('btn-mobile-inicio');
-    const handlerInicio = (e) => {
-        e.preventDefault();
-        cambiarEnlaceActivo('btn-menu-inicio', 'btn-mobile-inicio');
-        verPanelPrincipal();
-    };
-    if (btnInicioDesk) btnInicioDesk.addEventListener('click', handlerInicio);
-    if (btnInicioMob) btnInicioMob.addEventListener('click', handlerInicio);
-
-    const btnRevDesk = document.getElementById('btn-menu-relevamientos');
-    const btnRevMob = document.getElementById('btn-mobile-relevamientos');
-    const handlerRev = (e) => {
-        e.preventDefault();
-        cambiarEnlaceActivo('btn-menu-relevamientos', 'btn-mobile-relevamientos');
-        verListaRelevamientos();
-    };
-    if (btnRevDesk) btnRevDesk.addEventListener('click', handlerRev);
-    if (btnRevMob) btnRevMob.addEventListener('click', handlerRev);
-
-    const btnSolDesk = document.getElementById('btn-menu-solicitudes');
-    const btnSolMob = document.getElementById('btn-mobile-solicitudes');
-    const handlerSol = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        cambiarEnlaceActivo('btn-menu-solicitudes', 'btn-mobile-solicitudes');
-        verListaSolicitudes();
-    };
-    if (btnSolDesk) btnSolDesk.addEventListener('click', handlerSol);
-    if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
-
-    const btnUsuDesk = document.getElementById('btn-sub-usuarios');
-    if (btnUsuDesk) {
-        btnUsuDesk.addEventListener('click', (e) => {
-            e.preventDefault();
-            cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-            if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios(); 
-        });
-    }
-
-    const btnUsuMob = document.getElementById('btn-mobile-sub-usuarios');
-    if (btnUsuMob) {
-        btnUsuMob.addEventListener('click', (e) => {
-            e.preventDefault();
-            cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
-            const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNavMobile'));
-            if (bsCollapse) bsCollapse.hide();
-            if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
-        });
-    }
-    // Evita que el submenú de configuración se cierre prematuramente al hacer clic dentro
-    document.querySelectorAll('#btn-menu-config + .dropdown-menu, #btn-mobile-config + .dropdown-menu').forEach(menuDropdown => {
-        menuDropdown.addEventListener('click', (e) => {
-            // Si el elemento clickeado es una opción válida, permitimos que actúe y cerramos el menú
-            if (e.target.classList.contains('dropdown-item') || e.target.closest('.dropdown-item')) {
-                const toggleBtn = menuDropdown.previousElementSibling;
-                if (toggleBtn && typeof bootstrap !== 'undefined') {
-                    const dropdownInstance = bootstrap.Dropdown.getInstance(toggleBtn);
-                    if (dropdownInstance) dropdownInstance.hide();
-                }
-            } else {
-                // Si hace clic dentro del contenedor pero fuera de los ítems, evitamos que se propague el cierre
-                e.stopPropagation();
+            if (!token || !usuarioRaw) {
+                console.warn("⚠️ Faltan credenciales, redirigiendo al login...");
+                window.location.replace('/login'); 
+                return;
             }
+
+            const cuerpoSistema = document.getElementById('cuerpo-sistema');
+            if (cuerpoSistema) {
+                cuerpoSistema.style.display = 'block';
+            }
+
+            let usuarioLogueado = {};
+            try {
+                usuarioLogueado = JSON.parse(usuarioRaw);
+                if (usuarioLogueado.requiereCambioPass) {
+                    window.location.replace('/cambiar-password');
+                    return; 
+                }
+
+                if (usuarioLogueado && usuarioLogueado.nombres && usuarioLogueado.apellido) {
+                    const nombreCompleto = usuarioLogueado.nombres + ' ' + usuarioLogueado.apellido;
+                    const elDesktop = document.getElementById('nombre-usuario-desktop');
+                    const elMobile = document.getElementById('nombre-usuario-mobile');
+                    if (elDesktop) elDesktop.textContent = nombreCompleto;
+                    if (elMobile) elMobile.textContent = nombreCompleto;
+                }
+            } catch (e) {
+                console.error("❌ Error al parsear el usuario del localStorage:", e);
+            }
+
+            const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
+            
+            const menuRelevamientosDesk = document.getElementById('btn-menu-relevamientos')?.closest('li');
+            const menuSolicitudesDesk = document.getElementById('btn-menu-solicitudes')?.closest('li');
+            const menuProvisionesDesk = document.querySelector('a[href="/frontend/pages/provisiones.html"]')?.closest('li');
+            const menuConfigDesk = document.getElementById('btn-menu-config')?.closest('li');
+
+            const menuRelevamientosMob = document.getElementById('btn-mobile-relevamientos')?.closest('li');
+            const menuSolicitudesMob = document.getElementById('btn-mobile-solicitudes')?.closest('li');
+            const menuProvisionesMob = document.querySelector('#navbarNavMobile a[href="/frontend/pages/provisiones.html"]')?.closest('li');
+            const menuConfigMob = document.getElementById('btn-mobile-config')?.closest('li');
+
+            if (rolUsuario === 'consulta') {
+                if (menuRelevamientosDesk) menuRelevamientosDesk.style.display = 'none';
+                if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
+                if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
+                if (menuConfigDesk) menuConfigDesk.style.display = 'none';
+
+                if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
+                if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
+                if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
+                if (menuConfigMob) menuConfigMob.style.display = 'none';
+            } else if (rolUsuario === 'operador') {
+                if (menuRelevamientosDesk) menuRelevamientosDesk.style.display = 'none';
+                if (menuConfigDesk) menuConfigDesk.style.display = 'none';
+
+                if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
+                if (menuConfigMob) menuConfigMob.style.display = 'none';
+            } else if (rolUsuario === 'relevador') {
+                if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
+                if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none';
+                if (menuConfigDesk) menuConfigDesk.style.display = 'none';
+
+                if (menuSolicitudesMob) menuSolicitudesMob.style.display = 'none';
+                if (menuProvisionesMob) menuProvisionesMob.style.display = 'none';
+                if (menuConfigMob) menuConfigMob.style.display = 'none';
+            }
+
+            try {
+                verPanelPrincipal();
+            } catch (err) {
+                console.error("❌ Error al intentar ejecutar verPanelPrincipal:", err);
+            }
+
+            const realizarSalida = (e) => {
+                e.preventDefault();
+                if (confirm('¿Está seguro de que desea cerrar sesión en el sistema?')) {
+                    localStorage.clear(); 
+                    window.location.replace('/login'); 
+                }
+            };
+
+            const btnSalirDesk = document.getElementById('btn-salir-desktop');
+            const btnSalirMob = document.getElementById('btn-salir-mobile');
+            if (btnSalirDesk) btnSalirDesk.addEventListener('click', realizarSalida);
+            if (btnSalirMob) btnSalirMob.addEventListener('click', realizarSalida);
+
+            const abrirModalCambioClave = (e) => {
+                e.preventDefault();
+                window.location.replace('/cambiar-password');
+            };
+            const btnPassDesk = document.getElementById('btn-cambiar-pass-desktop');
+            const btnPassMob = document.getElementById('btn-mobile-sub-usuarios'); // o cambiar pass mobile si aplica
+            if (btnPassDesk) btnPassDesk.addEventListener('click', abrirModalCambioClave);
+            const btnPassMobElem = document.getElementById('btn-cambiar-pass-mobile');
+            if (btnPassMobElem) btnPassMobElem.addEventListener('click', abrirModalCambioClave);
+            
+            function cambiarEnlaceActivo(idBotonDesktop, idBotonMobile) {
+                document.querySelectorAll('.sidebar .nav-link, .navbar-nav .nav-link').forEach(enlace => {
+                    enlace.classList.remove('active');
+                });
+                const desk = document.getElementById(idBotonDesktop);
+                const mob = document.getElementById(idBotonMobile);
+                if (desk) desk.classList.add('active');
+                if (mob) mob.classList.add('active');
+            }
+
+            const btnInicioDesk = document.getElementById('btn-menu-inicio');
+            const btnInicioMob = document.getElementById('btn-mobile-inicio');
+            const handlerInicio = (e) => {
+                e.preventDefault();
+                cambiarEnlaceActivo('btn-menu-inicio', 'btn-mobile-inicio');
+                verPanelPrincipal();
+            };
+            if (btnInicioDesk) btnInicioDesk.addEventListener('click', handlerInicio);
+            if (btnInicioMob) btnInicioMob.addEventListener('click', handlerInicio);
+
+            const btnRevDesk = document.getElementById('btn-menu-relevamientos');
+            const btnRevMob = document.getElementById('btn-mobile-relevamientos');
+            const handlerRev = (e) => {
+                e.preventDefault();
+                cambiarEnlaceActivo('btn-menu-relevamientos', 'btn-mobile-relevamientos');
+                verListaRelevamientos();
+            };
+            if (btnRevDesk) btnRevDesk.addEventListener('click', handlerRev);
+            if (btnRevMob) btnRevMob.addEventListener('click', handlerRev);
+
+            const btnSolDesk = document.getElementById('btn-menu-solicitudes');
+            const btnSolMob = document.getElementById('btn-mobile-solicitudes');
+            const handlerSol = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                cambiarEnlaceActivo('btn-menu-solicitudes', 'btn-mobile-solicitudes');
+                verListaSolicitudes();
+            };
+            if (btnSolDesk) btnSolDesk.addEventListener('click', handlerSol);
+            if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
+
+            const btnUsuDesk = document.getElementById('btn-sub-usuarios');
+            if (btnUsuDesk) {
+                btnUsuDesk.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+                    if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios(); 
+                });
+            }
+
+            const btnUsuMob = document.getElementById('btn-mobile-sub-usuarios');
+            if (btnUsuMob) {
+                btnUsuMob.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    cambiarEnlaceActivo('btn-menu-config', 'btn-mobile-config');
+                    const bsCollapse = bootstrap.Collapse.getInstance(document.getElementById('navbarNavMobile'));
+                    if (bsCollapse) bsCollapse.hide();
+                    if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
+                });
+            }
+
+            // =========================================================================
+            // GESTIÓN INTELIGENTE DE MENÚS (Evita superposiciones y maneja configuración)
+            // =========================================================================
+            const navCollapseEl = document.getElementById('navbarNavMobile');
+            const bsCollapse = navCollapseEl ? new bootstrap.Collapse(navCollapseEl, { toggle: false }) : null;
+
+            // 1. Si se abre el menú de usuario en móvil, cerramos el menú hamburguesa
+            const dropdownUserMob = document.getElementById('dropdownUserMobile');
+            if (dropdownUserMob) {
+                dropdownUserMob.addEventListener('show.bs.dropdown', () => {
+                    if (bsCollapse) bsCollapse.hide();
+                });
+            }
+
+            // 2. Si se abre el menú hamburguesa, cerramos el menú de usuario móvil
+            if (navCollapseEl) {
+                navCollapseEl.addEventListener('show.bs.collapse', () => {
+                    const dropdownInstance = bootstrap.Dropdown.getInstance(dropdownUserMob);
+                    if (dropdownInstance) dropdownInstance.hide();
+                });
+            }
+
+            // 3. Cerrar el menú de configuración al hacer clic en cualquiera de sus opciones internas
+            document.querySelectorAll('#btn-menu-config + .dropdown-menu .dropdown-item, #btn-mobile-config + .dropdown-menu .dropdown-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const dropdownMenu = item.closest('.dropdown');
+                    const toggleBtn = dropdownMenu?.querySelector('.dropdown-toggle');
+                    if (toggleBtn && typeof bootstrap !== 'undefined') {
+                        const instance = bootstrap.Dropdown.getInstance(toggleBtn);
+                        if (instance) instance.hide();
+                    }
+                });
+            });
         });
-    });
-});
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
