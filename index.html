@@ -318,6 +318,14 @@
                 });
             }
 
+            // Evita que el clic en configuración móvil cierre la barra hamburguesa principal
+            const btnMobileConfig = document.getElementById('btn-mobile-config');
+            if (btnMobileConfig) {
+                btnMobileConfig.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+
             // Cierre explícito de los submenús de configuración al hacer clic en una opción interna
             document.querySelectorAll('#btn-menu-config + .dropdown-menu .dropdown-item, #btn-mobile-config + .dropdown-menu .dropdown-item').forEach(item => {
                 item.addEventListener('click', () => {
@@ -336,23 +344,22 @@
                     }
                 });
             });
-            // Control de cierre manual para el submenú de configuración en versión móvil
-    const btnMobileConfig = document.getElementById('btn-mobile-config');
-    const menuConfigMobile = btnMobileConfig?.nextElementSibling;
 
-    if (menuConfigMobile) {
-        menuConfigMobile.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (btnMobileConfig && typeof bootstrap !== 'undefined') {
-                    bootstrap.Dropdown.getInstance(btnMobileConfig)?.hide();
-                }
-                const mobileCollapse = document.getElementById('navbarNavMobile');
-                if (mobileCollapse) {
-                    bootstrap.Collapse.getInstance(mobileCollapse)?.hide();
-                }
-            });
-        });
-    }
+            // Control de cierre manual para el submenú de configuración en versión móvil
+            const menuConfigMobile = btnMobileConfig?.nextElementSibling;
+            if (menuConfigMobile) {
+                menuConfigMobile.querySelectorAll('.dropdown-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (btnMobileConfig && typeof bootstrap !== 'undefined') {
+                            bootstrap.Dropdown.getInstance(btnMobileConfig)?.hide();
+                        }
+                        const mobileCollapse = document.getElementById('navbarNavMobile');
+                        if (mobileCollapse) {
+                            bootstrap.Collapse.getInstance(mobileCollapse)?.hide();
+                        }
+                    });
+                });
+            }
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
