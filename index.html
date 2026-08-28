@@ -110,7 +110,7 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="btn-mobile-config" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0);" id="btn-mobile-config" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
                             <i class="bi bi-gear-fill me-2"></i> Configuración
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark border-secondary" aria-labelledby="btn-mobile-config">
@@ -342,6 +342,13 @@
                     }
                 });
             });
+            const btnMobileConfig = document.getElementById('btn-mobile-config');
+if (btnMobileConfig) {
+    btnMobileConfig.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+}
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
