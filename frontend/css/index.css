@@ -433,3 +433,27 @@ body {
     width: 100%;
     max-width: 1350px;
 }
+
+/* Corrección de contraste para textos oscuros invisibles en modo oscuro */
+.page-title, 
+h1, h2, h3, h4, h5, h6,
+.content-principal h2,
+.content-principal h4,
+.content-principal .text-dark {
+    color: #ffffff !important;
+}
+
+/* Subtítulos y textos secundarios en paneles */
+.main-content p, 
+.content-principal p,
+#app-container p {
+    color: #94a3b8 !important; /* Gris claro legible */
+}
+
+/* Títulos de secciones específicas como 'Últimas Emergencias Asignadas' */
+.card-title, 
+.content-principal .card-header,
+.content-principal span[class*="text-"],
+#app-container h4 {
+    color: #f8fafc !important;
+}
