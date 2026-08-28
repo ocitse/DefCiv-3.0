@@ -342,13 +342,16 @@
                     }
                 });
             });
+            // Manejo correcto para el menú de configuración móvil
             const btnMobileConfig = document.getElementById('btn-mobile-config');
-if (btnMobileConfig) {
-    btnMobileConfig.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    });
-}
+            const menuConfigMobile = btnMobileConfig?.nextElementSibling;
+
+            if (btnMobileConfig && menuConfigMobile) {
+                // Evitamos que los clics dentro del menú de configuración propaguen el cierre automático de la hamburguesa
+                menuConfigMobile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
