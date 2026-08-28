@@ -93,22 +93,28 @@ body {
 
     .main-content-wrapper {
         width: 100% !important;
-        margin-left: 0 !important; /* <--- Esto saca el hueco en blanco de la izquierda */
+        margin-left: 0 !important;
         display: block;
         min-height: calc(100vh - 60px); 
         position: relative;
     }
 
     .main-content {
-        padding: 10px !important; /* Ajusta un poco el margen interno para ganar espacio en celulares */
+        padding: 10px !important;
         width: 100% !important;
     }
 
+    /* Oculta la cabecera de las tablas en celular */
+    .head-desktop {
+        display: none !important;
+    }
+
+    /* Menú desplegable hamburguesa flotante */
     #sidebar-mobile .navbar-collapse {
         position: absolute;
         top: 55px;
-        right: 15px; /* <--- Alineado al botón de la hamburguesa a la derecha */
-        left: auto;  /* <--- Nos aseguramos que no pise con la izquierda */
+        right: 10px;
+        left: auto;
         width: 240px;
         background-color: #212529;
         z-index: 1040; 
@@ -123,35 +129,15 @@ body {
         box-shadow: none !important;
         background-color: transparent !important;
     }
-    .head-desktop {
-        display: none !important;
-    }
-    /* Asegura que la barra superior distribuya bien el espacio y empuje el toggler a la derecha */
-    .navbar .container-fluid, .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-left: 10px;
-        padding-right: 10px;
-    }
 
-    /* Permite que el texto largo del usuario baje a dos líneas y ajuste su tamaño */
-    .navbar .nav-link, .navbar-brand {
-        white-space: normal !important; /* Permite salto de línea */
-        word-break: break-word;     /* Evita que desborde si hay una palabra muy larga */
-        font-size: 0.85rem;          /* Letra un toque más compacta para que luzca prolijo */
-        line-height: 1.2;
-    }
-
-    /* Forzar que el botón de hamburguesa quede anclado al margen derecho exacto */
-    .navbar-toggler {
-        margin-left: auto;
-        padding: 4px 8px;
-    }
-    /* Anula los márgenes laterales de la barra para que toque los bordes de la pantalla */
-    #sidebar-mobile.navbar {
-        padding-left: 5px !important;
-        padding-right: 5px !important;
+    /* Ajuste específico para que el nombre largo baje de línea ordenadamente sin romper el menú */
+    #nombre-usuario-mobile {
+        display: inline-block;
+        max-width: 110px;
+        white-space: normal !important;
+        line-height: 1.1;
+        text-align: left;
+        font-size: 0.75rem;
     }
 }
 

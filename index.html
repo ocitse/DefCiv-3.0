@@ -69,19 +69,17 @@
     </div>
     
     <nav class="navbar navbar-dark bg-dark border-bottom border-secondary sticky-top px-2 d-flex d-md-none position-relative" id="sidebar-mobile" style="z-index: 1000; width: 100%;">
-        <div class="container-fluid d-flex align-items-center justify-content-between px-1 py-0">
+        <div class="container-fluid d-flex align-items-center justify-content-between p-0">
             
-            <!-- Logo y Título compactos -->
             <div class="navbar-brand fw-bold text-warning d-flex align-items-center gap-1 m-0 fs-6">
-                <i class="bi bi-shield-fill-exclamation"></i> <span>Defensa Civil</span>
+                <i class="bi bi-shield-fill-exclamation"></i> Defensa Civil
             </div>
     
-            <!-- Contenedor derecho flexible: Usuario + Hamburguesa -->
-            <div class="d-flex align-items-center gap-2 ms-auto" style="max-width: 65%;">
-                <div class="dropdown text-end overflow-hidden">
-                    <a class="text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-1 text-truncate" href="#" id="dropdownUserMobile" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 11px; max-width: 170px;">
-                        <i class="bi bi-person-circle fs-5 flex-shrink-0"></i>
-                        <span id="nombre-usuario-mobile" class="text-truncate" style="display: inline-block; direction: rtl; text-align: left;">Cavalieri Omar</span>
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <a class="text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-1" href="#" id="dropdownUserMobile" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 11px;">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span id="nombre-usuario-mobile" style="display: inline-block; max-width: 110px; white-space: normal; line-height: 1.1; text-align: left;">Cavalieri Omar</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow" aria-labelledby="dropdownUserMobile">
                         <li><a class="dropdown-item" href="#" id="btn-cambiar-pass-mobile"><i class="bi bi-key-fill me-2"></i> Cambiar Clave</a></li>
@@ -90,13 +88,12 @@
                     </ul>
                 </div>
     
-                <button class="navbar-toggler p-1 m-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavMobile" aria-controls="navbarNavMobile" aria-expanded="false" aria-label="Toggle navigation" style="font-size: 14px;">
+                <button class="navbar-toggler p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavMobile" aria-controls="navbarNavMobile" aria-expanded="false" aria-label="Toggle navigation" style="font-size: 14px;">
                     <span class="navbar-toggler-icon"></span>
                 </button>
             </div>
     
-            <!-- Menú desplegable hamburguesa -->
-            <div class="collapse navbar-collapse text-start w-100" id="navbarNavMobile">
+            <div class="collapse navbar-collapse text-start" id="navbarNavMobile">
                 <ul class="navbar-nav gap-1 pt-3 pb-2" id="sidebar-app-mobile">
                     <li class="nav-item">
                         <a class="nav-link active" id="btn-mobile-inicio" href="#"><i class="bi bi-house-door-fill me-2"></i> Inicio</a>
