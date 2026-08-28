@@ -203,4 +203,233 @@ body {
 .content-principal, #app-container {
     width: 100%;
     max-width: 1350px;
+}/* ========================================================
+   1. ESTILOS GENERALES Y CONFIGURACIÓN BASE (Modo Guardia / Anti-fatiga)
+   ======================================================== */
+html {
+    font-size: 13px;
+}
+
+body { 
+    min-height: 100vh; 
+    background-color: #121820; /* Fondo general oscuro suave para proteger la vista en horas de guardia */
+    color: #e2e8f0;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Compartido por los links del sidebar y del menú móvil */
+.sidebar .nav-link, .navbar-collapse .nav-link { 
+    color: rgba(255, 255, 255, 0.8); 
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active,
+.navbar-collapse .nav-link:hover, .navbar-collapse .nav-link.active { 
+    color: #ffffff; 
+    background-color: rgba(0, 61, 122, 0.4); 
+}
+
+/* Estilos de la Barra de Navegación Superior (Azul institucional del login) */
+.navbar {
+    background-color: #003d7a !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.navbar-brand, .navbar-nav .nav-link {
+    color: #fff !important;
+}
+
+/* Estilos del Contenido Principal */
+.main-content {
+    padding: 20px;
+    max-width: 1450px;
+    margin: 0 auto;
+}
+
+.page-title {
+    margin-bottom: 20px;
+    color: #f1f5f9;
+}
+
+/* Tarjetas y Componentes Compactos adaptados al modo oscuro */
+.card {
+    background-color: #1a222c;
+    border-radius: 8px;
+    border: 1px solid #2d3748;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
+    color: #e2e8f0;
+}
+
+.card-body {
+    padding: 1rem !important;
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #003d7a;
+    color: white;
+    border-bottom: 1px solid #2d3748;
+}
+
+.dash-card-btn {
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    border: 1px solid #2d3748 !important;
+}
+
+.dash-card-btn:hover,
+.dash-card-btn:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4) !important;
+    border-color: #0056b3 !important;
+}
+
+/* Unificación elegante de los rectángulos/tarjetas de métricas del panel principal */
+.dash-card-btn.bg-primary,
+.dash-card-btn.bg-warning,
+.dash-card-btn.bg-success,
+.dash-card-btn.bg-info,
+.dash-card-btn.bg-purple,
+.dash-card-btn[class*="bg-"] {
+    background-color: #1e293b !important; /* Fondo unificado sutil y elegante */
+    border-left: 4px solid #0056b3 !important; /* Toque de distinción profesional en el borde izquierdo */
+    color: #ffffff !important;
+}
+
+/* Tablas compactas adaptadas */
+.table {
+    color: #e2e8f0;
+    background-color: #1a222c;
+}
+
+.table th, 
+.table td {
+    padding: 0.5rem 0.75rem !important;
+    vertical-align: middle !important;
+    border-color: #2d3748 !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02);
+    color: #e2e8f0;
+}
+
+/* ========================================================
+   2. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
+   ======================================================== */
+@media (max-width: 767.98px) {
+    #sidebar-app, .sidebar {
+        display: none !important;
+    }
+
+    .main-content-wrapper {
+        width: 100% !important;
+        margin-left: 0 !important;
+        display: block;
+        min-height: calc(100vh - 60px); 
+        position: relative;
+    }
+
+    .main-content {
+        padding: 10px !important;
+        width: 100% !important;
+    }
+
+    .head-desktop {
+        display: none !important;
+    }
+
+    #sidebar-mobile .navbar-collapse {
+        position: absolute;
+        top: 55px;
+        right: 10px;
+        left: auto;
+        width: 240px;
+        background-color: #1a222c;
+        z-index: 1040; 
+        border-radius: 8px;
+        border: 1px solid #2d3748;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.6);
+        padding: 12px;
+    }
+
+    #sidebar-mobile .navbar-toggler:focus,
+    #sidebar-mobile .navbar-toggler:active {
+        outline: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+    }
+
+    #nombre-usuario-mobile {
+        display: inline-block;
+        max-width: 110px;
+        white-space: normal !important;
+        line-height: 1.1;
+        text-align: left;
+        font-size: 0.75rem;
+    }
+}
+
+/* ========================================================
+   3. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
+   ======================================================== */
+@media (min-width: 768px) {
+    body { 
+        display: flex; 
+    }
+    
+    #sidebar-app, .sidebar {
+        display: flex !important;
+        flex-direction: column;
+        width: 240px !important;
+        position: fixed; 
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        background-color: #1a222c;
+        border-right: 1px solid #2d3748;
+    }
+
+    .main-content-wrapper { 
+        flex: 1; 
+        margin-left: 240px !important;
+        width: calc(100% - 240px);
+    }
+
+    .dropdown-hover:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; 
+        animation: fadeIn 0.2s;
+    }
+}
+
+/* ========================================================
+   4. 🛡️ FORZAR DISEÑO COMPACTO Y EVITAR DESPROPORCIÓN
+   ======================================================== */
+.main-content .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+.main-content .card {
+    height: auto !important;
+    min-height: unset !important;
+}
+
+.main-content .fs-1, 
+.main-content .display-4, 
+.main-content h2 {
+    font-size: 2.2rem !important;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.content-principal, #app-container {
+    width: 100%;
+    max-width: 1350px;
 }
