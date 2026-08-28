@@ -324,7 +324,7 @@
                 });
             }
 
-            // 3. Cerrar el menú de configuración al hacer clic en cualquiera de sus opciones internas
+            // 3. Cerrar el menú de configuración de forma adaptativa (PC y Móvil)
             document.querySelectorAll('#btn-menu-config + .dropdown-menu .dropdown-item, #btn-mobile-config + .dropdown-menu .dropdown-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     const dropdownMenu = item.closest('.dropdown');
@@ -332,6 +332,13 @@
                     if (toggleBtn && typeof bootstrap !== 'undefined') {
                         const instance = bootstrap.Dropdown.getInstance(toggleBtn);
                         if (instance) instance.hide();
+                    }
+                    
+                    // Si es la versión móvil, también cerramos el menú hamburguesa principal para que la pantalla quede limpia
+                    const mobileCollapse = document.getElementById('navbarNavMobile');
+                    if (mobileCollapse && mobileCollapse.classList.contains('show')) {
+                        const bsCollapseMob = bootstrap.Collapse.getInstance(mobileCollapse);
+                        if (bsCollapseMob) bsCollapseMob.hide();
                     }
                 });
             });
