@@ -311,6 +311,22 @@
             if (typeof cargarModuloUsuarios === 'function') cargarModuloUsuarios();
         });
     }
+    // Evita que el submenú de configuración se cierre prematuramente al hacer clic dentro
+    document.querySelectorAll('#btn-menu-config + .dropdown-menu, #btn-mobile-config + .dropdown-menu').forEach(menuDropdown => {
+        menuDropdown.addEventListener('click', (e) => {
+            // Si el elemento clickeado es una opción válida, permitimos que actúe y cerramos el menú
+            if (e.target.classList.contains('dropdown-item') || e.target.closest('.dropdown-item')) {
+                const toggleBtn = menuDropdown.previousElementSibling;
+                if (toggleBtn && typeof bootstrap !== 'undefined') {
+                    const dropdownInstance = bootstrap.Dropdown.getInstance(toggleBtn);
+                    if (dropdownInstance) dropdownInstance.hide();
+                }
+            } else {
+                // Si hace clic dentro del contenedor pero fuera de los ítems, evitamos que se propague el cierre
+                e.stopPropagation();
+            }
+        });
+    });
 });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
