@@ -306,6 +306,7 @@ h1, h2, h3, h4, h5, h6,
     .content-principal .card,
     .main-content .card,
     #app-container .card {
+        display: block;
         width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
@@ -326,8 +327,8 @@ h1, h2, h3, h4, h5, h6,
     .content-principal .card td .d-flex,
     .main-content .card .d-flex.gap-2,
     .card-body .d-flex {
-        justify-content: flex-start !important;
-        gap: 12px !important; /* Separa cómodamente los botones para evitar clics accidentales */
+        justify-content: center !important; /* Centra los botones simétricamente */
+        gap: 15px !important;              /* Mantiene separación prudente entre ellos */
         margin-top: 0.75rem;
         padding-top: 0.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -338,5 +339,11 @@ h1, h2, h3, h4, h5, h6,
     .content-principal .card .btn-sm {
         padding: 0.4rem 0.6rem !important;
         font-size: 0.9rem !important;
+    }
+    /* Empuja el código a la izquierda y el badge de estado bien a la derecha */
+    .content-principal .card tr,
+    .main-content .card tr {
+        display: flex;
+        flex-direction: column;
     }
 }
