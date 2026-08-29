@@ -276,3 +276,32 @@ h1, h2, h3, h4, h5, h6,
     width: 100%;
     max-width: 1350px;
 }
+/* ========================================================
+   INTEGRACIÓN OSCURA PARA EL PANEL DE BÚSQUEDAS Y FILTROS
+   ======================================================== */
+
+/* Fuerza al contenedor de búsqueda a adoptar el modo oscuro */
+.content-principal .card:has(input),
+.content-principal .card:has(select),
+.content-principal div[class*="bg-white"],
+.content-principal .card.bg-white {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Textos, labels y ayudas dentro del panel de búsqueda */
+.content-principal .card:has(input) label,
+.content-principal .card:has(input) span,
+.content-principal .card:has(input) .text-muted,
+.content-principal .card:has(input) small {
+    color: #94a3b8 !important;
+}
+
+/* Cajas de texto y selects del buscador */
+.content-principal .card:has(input) input.form-control,
+.content-principal .card:has(input) select.form-select {
+    background-color: #1e293b !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+}
