@@ -339,3 +339,35 @@ h1, h2, h3, h4, h5, h6,
        background-color: #212b38 !important; /* Un tono ligeramente más claro que el fondo general (#1a222c) para que se destaque con clase */
        border: 1px solid #334155 !important;
    }
+   /* ========================================================
+   REFINAMIENTO Y SIMETRÍA DEL PANEL DE BÚSQUEDA Y FILTROS
+   ======================================================== */
+
+/* 1. Ajuste proporcional del contenedor general (menos espacio arriba) */
+.content-principal .card:has(input[placeholder*="Ej: Capital"]),
+.content-principal .card:has(input[placeholder*="Buscar"]) {
+    padding-top: 0.75rem !important;    /* Reduce el espacio superior */
+    padding-bottom: 0.75rem !important; /* Equilibra con el margen inferior */
+}
+
+.content-principal .card-body:has(input[placeholder*="Ej: Capital"]) {
+    padding: 0.5rem 1rem !important;
+}
+
+/* 2. Alineación perfecta y simetría de los campos (Inputs y Selects más compactos) */
+.content-principal .card:has(input) input.form-control,
+.content-principal .card:has(input) select.form-select {
+    height: 32px !important;              /* Reduce la altura excesiva */
+    padding: 0.2rem 0.5rem !important;   /* Achica el espacio vertical sobrante arriba y abajo */
+    font-size: 0.85rem;
+}
+
+/* 3. Control de etiquetas (labels) para evitar que desalineen el primer input */
+.content-principal .card:has(input) label,
+.content-principal .card:has(input) .form-label {
+    min-height: 2rem !important;         /* Altura fija controlada para textos de 1 o 2 líneas */
+    font-size: 0.75rem;
+    margin-bottom: 0.15rem !important;
+    display: flex;
+    align-items: center;
+}
