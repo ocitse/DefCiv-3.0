@@ -295,3 +295,48 @@ h1, h2, h3, h4, h5, h6,
     width: 100%;
     max-width: 1350px;
 }
+
+/* ========================================================
+   REFINAMIENTO MÓVIL PROFESIONAL (Pantallas < 768px)
+   ======================================================== */
+
+   @media (max-width: 767.98px) {
+
+    /* 1. Forzar a que las tarjetas de la tabla/relevamientos cubran todo el ancho útil */
+    .content-principal .card,
+    .main-content .card,
+    #app-container .card {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* 2. Blanquear los títulos de los filtros para máxima legibilidad en móvil */
+    .filtros-relevamiento-box .form-label,
+    .content-principal label,
+    .content-principal .form-label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    /* 3. Aislar y dar espacio seguro a los botones de acción en las tarjetas móviles */
+    .table tbody tr td div[class*="d-flex"],
+    .content-principal .card td .d-flex,
+    .main-content .card .d-flex.gap-2,
+    .card-body .d-flex {
+        justify-content: flex-start !important;
+        gap: 12px !important; /* Separa cómodamente los botones para evitar clics accidentales */
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 4. Aumentar ligeramente el tamaño táctil de los botones de acción en móvil */
+    .table .btn, 
+    .content-principal .card .btn-sm {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.9rem !important;
+    }
+}
