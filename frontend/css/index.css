@@ -346,4 +346,12 @@ h1, h2, h3, h4, h5, h6,
         display: flex;
         flex-direction: column;
     }
-}
+    @media (max-width: 767.98px) {
+        /* Estilo uniforme para los dos botones superiores en móvil */
+        .content-principal .card .btn-sm,
+        .main-content .card .btn-sm {
+            padding: 0.35rem 0.65rem !important;
+            font-size: 0.8rem !important;
+            border-radius: 6px !important;
+        }
+    }
