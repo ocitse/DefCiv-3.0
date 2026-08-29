@@ -277,31 +277,57 @@ h1, h2, h3, h4, h5, h6,
     max-width: 1350px;
 }
 /* ========================================================
-   INTEGRACIÓN OSCURA PARA EL PANEL DE BÚSQUEDAS Y FILTROS
+   CORRECCIÓN DEFINITIVA PARA EL PANEL DE BÚSQUEDA Y ALINEACIÓN
    ======================================================== */
 
-/* Fuerza al contenedor de búsqueda a adoptar el modo oscuro */
-.content-principal .card:has(input),
-.content-principal .card:has(select),
-.content-principal div[class*="bg-white"],
-.content-principal .card.bg-white {
+/* 1. Forzar color oscuro al contenedor de filtros completo */
+.content-principal .card,
+.content-principal div:has(input[placeholder*="Ej: Capital"]),
+.content-principal .p-4.bg-white,
+.content-principal .bg-white {
     background-color: #1a222c !important;
     border: 1px solid #2d3748 !important;
     color: #e2e8f0 !important;
 }
 
-/* Textos, labels y ayudas dentro del panel de búsqueda */
-.content-principal .card:has(input) label,
-.content-principal .card:has(input) span,
-.content-principal .card:has(input) .text-muted,
-.content-principal .card:has(input) small {
-    color: #94a3b8 !important;
+/* 2. Compactar y quitar espacios blancos muertos arriba del buscador */
+.content-principal .card-body,
+.content-principal .p-4 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
 }
 
-/* Cajas de texto y selects del buscador */
-.content-principal .card:has(input) input.form-control,
-.content-principal .card:has(input) select.form-select {
+/* 3. Alinear perfectamente los labels para que los inputs queden a la misma altura */
+.content-principal .row .col-md-4,
+.content-principal .row .col-md-3,
+.content-principal .row [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Empuja los inputs hacia abajo para que queden alineados */
+}
+
+/* Forzar una altura fija o un manejo de texto prolijo para los labels superiores */
+.content-principal label, 
+.content-principal .text-muted,
+.content-principal small,
+.content-principal .form-label {
+    color: #94a3b8 !important;
+    min-height: 2.4rem; /* Reserva espacio uniforme para textos de 1 o 2 líneas */
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.8rem;
+}
+
+/* 4. Estilo unificado para los inputs y selects del buscador */
+.content-principal input.form-control,
+.content-principal select.form-select {
     background-color: #1e293b !important;
     border: 1px solid #4a5568 !important;
     color: #f8fafc !important;
+    height: 38px; /* Altura uniforme para todos los campos */
+}
+
+.content-principal input::placeholder {
+    color: #64748b !important;
 }
