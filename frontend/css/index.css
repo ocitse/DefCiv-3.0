@@ -99,7 +99,7 @@ h1, h2, h3, h4, h5, h6,
    3. BARRA DE FILTROS ESPECÍFICA (.filtros-relevamiento-box)
    ======================================================== */
 .filtros-relevamiento-box {
-    background-color: #212b38 !important; /* Tono sutil diferenciado del fondo general */
+    background-color: #212b38 !important;
     border: 1px solid #334155 !important;
     margin-top: 0.5rem;
     padding-top: 0.75rem !important;
@@ -217,6 +217,53 @@ h1, h2, h3, h4, h5, h6,
         text-align: left;
         font-size: 0.75rem;
     }
+
+    /* Forzar a que las tarjetas cubran todo el ancho útil */
+    .content-principal .card,
+    .main-content .card,
+    #app-container .card {
+        display: block;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Blanquear títulos de filtros en móvil */
+    .filtros-relevamiento-box .form-label,
+    .content-principal label,
+    .content-principal .form-label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    /* Centrar los botones de acción en las tarjetas móviles */
+    .table tbody tr td div[class*="d-flex"],
+    .content-principal .card td .d-flex,
+    .main-content .card .d-flex.gap-2,
+    .card-body .d-flex {
+        justify-content: center !important;
+        gap: 15px !important;
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Botones superiores compactos y estilizados en móvil */
+    .content-principal .card .btn-sm,
+    .main-content .card .btn-sm {
+        padding: 0.35rem 0.65rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+    }
+
+    /* Estructura de filas en tarjetas móviles */
+    .content-principal .card tr,
+    .main-content .card tr {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 /* ========================================================
@@ -252,7 +299,6 @@ h1, h2, h3, h4, h5, h6,
         animation: fadeIn 0.2s;
     }
 
-    /* Corrección de desborde del nombre largo de usuario en escritorio */
     #nombre-usuario-desktop {
         display: inline-block;
         max-width: 165px;
@@ -295,63 +341,3 @@ h1, h2, h3, h4, h5, h6,
     width: 100%;
     max-width: 1350px;
 }
-
-/* ========================================================
-   REFINAMIENTO MÓVIL PROFESIONAL (Pantallas < 768px)
-   ======================================================== */
-
-   @media (max-width: 767.98px) {
-
-    /* 1. Forzar a que las tarjetas de la tabla/relevamientos cubran todo el ancho útil */
-    .content-principal .card,
-    .main-content .card,
-    #app-container .card {
-        display: block;
-        width: 100% !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
-    }
-
-    /* 2. Blanquear los títulos de los filtros para máxima legibilidad en móvil */
-    .filtros-relevamiento-box .form-label,
-    .content-principal label,
-    .content-principal .form-label {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-
-    /* 3. Aislar y dar espacio seguro a los botones de acción en las tarjetas móviles */
-    .table tbody tr td div[class*="d-flex"],
-    .content-principal .card td .d-flex,
-    .main-content .card .d-flex.gap-2,
-    .card-body .d-flex {
-        justify-content: center !important; /* Centra los botones simétricamente */
-        gap: 15px !important;              /* Mantiene separación prudente entre ellos */
-        margin-top: 0.75rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* 4. Aumentar ligeramente el tamaño táctil de los botones de acción en móvil */
-    .table .btn, 
-    .content-principal .card .btn-sm {
-        padding: 0.4rem 0.6rem !important;
-        font-size: 0.9rem !important;
-    }
-    /* Empuja el código a la izquierda y el badge de estado bien a la derecha */
-    .content-principal .card tr,
-    .main-content .card tr {
-        display: flex;
-        flex-direction: column;
-    }
-    @media (max-width: 767.98px) {
-        /* Estilo uniforme para los dos botones superiores en móvil */
-        .content-principal .card .btn-sm,
-        .main-content .card .btn-sm {
-            padding: 0.35rem 0.65rem !important;
-            font-size: 0.8rem !important;
-            border-radius: 6px !important;
-        }
-    }
