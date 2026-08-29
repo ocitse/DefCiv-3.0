@@ -350,9 +350,9 @@ function renderizarFilasRelevamientos(relevamientos) {
         const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
         const cantFamilias = r.familias ? r.familias.length : 0;
 
-        // Bloque de botones reutilizable para ambos diseños
+        // Bloque de botones reutilizable para ambos diseños (forzando centrado)
         const botonesAccion = `
-            <div class="d-flex justify-content-center gap-1 flex-wrap">
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap w-100">
                 ${esCompletado ? `
                     <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador">
                         <i class="bi bi-arrow-counterclockwise"></i> Devolver
@@ -394,7 +394,7 @@ function renderizarFilasRelevamientos(relevamientos) {
 
         <!-- 2. VISTA MÓVIL (Tarjeta adaptable para celulares) -->
         <tr class="d-block d-md-none mb-3 border rounded shadow-sm bg-white p-3">
-            <td>
+            <td class="text-start">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <strong>${codigo}</strong>
                     <span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span>
@@ -405,7 +405,7 @@ function renderizarFilasRelevamientos(relevamientos) {
                 <div class="small mb-1"><strong>Relevador:</strong> ${relevador}</div>
                 <div class="small mb-2"><strong>Familias cargadas:</strong> ${cantFamilias}</div>
                 <div class="dropdown-divider"></div>
-                <div class="mt-2">
+                <div class="mt-2 text-center w-100">
                     ${botonesAccion}
                 </div>
             </td>
