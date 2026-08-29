@@ -1,224 +1,19 @@
-/* index.css
 /* ========================================================
-   1. ESTILOS GENERALES Y CONFIGURACIÓN BASE
+   1. ESTILOS GENERALES Y CONFIGURACIÓN BASE (Modo Guardia)
    ======================================================== */
    html {
-    font-size: 13px; /* Base equilibrada para que Bootstrap no renderice componentes gigantes */
-}
-
-body { 
-    min-height: 100vh; 
-    background-color: #f8f9fa; 
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-/* Compartido por los links del sidebar y del menú móvil */
-.sidebar .nav-link, .navbar-collapse .nav-link { 
-    color: rgba(255, 255, 255, 0.75); 
-    padding: 0.5rem 1rem;
-}
-
-.sidebar .nav-link:hover, .sidebar .nav-link.active,
-.navbar-collapse .nav-link:hover, .navbar-collapse .nav-link.active { 
-    color: white; 
-    background-color: rgba(255, 255, 255, 0.1); 
-}
-
-/* Estilos de la Barra de Navegación Superior */
-.navbar {
-    background-color: #007bff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-.navbar-brand, .navbar-nav .nav-link {
-    color: #fff !important;
-}
-
-/* Estilos del Contenido Principal */
-.main-content {
-    padding: 20px;
-    max-width: 1450px;
-    margin: 0 auto;
-}
-
-.page-title {
-    margin-bottom: 20px;
-    color: #343a40;
-}
-
-/* Tarjetas y Componentes Compactos */
-.card {
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    margin-bottom: 1rem !important;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.card-body {
-    padding: 1rem !important;
-}
-
-.card-header {
-    font-weight: bold;
-    background-color: #007bff;
-    color: white;
-}
-
-.dash-card-btn {
-    font-family: inherit;
-    cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.dash-card-btn:hover,
-.dash-card-btn:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Tablas compactas */
-.table th, 
-.table td {
-    padding: 0.5rem 0.75rem !important;
-    vertical-align: middle !important;
-}
-
-/* ========================================================
-   2. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
-   ======================================================== */
-   @media (max-width: 767.98px) {
-    #sidebar-app, .sidebar {
-        display: none !important;
-    }
-
-    .main-content-wrapper {
-        width: 100% !important;
-        margin-left: 0 !important;
-        display: block;
-        min-height: calc(100vh - 60px); 
-        position: relative;
-    }
-
-    .main-content {
-        padding: 10px !important;
-        width: 100% !important;
-    }
-
-    /* Oculta la cabecera de las tablas en celular */
-    .head-desktop {
-        display: none !important;
-    }
-
-    /* Menú desplegable hamburguesa flotante */
-    #sidebar-mobile .navbar-collapse {
-        position: absolute;
-        top: 55px;
-        right: 10px;
-        left: auto;
-        width: 240px;
-        background-color: #212529;
-        z-index: 1040; 
-        border-radius: 8px;
-        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.4);
-        padding: 12px;
-    }
-
-    #sidebar-mobile .navbar-toggler:focus,
-    #sidebar-mobile .navbar-toggler:active {
-        outline: none !important;
-        box-shadow: none !important;
-        background-color: transparent !important;
-    }
-
-    /* Ajuste específico para que el nombre largo baje de línea ordenadamente sin romper el menú */
-    #nombre-usuario-mobile {
-        display: inline-block;
-        max-width: 110px;
-        white-space: normal !important;
-        line-height: 1.1;
-        text-align: left;
-        font-size: 0.75rem;
-    }
-}
-
-/* ========================================================
-   3. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
-   ======================================================== */
-@media (min-width: 768px) {
-    body { 
-        display: flex; 
-    }
-    
-    #sidebar-app, .sidebar {
-        display: flex !important;
-        flex-direction: column;
-        width: 240px !important; /* Reducido de 280px a 240px para quitarle peso visual a la barra lateral */
-        position: fixed; 
-        top: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
-        background-color: #212529; /* Asegura el fondo oscuro institucional */
-    }
-
-    .main-content-wrapper { 
-        flex: 1; 
-        margin-left: 240px !important; /* Sincronizado exactamente con el nuevo ancho del sidebar */
-        width: calc(100% - 240px);
-    }
-
-    .dropdown-hover:hover .dropdown-menu {
-        display: block;
-        margin-top: 0; 
-        animation: fadeIn 0.2s;
-    }
-}
-/* ========================================================
-   4. 🛡️ FORZAR DISEÑO COMPACTO Y EVITAR DESPROPORCIÓN
-   ======================================================== */
-
-/* Restringe el tamaño exagerado de las tarjetas del panel principal */
-.main-content .row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -10px;
-    margin-left: -10px;
-}
-
-/* Fuerza a que las tarjetas métricas mantengan un alto razonable y no se estiren */
-.main-content .card {
-    height: auto !important;
-    min-height: unset !important;
-}
-
-/* Controla el tamaño de los números grandes en las métricas */
-.main-content .fs-1, 
-.main-content .display-4, 
-.main-content h2 {
-    font-size: 2.2rem !important;
-    font-weight: 700;
-}
-
-/* Asegura que el contenedor principal respete el margen sin inflarse */
-.content-principal, #app-container {
-    width: 100%;
-    max-width: 1350px;
-}/* ========================================================
-   1. ESTILOS GENERALES Y CONFIGURACIÓN BASE (Modo Guardia / Anti-fatiga)
-   ======================================================== */
-html {
     font-size: 13px;
 }
 
 body { 
     min-height: 100vh; 
-    background-color: #121820; /* Fondo general oscuro suave para proteger la vista en horas de guardia */
+    background-color: #121820; 
     color: #e2e8f0;
     margin: 0;
     font-size: 0.9rem;
 }
 
-/* Compartido por los links del sidebar y del menú móvil */
+/* Links del sidebar y menú móvil */
 .sidebar .nav-link, .navbar-collapse .nav-link { 
     color: rgba(255, 255, 255, 0.8); 
     padding: 0.5rem 1rem;
@@ -230,7 +25,7 @@ body {
     background-color: rgba(0, 61, 122, 0.4); 
 }
 
-/* Estilos de la Barra de Navegación Superior (Azul institucional del login) */
+/* Barra de Navegación Superior (Azul institucional) */
 .navbar {
     background-color: #003d7a !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -239,39 +34,69 @@ body {
     color: #fff !important;
 }
 
-/* Estilos del Contenido Principal */
+/* Contenido Principal y Títulos */
 .main-content {
     padding: 20px;
     max-width: 1450px;
     margin: 0 auto;
 }
 
-.page-title {
-    margin-bottom: 20px;
-    color: #f1f5f9;
+.page-title, 
+h1, h2, h3, h4, h5, h6,
+.content-principal h2,
+.content-principal h4,
+.content-principal .text-dark {
+    color: #ffffff !important;
 }
 
-/* Tarjetas y Componentes Compactos adaptados al modo oscuro */
-.card {
-    background-color: #1a222c;
+.main-content p, 
+.content-principal p,
+#app-container p {
+    color: #94a3b8 !important;
+}
+
+/* ========================================================
+   2. TARJETAS, COMPONENTES Y FILTROS UNIFICADOS
+   ======================================================== */
+.card, 
+.card-body,
+.table-responsive,
+.content-principal .card:has(input),
+.content-principal form.card,
+.content-principal .p-4.bg-white {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
     border-radius: 8px;
-    border: 1px solid #2d3748;
-    margin-bottom: 1rem !important;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
-    color: #e2e8f0;
-}
-
-.card-body {
-    padding: 1rem !important;
 }
 
 .card-header {
     font-weight: bold;
-    background-color: #003d7a;
-    color: white;
-    border-bottom: 1px solid #2d3748;
+    background-color: #003d7a !important;
+    color: white !important;
+    border-bottom: 1px solid #2d3748 !important;
 }
 
+/* Filtros, inputs y selects superiores */
+.content-principal label, 
+.content-principal .text-muted,
+.content-principal small,
+.content-principal .form-label {
+    color: #94a3b8 !important;
+}
+
+.content-principal input.form-control,
+.content-principal select.form-select {
+    background-color: #1e293b !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+}
+
+.content-principal input::placeholder {
+    color: #64748b !important;
+}
+
+/* Tarjetas de métricas del panel principal */
 .dash-card-btn {
     font-family: inherit;
     cursor: pointer;
@@ -286,38 +111,41 @@ body {
     border-color: #0056b3 !important;
 }
 
-/* Unificación elegante de los rectángulos/tarjetas de métricas del panel principal */
-.dash-card-btn.bg-primary,
-.dash-card-btn.bg-warning,
-.dash-card-btn.bg-success,
-.dash-card-btn.bg-info,
-.dash-card-btn.bg-purple,
 .dash-card-btn[class*="bg-"] {
-    background-color: #1e293b !important; /* Fondo unificado sutil y elegante */
-    border-left: 4px solid #0056b3 !important; /* Toque de distinción profesional en el borde izquierdo */
+    background-color: #1e293b !important;
+    border-left: 4px solid #0056b3 !important;
     color: #ffffff !important;
 }
 
-/* Tablas compactas adaptadas */
-.table {
-    color: #e2e8f0;
-    background-color: #1a222c;
+/* ========================================================
+   3. ESTILOS UNIVERSALES PARA TABLAS (Modo Oscuro)
+   ======================================================== */
+.table, 
+.table tr, 
+.table th, 
+.table td,
+.table-responsive table,
+.table-responsive tr,
+.table-responsive td {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #2d3748 !important;
+    vertical-align: middle !important;
+    padding: 0.5rem 0.75rem !important;
 }
 
-.table th, 
-.table td {
-    padding: 0.5rem 0.75rem !important;
-    vertical-align: middle !important;
-    border-color: #2d3748 !important;
+.table td span,
+.table td div,
+.table td strong {
+    color: #f8fafc !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.02);
-    color: #e2e8f0;
+    background-color: rgba(255, 255, 255, 0.02) !important;
 }
 
 /* ========================================================
-   2. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
+   4. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
    ======================================================== */
 @media (max-width: 767.98px) {
     #sidebar-app, .sidebar {
@@ -373,7 +201,7 @@ body {
 }
 
 /* ========================================================
-   3. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
+   5. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
    ======================================================== */
 @media (min-width: 768px) {
     body { 
@@ -404,10 +232,25 @@ body {
         margin-top: 0; 
         animation: fadeIn 0.2s;
     }
+
+    /* Corrección de desborde del nombre largo de usuario en escritorio */
+    #nombre-usuario-desktop {
+        display: inline-block;
+        max-width: 165px;
+        white-space: normal !important;
+        line-height: 1.1;
+        text-align: left;
+        font-size: 0.75rem;
+        word-break: break-word;
+    }
+
+    .sidebar .dropdown-toggle {
+        align-items: flex-start !important;
+    }
 }
 
 /* ========================================================
-   4. 🛡️ FORZAR DISEÑO COMPACTO Y EVITAR DESPROPORCIÓN
+   6. 🛡️ DISEÑO COMPACTO Y LIMITES
    ======================================================== */
 .main-content .row {
     display: flex;
@@ -432,84 +275,4 @@ body {
 .content-principal, #app-container {
     width: 100%;
     max-width: 1350px;
-}
-
-/* Corrección de contraste para textos oscuros invisibles en modo oscuro */
-.page-title, 
-h1, h2, h3, h4, h5, h6,
-.content-principal h2,
-.content-principal h4,
-.content-principal .text-dark {
-    color: #ffffff !important;
-}
-
-/* Subtítulos y textos secundarios en paneles */
-.main-content p, 
-.content-principal p,
-#app-container p {
-    color: #94a3b8 !important; /* Gris claro legible */
-}
-
-/* Títulos de secciones específicas como 'Últimas Emergencias Asignadas' */
-.card-title, 
-.content-principal .card-header,
-.content-principal span[class*="text-"],
-#app-container h4 {
-    color: #f8fafc !important;
-}
-
-/* Corrección de contraste para textos oscuros invisibles en modo oscuro */
-.page-title, 
-h1, h2, h3, h4, h5, h6,
-.content-principal h2,
-.content-principal h4,
-.content-principal .text-dark {
-    color: #ffffff !important;
-}
-
-/* Subtítulos y textos secundarios en paneles */
-.main-content p, 
-.content-principal p,
-#app-container p {
-    color: #94a3b8 !important; /* Gris claro legible */
-}
-
-/* Títulos de secciones específicas como 'Últimas Emergencias Asignadas' */
-.card-title, 
-.content-principal .card-header,
-.content-principal span[class*="text-"],
-#app-container h4 {
-    color: #f8fafc !important;
-}
-
-/* ========================================================
-   FORZADO UNIVERSAL PARA ELIMINAR EL BLANCO EN TODAS LAS TABLAS
-   ======================================================== */
-
-/* Fuerza a cualquier tabla, celda o fila a adoptar el modo oscuro unificado */
-.table, 
-.table tr, 
-.table th, 
-.table td,
-.table-responsive table,
-.table-responsive tr,
-.table-responsive td {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: #2d3748 !important;
-}
-
-/* Fuerza el fondo de la tarjeta contenedora de cualquier tabla */
-.card, 
-.card-body,
-.table-responsive {
-    background-color: #1a222c !important;
-    color: #e2e8f0 !important;
-}
-
-/* Asegura que los textos dentro de las celdas no queden ocultos */
-.table td span,
-.table td div,
-.table td strong {
-    color: #f8fafc !important;
 }
