@@ -218,7 +218,7 @@ h1, h2, h3, h4, h5, h6,
         font-size: 0.75rem;
     }
 
-    /* Forzar a que las tarjetas cubran todo el ancho útil */
+    /* Tarjetas de relevamiento a ancho completo */
     .content-principal .card,
     .main-content .card,
     #app-container .card {
@@ -230,7 +230,7 @@ h1, h2, h3, h4, h5, h6,
         padding-right: 0.75rem !important;
     }
 
-    /* Blanquear títulos de filtros en móvil */
+    /* Títulos de filtros en blanco */
     .filtros-relevamiento-box .form-label,
     .content-principal label,
     .content-principal .form-label {
@@ -238,24 +238,42 @@ h1, h2, h3, h4, h5, h6,
         font-weight: 600 !important;
     }
 
-    /* Centrar los botones de acción en las tarjetas móviles */
-    .table tbody tr td div[class*="d-flex"],
-    .content-principal .card td .d-flex,
-    .main-content .card .d-flex.gap-2,
-    .card-body .d-flex {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        margin: 0.75rem auto 0 auto !important;
-        padding-top: 0.5rem !important;
+    /* Centrado simétrico absoluto de los botones de acción usando inline-flex y text-align */
+    .table tbody tr td:has(.d-flex),
+    .content-principal .card td:has(.d-flex),
+    .main-content .card td:has(.d-flex) {
+        text-align: center !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        gap: 10px !important;
     }
 
-    /* Botones superiores compactos y estilizados en móvil */
+    .table tbody tr td div.d-flex,
+    .content-principal .card td div.d-flex,
+    .main-content .card div.d-flex.gap-2,
+    .card-body div.d-flex {
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin: 0.75rem auto 0 auto !important;
+        padding: 0.4rem 0.8rem !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 10px !important;
+        max-width: 100% !important;
+    }
+
+    /* Tamaño uniforme de cada botón individual */
+    .table tbody tr td div[class*="d-flex"] .btn,
+    .content-principal .card td .d-flex .btn {
+        flex: 0 0 auto !important;
+        width: 38px !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+
+    /* Botones superiores compactos en móvil */
     .content-principal .card .btn-sm,
     .main-content .card .btn-sm {
         padding: 0.35rem 0.65rem !important;
@@ -268,17 +286,6 @@ h1, h2, h3, h4, h5, h6,
     .main-content .card tr {
         display: flex;
         flex-direction: column;
-    }
-    /* Asegurar que cada botón individual tenga un tamaño uniforme y no deforme el bloque */
-    .table tbody tr td div[class*="d-flex"] .btn,
-    .content-principal .card td .d-flex .btn {
-        flex: 0 0 auto !important;
-        width: 38px !important;
-        height: 38px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
     }
 }
 
