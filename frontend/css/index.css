@@ -243,11 +243,16 @@ h1, h2, h3, h4, h5, h6,
     .content-principal .card td .d-flex,
     .main-content .card .d-flex.gap-2,
     .card-body .d-flex {
+        display: flex !important;
         justify-content: center !important;
-        gap: 15px !important;
-        margin-top: 0.75rem;
-        padding-top: 0.5rem;
+        align-items: center !important;
+        width: 100% !important;
+        margin: 0.75rem auto 0 auto !important;
+        padding-top: 0.5rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 10px !important;
     }
 
     /* Botones superiores compactos y estilizados en móvil */
@@ -263,6 +268,17 @@ h1, h2, h3, h4, h5, h6,
     .main-content .card tr {
         display: flex;
         flex-direction: column;
+    }
+    /* Asegurar que cada botón individual tenga un tamaño uniforme y no deforme el bloque */
+    .table tbody tr td div[class*="d-flex"] .btn,
+    .content-principal .card td .d-flex .btn {
+        flex: 0 0 auto !important;
+        width: 38px !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
     }
 }
 
