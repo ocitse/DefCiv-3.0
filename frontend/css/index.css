@@ -331,3 +331,11 @@ h1, h2, h3, h4, h5, h6,
 .content-principal input::placeholder {
     color: #64748b !important;
 }
+/* ========================================================
+   CONTRASTE SUTIL PARA EL CUADRO DE BÚSQUEDA
+   ======================================================== */
+   .content-principal .card:has(input[placeholder*="Ej: Capital"]),
+   .content-principal .card:has(input[placeholder*="Buscar"]) {
+       background-color: #212b38 !important; /* Un tono ligeramente más claro que el fondo general (#1a222c) para que se destaque con clase */
+       border: 1px solid #334155 !important;
+   }
