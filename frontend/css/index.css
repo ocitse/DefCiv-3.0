@@ -56,14 +56,11 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   2. TARJETAS, COMPONENTES Y FILTROS UNIFICADOS
+   2. TARJETAS, COMPONENTES Y TARJETAS DE MÉTRICAS
    ======================================================== */
 .card, 
 .card-body,
-.table-responsive,
-.content-principal .card:has(input),
-.content-principal form.card,
-.content-principal .p-4.bg-white {
+.table-responsive {
     background-color: #1a222c !important;
     border: 1px solid #2d3748 !important;
     color: #e2e8f0 !important;
@@ -75,25 +72,6 @@ h1, h2, h3, h4, h5, h6,
     background-color: #003d7a !important;
     color: white !important;
     border-bottom: 1px solid #2d3748 !important;
-}
-
-/* Filtros, inputs y selects superiores */
-.content-principal label, 
-.content-principal .text-muted,
-.content-principal small,
-.content-principal .form-label {
-    color: #94a3b8 !important;
-}
-
-.content-principal input.form-control,
-.content-principal select.form-select {
-    background-color: #1e293b !important;
-    border: 1px solid #4a5568 !important;
-    color: #f8fafc !important;
-}
-
-.content-principal input::placeholder {
-    color: #64748b !important;
 }
 
 /* Tarjetas de métricas del panel principal */
@@ -118,7 +96,48 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   3. ESTILOS UNIVERSALES PARA TABLAS (Modo Oscuro)
+   3. BARRA DE FILTROS ESPECÍFICA (.filtros-relevamiento-box)
+   ======================================================== */
+.filtros-relevamiento-box {
+    background-color: #212b38 !important; /* Tono sutil diferenciado del fondo general */
+    border: 1px solid #334155 !important;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+}
+
+.filtros-relevamiento-box .col-md-4 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.filtros-relevamiento-box .form-label {
+    color: #94a3b8 !important;
+    font-size: 0.75rem !important;
+    margin-bottom: 0.2rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 1.5rem;
+}
+
+.filtros-relevamiento-box .form-control-sm,
+.filtros-relevamiento-box .form-select-sm {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+    height: 32px !important;
+}
+
+.filtros-relevamiento-box input::placeholder {
+    color: #64748b !important;
+}
+
+/* ========================================================
+   4. ESTILOS UNIVERSALES PARA TABLAS (Modo Oscuro)
    ======================================================== */
 .table, 
 .table tr, 
@@ -145,7 +164,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   4. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
+   5. 📱 REGLAS EXCLUSIVAS PARA CELULARES (Menos de 768px)
    ======================================================== */
 @media (max-width: 767.98px) {
     #sidebar-app, .sidebar {
@@ -201,7 +220,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   5. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
+   6. 💻 REGLAS EXCLUSIVAS PARA COMPUTADORAS (768px o más)
    ======================================================== */
 @media (min-width: 768px) {
     body { 
@@ -250,7 +269,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   6. 🛡️ DISEÑO COMPACTO Y LIMITES
+   7. 🛡️ DISEÑO COMPACTO Y LIMITES
    ======================================================== */
 .main-content .row {
     display: flex;
@@ -275,99 +294,4 @@ h1, h2, h3, h4, h5, h6,
 .content-principal, #app-container {
     width: 100%;
     max-width: 1350px;
-}
-/* ========================================================
-   CORRECCIÓN DEFINITIVA PARA EL PANEL DE BÚSQUEDA Y ALINEACIÓN
-   ======================================================== */
-
-/* 1. Forzar color oscuro al contenedor de filtros completo */
-.content-principal .card,
-.content-principal div:has(input[placeholder*="Ej: Capital"]),
-.content-principal .p-4.bg-white,
-.content-principal .bg-white {
-    background-color: #1a222c !important;
-    border: 1px solid #2d3748 !important;
-    color: #e2e8f0 !important;
-}
-
-/* 2. Compactar y quitar espacios blancos muertos arriba del buscador */
-.content-principal .card-body,
-.content-principal .p-4 {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-}
-
-/* 3. Alinear perfectamente los labels para que los inputs queden a la misma altura */
-.content-principal .row .col-md-4,
-.content-principal .row .col-md-3,
-.content-principal .row [class*="col-"] {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* Empuja los inputs hacia abajo para que queden alineados */
-}
-
-/* Forzar una altura fija o un manejo de texto prolijo para los labels superiores */
-.content-principal label, 
-.content-principal .text-muted,
-.content-principal small,
-.content-principal .form-label {
-    color: #94a3b8 !important;
-    min-height: 2.4rem; /* Reserva espacio uniforme para textos de 1 o 2 líneas */
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.25rem !important;
-    font-size: 0.8rem;
-}
-
-/* 4. Estilo unificado para los inputs y selects del buscador */
-.content-principal input.form-control,
-.content-principal select.form-select {
-    background-color: #1e293b !important;
-    border: 1px solid #4a5568 !important;
-    color: #f8fafc !important;
-    height: 38px; /* Altura uniforme para todos los campos */
-}
-
-.content-principal input::placeholder {
-    color: #64748b !important;
-}
-/* ========================================================
-   CONTRASTE SUTIL PARA EL CUADRO DE BÚSQUEDA
-   ======================================================== */
-   .content-principal .card:has(input[placeholder*="Ej: Capital"]),
-   .content-principal .card:has(input[placeholder*="Buscar"]) {
-       background-color: #212b38 !important; /* Un tono ligeramente más claro que el fondo general (#1a222c) para que se destaque con clase */
-       border: 1px solid #334155 !important;
-   }
-   /* ========================================================
-   REFINAMIENTO Y SIMETRÍA DEL PANEL DE BÚSQUEDA Y FILTROS
-   ======================================================== */
-
-/* 1. Ajuste proporcional del contenedor general (menos espacio arriba) */
-.content-principal .card:has(input[placeholder*="Ej: Capital"]),
-.content-principal .card:has(input[placeholder*="Buscar"]) {
-    padding-top: 0.75rem !important;    /* Reduce el espacio superior */
-    padding-bottom: 0.75rem !important; /* Equilibra con el margen inferior */
-}
-
-.content-principal .card-body:has(input[placeholder*="Ej: Capital"]) {
-    padding: 0.5rem 1rem !important;
-}
-
-/* 2. Alineación perfecta y simetría de los campos (Inputs y Selects más compactos) */
-.content-principal .card:has(input) input.form-control,
-.content-principal .card:has(input) select.form-select {
-    height: 32px !important;              /* Reduce la altura excesiva */
-    padding: 0.2rem 0.5rem !important;   /* Achica el espacio vertical sobrante arriba y abajo */
-    font-size: 0.85rem;
-}
-
-/* 3. Control de etiquetas (labels) para evitar que desalineen el primer input */
-.content-principal .card:has(input) label,
-.content-principal .card:has(input) .form-label {
-    min-height: 2rem !important;         /* Altura fija controlada para textos de 1 o 2 líneas */
-    font-size: 0.75rem;
-    margin-bottom: 0.15rem !important;
-    display: flex;
-    align-items: center;
 }
