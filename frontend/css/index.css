@@ -481,3 +481,35 @@ h1, h2, h3, h4, h5, h6,
 #app-container h4 {
     color: #f8fafc !important;
 }
+
+/* ========================================================
+   FORZADO UNIVERSAL PARA ELIMINAR EL BLANCO EN TODAS LAS TABLAS
+   ======================================================== */
+
+/* Fuerza a cualquier tabla, celda o fila a adoptar el modo oscuro unificado */
+.table, 
+.table tr, 
+.table th, 
+.table td,
+.table-responsive table,
+.table-responsive tr,
+.table-responsive td {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #2d3748 !important;
+}
+
+/* Fuerza el fondo de la tarjeta contenedora de cualquier tabla */
+.card, 
+.card-body,
+.table-responsive {
+    background-color: #1a222c !important;
+    color: #e2e8f0 !important;
+}
+
+/* Asegura que los textos dentro de las celdas no queden ocultos */
+.table td span,
+.table td div,
+.table td strong {
+    color: #f8fafc !important;
+}
