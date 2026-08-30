@@ -16,7 +16,7 @@ export async function cargarModuloUsuarios() {
                 </button>
             </div>
 
-            <div class="card shadow-sm border-0" style="background-color: #f8f9fa;">
+            <div class="card shadow-sm border-0 bg-transparent">
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle mb-0" id="tabla-usuarios" style="border-color: #dee2e6;">
@@ -195,23 +195,23 @@ export async function cargarModuloUsuarios() {
             </tr>
 
             <!-- 2. VISTA MÓVIL (Tarjeta oscura adaptable al 100%) -->
-            <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3" style="background-color: #1a222c !important; border-color: #2d3748 !important; color: #e2e8f0;">
-                <td class="text-start border-0 p-0" style="background-color: transparent !important; color: inherit;">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <div class="fw-bold text-info">@${u.username}</div>
-                            <div class="small text-muted">ID: ${u.id} | DNI: ${u.dni || 'S/D'}</div>
+                <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3" style="background-color: #1a222c !important; border-color: #2d3748 !important; color: #e2e8f0; margin-bottom: 1rem !important;">
+                    <td class="text-start border-0 p-0" style="background-color: transparent !important; color: inherit;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="fw-bold text-info">@${u.username}</div>
+                                <div class="small text-muted">ID: ${u.id} | DNI: ${u.dni || 'S/D'}</div>
+                            </div>
+                            <div>${badgeEstado}</div>
                         </div>
-                        <div>${badgeEstado}</div>
-                    </div>
-                    <div class="small mb-1 text-light"><strong>Nombre:</strong> ${u.apellido || ''}, ${u.nombres || ''}</div>
-                    <div class="small mb-2 text-light"><strong>Rol:</strong> <span class="badge ${badgeColor}">${nombreRolMostrar}</span></div>
-                    <div class="dropdown-divider" style="border-color: #2d3748 !important;"></div>
-                    <div class="mt-2 text-center w-100">
-                        ${botonesAccion}
-                    </div>
-                </td>
-            </tr>
+                        <div class="small mb-1 text-light"><strong>Nombre:</strong> ${u.apellido || ''}, ${u.nombres || ''}</div>
+                        <div class="small mb-2 text-light"><strong>Rol:</strong> <span class="badge ${badgeColor}">${nombreRolMostrar}</span></div>
+                        <div class="dropdown-divider" style="border-color: #2d3748 !important;"></div>
+                        <div class="mt-2 text-center w-100">
+                            ${botonesAccion}
+                        </div>
+                    </td>
+                </tr>
         `;
 });
 
