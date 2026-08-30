@@ -159,28 +159,61 @@ export async function cargarModuloUsuarios() {
                 ? '<span class="badge bg-success text-white">Activo</span>' 
                 : '<span class="badge bg-danger text-white">Inactivo</span>';
 
-            tbody.innerHTML += `
-                <tr class="text-dark">
-                    <td class="ps-3 fw-bold text-center text-muted" style="background-color: #f1f3f5;">${u.id}</td>
-                    <td>
+                // Bloque de botones reutilizable
+            const botonesAccion = `
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap w-100">
+                <button class="btn btn-sm btn-outline-secondary" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
+                    <i class="bi bi-pencil-square text-dark"></i> Editar
+                </button>
+                <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
+                        onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
+                    <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i> ${u.estado === 'Activo' ? 'Baja' : 'Activar'}
+                </button>
+            </div>
+        `;
+
+        tbody.innerHTML += `
+        <!-- 1. VISTA DE ESCRITORIO -->
+        <tr class="text-dark d-none d-md-table-row">
+            <td class="ps-3 fw-bold text-center text-muted" style="background-color: #f1f3f5;">${u.id}</td>
+            <td>
+                <div class="fw-bold text-primary">@${u.username}</div>
+                <div class="small text-muted">DNI: ${u.dni || 'S/D'}</div>
+            </td>
+            <td class="fw-bold">${u.apellido || ''}, ${u.nombres || ''}</td>
+            <td><span class="badge ${badgeColor}">${nombreRolMostrar}</span></td>
+            <td>${badgeEstado}</td>
+            <td class="text-end pe-3">
+                 <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
+                    <i class="bi bi-pencil-square text-dark"></i>
+                 </button>
+                 <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
+                         onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
+                     <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
+                 </button>
+            </td>
+        </tr>
+
+        <!-- 2. VISTA MÓVIL (Tarjeta adaptable 100% de ancho) -->
+        <tr class="d-block d-md-none mb-3 border rounded shadow-sm bg-white p-3">
+            <td class="text-start border-0 p-0">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
                         <div class="fw-bold text-primary">@${u.username}</div>
-                        <div class="small text-muted">DNI: ${u.dni || 'S/D'}</div>
-                    </td>
-                    <td class="fw-bold">${u.apellido || ''}, ${u.nombres || ''}</td>
-                    <td><span class="badge ${badgeColor}">${nombreRolMostrar}</span></td>
-                    <td>${badgeEstado}</td>
-                    <td class="text-end pe-3">
-                         <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
-                            <i class="bi bi-pencil-square text-dark"></i>
-                        </button>
-                        <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
-                                onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
-                            <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
+                        <div class="small text-muted">ID: ${u.id} | DNI: ${u.dni || 'S/D'}</div>
+                    </div>
+                    <div>${badgeEstado}</div>
+                </div>
+                <div class="small mb-1"><strong>Nombre:</strong> ${u.apellido || ''}, ${u.nombres || ''}</div>
+                <div class="small mb-2"><strong>Rol:</strong> <span class="badge ${badgeColor}">${nombreRolMostrar}</span></div>
+                <div class="dropdown-divider"></div>
+                <div class="mt-2 text-center w-100">
+                    ${botonesAccion}
+                </div>
+            </td>
+        </tr>
+    `;
+});
 
     } catch (error) {
         console.error(error);
