@@ -298,6 +298,10 @@ h1, h2, h3, h4, h5, h6,
         align-items: center !important;
         justify-content: center !important;
     }
+    /* Ocultar el encabezado de la tabla de usuarios en móviles */
+    #tabla-usuarios thead {
+        display: none !important;
+    }
 }
 
 /* ========================================================
