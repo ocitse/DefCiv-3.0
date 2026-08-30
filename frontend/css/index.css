@@ -218,20 +218,20 @@ h1, h2, h3, h4, h5, h6,
         font-size: 0.75rem;
     }
 
-    /* 1. TARJETAS MÓVILES: Forzar ancho estricto al 100% uniforme */
+    /* 1. ANCHO UNIFORME DE LAS TARJETAS MÓVILES */
     .content-principal .card,
     .main-content .card,
     #app-container .card {
         display: block;
         width: 100% !important;
         max-width: 100% !important;
+        box-sizing: border-box !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
     }
 
-    /* Forzar que la fila de la tarjeta móvil ocupe todo el ancho de punta a punta */
     .content-principal .card tr.d-block,
     .main-content .card tr.d-block {
         display: block !important;
@@ -241,6 +241,17 @@ h1, h2, h3, h4, h5, h6,
     .content-principal .card td,
     .main-content .card td {
         display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 2. BLINDAJE DEL ENCABEZADO: Código a la izquierda, Estado bien a la derecha */
+    .content-principal .card td .d-flex.justify-content-between,
+    .main-content .card td .d-flex.justify-content-between,
+    tr.d-block td > div:first-child {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
         width: 100% !important;
     }
 
@@ -260,32 +271,29 @@ h1, h2, h3, h4, h5, h6,
         border-radius: 6px !important;
     }
 
-    /* 2. BOTONES DE ACCIÓN: Tamaño original compacto, centrados y con expansión simétrica */
-    .content-principal .card td div.d-flex,
-    .main-content .card td div.d-flex,
-    .card-body div.d-flex,
-    td.text-start div.d-flex.justify-content-center {
+    /* 3. CENTRADO LIMPIO EXCLUSIVO PARA LOS BOTONES DE ACCIÓN INFERIORES */
+    .content-principal .card td div.d-flex.flex-wrap,
+    .main-content .card td div.d-flex.flex-wrap,
+    tr.d-block td div.d-flex.flex-wrap {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         width: 100% !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
         gap: 10px !important;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
         padding-top: 0.75rem;
         margin-top: 0.75rem;
     }
 
-    /* Recuperar el tamaño compacto normal y elegante de los botones individuales */
-    .content-principal .card td div.d-flex .btn,
-    .main-content .card td div.d-flex .btn,
-    td.text-start div.d-flex .btn {
+    /* Tamaño natural y prolijo de los botones individuales de acción */
+    .content-principal .card td div.d-flex.flex-wrap .btn,
+    .main-content .card td div.d-flex.flex-wrap .btn {
         flex: 0 0 auto !important;
         width: auto !important;
-        max-width: none !important;
         height: auto !important;
-        padding: 0.25rem 0.5rem !important;
+        padding: 0.3rem 0.6rem !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
