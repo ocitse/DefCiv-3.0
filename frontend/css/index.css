@@ -253,7 +253,7 @@ h1, h2, h3, h4, h5, h6,
         border-radius: 6px !important;
     }
 
-    /* CENTRADO ABSOLUTO Y SIMÉTRICO DE LOS BOTONES DE ACCIÓN EN MÓVIL */
+    /* 1. Forzar que el contenedor de botones ocupe el 100% uniforme de la tarjeta */
     .content-principal .card td tr.d-block div.d-flex,
     .main-content .card td div.d-flex,
     .card-body div.d-flex,
@@ -261,14 +261,26 @@ h1, h2, h3, h4, h5, h6,
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        width: fit-content !important;
-        max-width: 100% !important;
+        width: 100% !important; /* Ancho fijo uniforme para todas las tarjetas */
+        margin-left: 0 !important;
+        margin-right: 0 !important;
         gap: 12px !important;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
-        padding-top: 0.5rem;
-        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    /* 2. Darle un ancho idéntico a cada botón para que el bloque sea perfectamente simétrico */
+    .content-principal .card td div.d-flex .btn,
+    .main-content .card td div.d-flex .btn,
+    td.text-start div.d-flex .btn {
+        flex: 1 1 0px !important; /* Distribuye el espacio sobrante de forma perfectamente equitativa */
+        max-width: 45px !important;   /* Limita el ancho máximo para que no se estiren de más */
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
     }
 }
 
