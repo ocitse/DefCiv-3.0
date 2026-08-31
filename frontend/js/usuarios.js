@@ -8,7 +8,7 @@ export async function cargarModuloUsuarios() {
         <div class="animate__animated animate__fadeIn">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="mb-1 text-dark"><i class="bi bi-people-fill text-warning me-2"></i> Gestión de Usuarios</h2>
+                    <h2 class="mb-1 text-white"><i class="bi bi-people-fill text-warning me-2"></i> Gestión de Usuarios</h2>
                     <p class="text-muted mb-0">Administración de accesos y roles del sistema.</p>
                 </div>
                 <button class="btn btn-warning fw-bold d-flex align-items-center gap-2 shadow-sm" id="btn-nuevo-usuario" onclick="abrirModalNuevoUsuario()">
@@ -16,10 +16,10 @@ export async function cargarModuloUsuarios() {
                 </button>
             </div>
 
-            <div class="card shadow-sm border-0 bg-transparent">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle mb-0" id="tabla-usuarios" style="border-color: #dee2e6;">
+            <div class="card shadow-sm border-0" style="background-color: transparent !important;">
+                <div class="card-body p-0" style="background-color: transparent !important;">
+                    <div class="table-responsive" style="background-color: transparent !important;">
+                        <table class="table align-middle mb-0" id="tabla-usuarios" style="background-color: transparent !important;">
                             <thead class="table-dark text-white fw-bold">
                                 <tr>
                                     <th class="ps-3 text-center" style="width: 80px;">ID</th>
@@ -30,7 +30,7 @@ export async function cargarModuloUsuarios() {
                                     <th class="text-end pe-3" style="width: 120px;">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbody-usuarios" class="bg-white"></tbody>
+                            <tbody id="tbody-usuarios"></tbody>
                         </table>
                     </div>
                 </div>
