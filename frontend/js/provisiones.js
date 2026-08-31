@@ -1,21 +1,23 @@
 // frontend/js/provisiones.js
+import { cargarVistaDinamica } from './utils.js';
 
-document.addEventListener("DOMContentLoaded", () => {
-    cargarProvisiones();
-});
+export async function cargarModuloProvisiones() {
+    await cargarVistaDinamica('/frontend/pages/provisiones.html', () => {
+        cargarProvisionesData();
+    });
+}
 
-// Función para obtener y listar todas las provisiones desde el backend
-async function cargarProvisiones() {
+async function cargarProvisionesData() {
     try {
         const token = localStorage.getItem('token');
         const res = await fetch('/api/provisiones', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();
-        const tbody = document.querySelector('#tablaProvisiones tbody');
+        const tbody = document.querySelector('#tbody-provisiones');
         
         if (!tbody) {
-            console.warn("⚠️ No se encontró el elemento #tablaProvisiones en el HTML.");
+            console.warn("⚠️ No se encontró el elemento #tbody-provisiones en el HTML.");
             return;
         }
 
@@ -30,23 +32,22 @@ async function cargarProvisiones() {
                     badgeClass = 'bg-danger text-white';
                 }
 
-                // Botón de acción reutilizable y centrado
                 const botonAccion = p.estado === 'Enviado' ? `
-                    <button class="btn btn-sm btn-success" onclick="cerrarCircuito(${p.id})">
-                        <i class="bi bi-check-circle"></i> Registrar Retorno
+                    <button class="btn btn-sm btn-success fw-bold px-3 py-2" onclick="cerrarCircuitoProvision(${p.id})">
+                        <i class="fas fa-check-circle me-1"></i> Registrar Retorno
                     </button>
                 ` : `<span class="text-muted small">Cerrado</span>`;
 
                 tbody.innerHTML += `
                     <!-- 1. VISTA DE ESCRITORIO -->
                     <tr class="text-dark d-none d-md-table-row">
-                        <td><strong>#${p.id}</strong></td>
+                        <td class="ps-3"><strong>#${p.id}</strong></td>
                         <td>Solicitud #${p.solicitud_id || 'N/A'}</td>
                         <td>${p.detalle}</td>
                         <td>${p.destino}</td>
                         <td><span class="badge ${badgeClass}">${p.estado}</span></td>
                         <td>${p.observaciones || 'Sin observaciones'}</td>
-                        <td class="text-center">${botonAccion}</td>
+                        <td class="text-center pe-3">${botonAccion}</td>
                     </tr>
 
                     <!-- 2. VISTA MÓVIL (Tarjeta oscura adaptable al 100%) -->
@@ -75,17 +76,16 @@ async function cargarProvisiones() {
         }
     } catch (err) {
         console.error("Error al cargar provisiones:", err);
-        const tbody = document.querySelector('#tablaProvisiones tbody');
+        const tbody = document.querySelector('#tbody-provisiones');
         if (tbody) {
             tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error al conectar con el servidor.</td></tr>`;
         }
     }
 }
 
-// Función para registrar el retorno y cerrar el circuito de provisión
-async function cerrarCircuito(id) {
+async function cerrarCircuitoProvision(id) {
     const observaciones = prompt("Ingrese el resultado del retorno (Ej: Entregado correctamente, firmó el remito, etc.):");
-    if (observaciones === null) return; // Si el usuario cancela el prompt
+    if (observaciones === null) return;
 
     try {
         const token = localStorage.getItem('token');
@@ -104,7 +104,7 @@ async function cerrarCircuito(id) {
         const data = await res.json();
         if (data.success) {
             alert('¡Circuito cerrado correctamente!');
-            cargarProvisiones(); // Recargamos la tabla para ver reflejado el cambio
+            cargarProvisionesData();
         } else {
             alert('Error al cerrar el circuito.');
         }
@@ -114,7 +114,5 @@ async function cerrarCircuito(id) {
     }
 }
 
-// Exponer la función globalmente para los botones inline
-// Exponer también cargarProvisiones globalmente por seguridad
-window.cargarProvisiones = cargarProvisiones;
-window.cerrarCircuito = cerrarCircuito;
+window.cerrarCircuitoProvision = cerrarCircuitoProvision;
+window.cargarModuloProvisiones = cargarModuloProvisiones;
