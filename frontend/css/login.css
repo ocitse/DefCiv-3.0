@@ -71,7 +71,7 @@ body {
 /* Campos de Entrada */
 .input-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .input-group input {
@@ -104,26 +104,25 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* Espacio prolijo entre icono y texto */
+    gap: 8px;
     width: 100%;
-    background-color: #f59e0b;
-    color: #0f172a;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
+    background-color: #334155; /* Gris oscuro corporativo y sobrio (o probá con #1e3d59 si preferís un toque azulado) */
+    color: #f8fafc; /* Texto blanco suave */
+    padding: 10px 16px; /* Más compacto y sutil */
+    border: 1px solid #475569;
+    border-radius: 8px;
+    font-size: 0.95rem; /* Ligeramente más chico */
+    font-weight: 500; /* Menos pesado visualmente que el negrito fuerte */
     cursor: pointer;
-    margin-top: 24px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
-    transition: background-color 0.2s ease, transform 0.1s ease !important;
+    margin-top: 16px; /* Margen superior mucho más contenido */
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease, border-color 0.2s ease !important;
 }
 
 .btn-login:hover {
-    background-color: #fbbf24; /* Ámbar más claro al pasar el cursor */
-    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
-    transform: translateY(-1px);
+    background-color: #475569; /* Un gris un toque más claro al pasar el cursor */
+    border-color: #64748b;
 }
 
 .btn-login:disabled {
@@ -135,7 +134,7 @@ body {
 }
 
 .btn-login:active {
-    transform: translateY(0) scale(0.98);
+    transform: scale(0.99);
 }
 
 .btn-login i {
@@ -147,11 +146,11 @@ body {
 .btn-login:disabled, 
 .btn-login.disabled {
     background-color: #1e293b !important;
-    color: #e2e8f0 !important;
+    color: #94a3b8 !important;
     cursor: wait;
-    opacity: 1;
     border: 1px solid #334155;
     box-shadow: none;
+    opacity: 1;
 }
 
 .btn-login i.spin, 
