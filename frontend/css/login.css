@@ -104,26 +104,34 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 8px; /* Espacio prolijo entre icono y texto */
     width: 100%;
-    background-color: #f59e0b; /* Un tono ámbar moderno y cálido */
-    color: #0f172a; /* Texto oscuro de gran contraste */
+    background-color: #f59e0b;
+    color: #0f172a;
     padding: 12px 20px;
     border: none;
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.3px;
     cursor: pointer;
     margin-top: 24px;
     margin-bottom: 16px;
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
-    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease !important;
+    transition: background-color 0.2s ease, transform 0.1s ease !important;
 }
 
 .btn-login:hover {
     background-color: #fbbf24; /* Ámbar más claro al pasar el cursor */
     box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
     transform: translateY(-1px);
+}
+
+.btn-login:disabled {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    cursor: wait;
+    border: 1px solid #334155;
+    box-shadow: none;
 }
 
 .btn-login:active {

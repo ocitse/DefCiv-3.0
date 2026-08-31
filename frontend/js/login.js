@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             btnLogin.disabled = true;
-            btnLogin.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Conectando...`;
+btnLogin.querySelector('i').className = 'bi bi-arrow-repeat spin';
+btnLogin.querySelector('span').textContent = 'Conectando...';
 
             const respuesta = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -52,9 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 800);
 
         } catch (error) {
-            errorMessage.textContent = error.message;
             btnLogin.disabled = false;
-            btnLogin.innerHTML = `<i class="bi bi-box-arrow-in-right"></i> Ingresar`;
+btnLogin.querySelector('i').className = 'bi bi-box-arrow-in-right';
+btnLogin.querySelector('span').textContent = 'Ingresar';
         }
     });
 });
