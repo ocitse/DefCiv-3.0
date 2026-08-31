@@ -383,3 +383,46 @@ h1, h2, h3, h4, h5, h6,
     width: 100%;
     max-width: 1350px;
 }
+
+/* ========================================================
+   8. 🌙 CORRECCIÓN DE PANELES Y FILTROS (Contexto y Familias)
+   ======================================================== */
+
+/* Panel superior de Contexto Territorial */
+.content-principal .card:first-child,
+.main-content .card:first-child,
+.bg-light, /* Si usa la clase bg-light por defecto */
+.p-3.border.rounded.bg-light {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Tarjeta contenedora de la barra de búsqueda y filtros de familias */
+.content-principal .card .row + .row,
+.card.shadow-sm.p-4,
+.filtros-familias-container {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Campos de texto y selects dentro de la sección de familias/filtros */
+.content-principal input.form-control,
+.content-principal select.form-select,
+.card input[type="text"],
+.card select {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+.content-principal input::placeholder {
+    color: #64748b !important;
+}
+
+/* Textos internos aclaratorios o etiquetas en esas tarjetas */
+.content-principal .text-muted,
+.card .text-muted {
+    color: #94a3b8 !important;
+}
