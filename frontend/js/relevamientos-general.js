@@ -413,7 +413,7 @@ function renderizarFilasRelevamientos(relevamientos) {
     `;
     }).join('');
 }
-// Renderiza los controles de paginación para Relevamientos con estilos legibles
+// Renderiza los controles de paginación estilizados y con contraste correcto
 function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, totalPaginas) {
     const contenedor = document.getElementById('contenedor-paginacion-relevamientos');
     if (!contenedor) return;
@@ -425,7 +425,7 @@ function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, t
 
     const selectPaginacion = document.getElementById('selectPaginacionRelevamientos')?.value;
     if (selectPaginacion === 'todos') {
-        contenedor.innerHTML = `<span class="text-muted small">Mostrando todos los registros (${totalRegistros} en total)</span>`;
+        contenedor.innerHTML = `<span class="text-white-50 small">Mostrando todos los registros (${totalRegistros} en total)</span>`;
         return;
     }
 
@@ -433,18 +433,24 @@ function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, t
     const finRegistro = Math.min(paginaActualRelevamientos * porPagina, totalRegistros);
 
     contenedor.innerHTML = `
-        <span class="text-muted small">Mostrando ${inicioRegistro} a ${finRegistro} de ${totalRegistros} relevamientos</span>
-        <ul class="pagination pagination-sm m-0">
-            <li class="page-item ${paginaActualRelevamientos === 1 ? 'disabled' : ''}">
-                <button class="page-link" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos - 1})">Anterior</button>
-            </li>
-            <li class="page-item disabled">
-                <span class="page-link bg-secondary text-white border-secondary">Pág. ${paginaActualRelevamientos} de ${totalPaginas}</span>
-            </li>
-            <li class="page-item ${paginaActualRelevamientos >= totalPaginas ? 'disabled' : ''}">
-                <button class="page-link" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos + 1})">Siguiente</button>
-            </li>
-        </ul>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center w-100 py-2 px-1 mt-2 border-top border-secondary">
+            <span class="text-light small mb-2 mb-md-0 opacity-75">
+                Mostrando <strong class="text-white">${inicioRegistro}</strong> a <strong class="text-white">${finRegistro}</strong> de <strong class="text-white">${totalRegistros}</strong> relevamientos
+            </span>
+            <nav aria-label="Navegación de páginas">
+                <ul class="pagination pagination-sm m-0">
+                    <li class="page-item ${paginaActualRelevamientos === 1 ? 'disabled' : ''}">
+                        <button class="page-link bg-dark text-light border-secondary" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos - 1})">Anterior</button>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link bg-secondary text-white border-secondary fw-semibold">Pág. ${paginaActualRelevamientos} de ${totalPaginas}</span>
+                    </li>
+                    <li class="page-item ${paginaActualRelevamientos >= totalPaginas ? 'disabled' : ''}">
+                        <button class="page-link bg-dark text-light border-secondary" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos + 1})">Siguiente</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     `;
 }
 
