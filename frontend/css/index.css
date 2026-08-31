@@ -319,7 +319,7 @@ h1, h2, h3, h4, h5, h6,
     #sidebar-app, .sidebar {
         display: flex !important;
         flex-direction: column;
-        width: 240px !important;
+        width: 200px !important; /* Reducido de 240px para ganar espacio */
         position: fixed; 
         top: 0;
         bottom: 0;
@@ -328,11 +328,10 @@ h1, h2, h3, h4, h5, h6,
         background-color: #1a222c;
         border-right: 1px solid #2d3748;
     }
-
     .main-content-wrapper { 
         flex: 1; 
-        margin-left: 240px !important;
-        width: calc(100% - 240px);
+        margin-left: 200px !important;
+        width: calc(100% - 200px);
     }
 
     .dropdown-hover:hover .dropdown-menu {
