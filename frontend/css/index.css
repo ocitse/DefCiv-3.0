@@ -391,37 +391,44 @@ h1, h2, h3, h4, h5, h6,
 /* Panel superior de Contexto Territorial */
 .content-principal .card:first-child,
 .main-content .card:first-child,
-.bg-light, /* Si usa la clase bg-light por defecto */
+.bg-light,
 .p-3.border.rounded.bg-light {
     background-color: #1a222c !important;
     border: 1px solid #2d3748 !important;
     color: #e2e8f0 !important;
 }
 
-/* Tarjeta contenedora de la barra de búsqueda y filtros de familias */
-.content-principal .card .row + .row,
-.card.shadow-sm.p-4,
-.filtros-familias-container {
-    background-color: #1a222c !important;
-    border: 1px solid #2d3748 !important;
-    color: #e2e8f0 !important;
+/* 
+  UNIFICACIÓN DE FILTROS: 
+  Hacemos que el contenedor de búsqueda de familias comparta 
+  exactamente el mismo fondo y bordes que .filtros-relevamiento-box 
+*/
+.filtros-relevamiento-box,
+.content-principal .card .row:not(:first-child) {
+    background-color: #212b38 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem !important;
 }
 
-/* Campos de texto y selects dentro de la sección de familias/filtros */
-.content-principal input.form-control,
-.content-principal select.form-select,
-.card input[type="text"],
-.card select {
-    background-color: #0f172a !important;
-    border: 1px solid #334155 !important;
+/* Inputs y selects dentro de los bloques de filtrado */
+.filtros-relevamiento-box input,
+.filtros-relevamiento-box select,
+.content-principal .card .row:not(:first-child) input.form-control,
+.content-principal .card .row:not(:first-child) select.form-select {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
     color: #f8fafc !important;
+    height: 32px !important;
+    font-size: 0.8rem !important;
 }
 
 .content-principal input::placeholder {
     color: #64748b !important;
 }
 
-/* Textos internos aclaratorios o etiquetas en esas tarjetas */
+/* Textos internos y etiquetas aclaratorias */
 .content-principal .text-muted,
 .card .text-muted {
     color: #94a3b8 !important;
