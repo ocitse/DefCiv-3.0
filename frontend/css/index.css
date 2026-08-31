@@ -302,6 +302,10 @@ h1, h2, h3, h4, h5, h6,
     #tabla-usuarios thead {
         display: none !important;
     }
+    /* Ocultar el encabezado de la tabla de provisiones en móviles */
+    #tablaProvisiones thead {
+        display: none !important;
+    }
 }
 
 /* ========================================================
