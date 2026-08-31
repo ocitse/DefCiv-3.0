@@ -115,4 +115,6 @@ async function cerrarCircuito(id) {
 }
 
 // Exponer la función globalmente para los botones inline
+// Exponer también cargarProvisiones globalmente por seguridad
+window.cargarProvisiones = cargarProvisiones;
 window.cerrarCircuito = cerrarCircuito;
