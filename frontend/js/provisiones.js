@@ -1,10 +1,46 @@
 // frontend/js/provisiones.js
-import { cargarVistaDinamica } from './utils.js';
 
 export async function cargarModuloProvisiones() {
-    await cargarVistaDinamica('/frontend/pages/provisiones.html', () => {
-        cargarProvisionesData();
-    });
+    const contenedor = document.querySelector('.content-principal');
+    if (!contenedor) {
+        console.warn("⚠️ No se encontró el contenedor .content-principal");
+        return;
+    }
+
+    // Inyectamos la estructura completa directamente, asegurando modo oscuro y cero errores de ruta
+    contenedor.innerHTML = `
+        <div class="animate__animated animate__fadeIn">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1 text-white"><i class="fas fa-boxes text-warning me-2"></i> Gestión de Provisiones y Retornos</h2>
+                    <p class="text-muted mb-0">Control y seguimiento de insumos, recursos y retornos en tránsito.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 bg-transparent">
+                <div class="card-body p-0">
+                    <div class="table-responsive bg-transparent">
+                        <table class="table align-middle mb-0" id="tablaProvisiones" style="background-color: transparent !important;">
+                            <thead class="table-dark text-white fw-bold">
+                                <tr>
+                                    <th class="ps-3">ID Prov.</th>
+                                    <th>Solicitud Orig.</th>
+                                    <th>Detalle / Insumos</th>
+                                    <th>Destino</th>
+                                    <th>Estado</th>
+                                    <th>Observaciones</th>
+                                    <th class="text-center pe-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-provisiones"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    await cargarProvisionesData();
 }
 
 async function cargarProvisionesData() {
@@ -16,10 +52,7 @@ async function cargarProvisionesData() {
         const json = await res.json();
         const tbody = document.querySelector('#tbody-provisiones');
         
-        if (!tbody) {
-            console.warn("⚠️ No se encontró el elemento #tbody-provisiones en el HTML.");
-            return;
-        }
+        if (!tbody) return;
 
         tbody.innerHTML = '';
 
@@ -33,7 +66,7 @@ async function cargarProvisionesData() {
                 }
 
                 const botonAccion = p.estado === 'Enviado' ? `
-                    <button class="btn btn-sm btn-success fw-bold px-3 py-2" onclick="cerrarCircuitoProvision(${p.id})">
+                    <button class="btn btn-sm btn-success fw-bold px-3 py-2" onclick="window.cerrarCircuitoProvision(${p.id})">
                         <i class="fas fa-check-circle me-1"></i> Registrar Retorno
                     </button>
                 ` : `<span class="text-muted small">Cerrado</span>`;
