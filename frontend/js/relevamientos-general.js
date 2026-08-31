@@ -413,7 +413,7 @@ function renderizarFilasRelevamientos(relevamientos) {
     `;
     }).join('');
 }
-// Renderiza los controles de paginación para Relevamientos
+// Renderiza los controles de paginación para Relevamientos con estilos legibles
 function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, totalPaginas) {
     const contenedor = document.getElementById('contenedor-paginacion-relevamientos');
     if (!contenedor) return;
@@ -439,7 +439,7 @@ function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, t
                 <button class="page-link" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos - 1})">Anterior</button>
             </li>
             <li class="page-item disabled">
-                <span class="page-link bg-light text-dark">Pág. ${paginaActualRelevamientos} de ${totalPaginas}</span>
+                <span class="page-link bg-secondary text-white border-secondary">Pág. ${paginaActualRelevamientos} de ${totalPaginas}</span>
             </li>
             <li class="page-item ${paginaActualRelevamientos >= totalPaginas ? 'disabled' : ''}">
                 <button class="page-link" onclick="window.cambiarPaginaRelevamientos(${paginaActualRelevamientos + 1})">Siguiente</button>
