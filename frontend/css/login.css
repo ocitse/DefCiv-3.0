@@ -3,7 +3,6 @@
     --primary-dark: #003d7a; 
     --primary-light: #0056b3; 
     --alert-red: #dc3545;
-    --bg-light: #eef2f7; /* Un fondo con más personalidad */
 }
 
 *, *::before, *::after {
@@ -19,7 +18,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: radial-gradient(circle at top, #1e3d59 0%, #0f2027 100%); /* Fondo degradado institucional */
+    background: radial-gradient(circle at top, #1e3d59 0%, #0f2027 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,8 +36,8 @@ body {
     background: #1a222c; /* Fondo oscuro armónico */
     padding: 40px 35px;
     border-radius: 16px;
-    border: 1px solid #2d3748; /* Borde sutil para definición */
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); /* Sombra más profunda */
+    border: 1px solid #2d3748; /* Borde sutil */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
     text-align: center;
     width: 100%;
 }
@@ -49,7 +48,7 @@ body {
 }
 
 #logo-image {
-    width: 120px; /* Ajusta el tamaño de tu logo */
+    width: 120px;
     height: 120px;
     margin-bottom: 10px;
     object-fit: contain;
@@ -58,14 +57,14 @@ body {
 }
 
 .logo-area h1 {
-    color: #ffffff; /* Blanco pleno para resaltar */
+    color: #ffffff; /* Blanco pleno */
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .logo-area p {
-    color: #94a3b8; /* Gris claro elegante y legible */
+    color: #94a3b8; /* Gris claro legible */
     font-size: 0.95rem;
 }
 
@@ -75,21 +74,19 @@ body {
     margin-bottom: 20px;
 }
 
-/* Animación del foco en los inputs */
 .input-group input {
     width: 100%;
     padding: 14px 12px 14px 45px;
     background-color: #0f172a; /* Fondo interno oscuro */
-    border: 1px solid #334155; /* Borde gris oscuro */
+    border: 1px solid #334155;
     border-radius: 8px;
     color: #f8fafc; /* Texto blanco al escribir */
     font-size: 1rem;
     outline: none;
-    transition: all 0.3s ease; /* Transición suave */
 }
 
 .input-group input:focus {
-    border-color: #f59e0b; /* Toque ámbar/amarillo institucional al escribir */
+    border-color: #f59e0b; /* Toque ámbar al enfocar */
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
 }
 
@@ -98,7 +95,7 @@ body {
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8; /* Iconos en gris claro */
+    color: #94a3b8;
     font-size: 1.2rem;
 }
 
@@ -107,7 +104,7 @@ body {
     display: block;
     width: 100%;
     background-color: #ffc107; /* Amarillo institucional */
-    color: #1a222c; /* Texto oscuro para contraste perfecto */
+    color: #1a222c; /* Texto oscuro para contraste */
     padding: 14px;
     border: none;
     border-radius: 8px;
@@ -116,11 +113,10 @@ body {
     cursor: pointer;
     margin-top: 20px;
     margin-bottom: 20px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-login:hover {
-    background-color: #ffca2c; /* Un tono un poquito más claro al pasar el mouse */
+    background-color: #ffca2c;
 }
 
 .btn-login i {
@@ -128,10 +124,26 @@ body {
 }
 
 .btn-login:active {
-    transform: scale(0.98); /* Efecto de hundimiento al hacer clic */
+    transform: scale(0.98);
 }
 
-/* Animación de carga para el icono de Conectando... */
+/* ESTADOS DE CARGA Y BOTÓN DESHABILITADO */
+.btn-login:disabled, 
+.btn-login.disabled {
+    background-color: #334155 !important; /* Gris oscuro elegante */
+    color: #cbd5e1 !important; /* Texto claro legible */
+    cursor: not-allowed;
+    opacity: 0.9;
+    border: 1px solid #475569;
+}
+
+.btn-login i.spin, 
+.btn-login span {
+    color: #ffffff !important; /* Texto e icono en blanco puro al conectar */
+    font-weight: 600;
+}
+
+/* Animación de carga para el icono */
 .spin {
     display: inline-block;
     animation: spinner 0.8s linear infinite !important;
@@ -141,17 +153,28 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Mensaje de Error */
+/* Mensaje de Error / Feedback */
 .feedback-message {
     color: var(--alert-red);
     font-size: 0.9rem;
-    height: 1.5rem; /* Reserva espacio para evitar saltos de diseño */
+    height: 1.5rem;
     margin-bottom: 10px;
+}
+
+/* Mensaje de Éxito / Acceso Concedido con mayor presencia */
+#mensaje-exito,
+.success-message {
+    color: #4ade80 !important; /* Verde vibrante */
+    font-weight: 700;
+    font-size: 1rem;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.25);
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
 
 .forgot-password {
     display: block;
-    color: var(--primary-light);
+    color: #60a5fa;
     text-decoration: none;
     font-size: 0.9rem;
 }
