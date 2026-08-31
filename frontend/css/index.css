@@ -356,6 +356,23 @@ h1, h2, h3, h4, h5, h6,
         align-items: center !important;
         gap: 8px !important;
     }
+    /* Alineación perfecta del bloque de usuario en el sidebar */
+.sidebar .dropdown-toggle i:first-child {
+    font-size: 1.3rem; /* Tamaño equilibrado para el icono de usuario */
+    line-height: 1;
+}
+
+.sidebar .dropdown-toggle span {
+    display: inline-block;
+    line-height: 1.2;
+    text-align: left;
+}
+
+/* Asegurar que la flechita del dropdown no flote sola arriba */
+.sidebar .dropdown-toggle::after {
+    margin-left: auto !important; /* Empuja la flechita sutilmente hacia la derecha si es necesario */
+    vertical-align: middle !important;
+}
 }
 
 /* ========================================================
