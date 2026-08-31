@@ -34,10 +34,11 @@ body {
 }
 
 .login-box {
-    background: white;
+    background: #1a222c; /* Fondo oscuro armónico */
     padding: 40px 35px;
-    border-radius: 16px; /* Bordes más modernos */
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); /* Sombra más profunda */
+    border-radius: 16px;
+    border: 1px solid #2d3748; /* Borde sutil para definición */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); /* Sombra más profunda */
     text-align: center;
     width: 100%;
 }
@@ -57,14 +58,14 @@ body {
 }
 
 .logo-area h1 {
-    color: var(--primary-dark);
+    color: #ffffff; /* Blanco pleno para resaltar */
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .logo-area p {
-    color: #6c757d;
+    color: #94a3b8; /* Gris claro elegante y legible */
     font-size: 0.95rem;
 }
 
@@ -78,16 +79,18 @@ body {
 .input-group input {
     width: 100%;
     padding: 14px 12px 14px 45px;
-    border: 1px solid #dcdcdc;
+    background-color: #0f172a; /* Fondo interno oscuro */
+    border: 1px solid #334155; /* Borde gris oscuro */
     border-radius: 8px;
+    color: #f8fafc; /* Texto blanco al escribir */
     font-size: 1rem;
     outline: none;
     transition: all 0.3s ease; /* Transición suave */
 }
 
 .input-group input:focus {
-    border-color: var(--primary-light);
-    box-shadow: 0 0 8px rgba(0, 86, 179, 0.2); /* Brillo azul al escribir */
+    border-color: #f59e0b; /* Toque ámbar/amarillo institucional al escribir */
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
 }
 
 .input-group .icon {
@@ -95,7 +98,7 @@ body {
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--primary-dark);
+    color: #94a3b8; /* Iconos en gris claro */
     font-size: 1.2rem;
 }
 
@@ -103,13 +106,13 @@ body {
 .btn-login {
     display: block;
     width: 100%;
-    background-color: var(--primary-light);
-    color: white;
+    background-color: #ffc107; /* Amarillo institucional */
+    color: #1a222c; /* Texto oscuro para contraste perfecto */
     padding: 14px;
     border: none;
     border-radius: 8px;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -117,7 +120,7 @@ body {
 }
 
 .btn-login:hover {
-    background-color: var(--primary-dark);
+    background-color: #ffca2c; /* Un tono un poquito más claro al pasar el mouse */
 }
 
 .btn-login i {
