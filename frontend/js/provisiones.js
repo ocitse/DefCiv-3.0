@@ -1,21 +1,48 @@
-import { cargarVistaDinamica } from './utils.js';
+// frontend/js/provisiones.js
 
-export async function cargarModuloProvisiones() {
-    await cargarVistaDinamica('/frontend/pages/provisiones.html', () => {
-        cargarProvisionesData();
-    });
+let solicitandoVistaProvisiones = false;
+
+/**
+ * Muestra la vista principal de Provisiones inyectando el HTML parcial
+ */
+export async function verListaProvisiones() {
+    const contenedor = document.querySelector('.content-principal');
+    if (!contenedor) return;
+
+    if (document.getElementById('tablaProvisiones')) return;
+
+    if (solicitandoVistaProvisiones) return;
+    solicitandoVistaProvisiones = true;
+
+    try {
+        const respuesta = await fetch('/frontend/pages/provisiones.html');
+        if (!respuesta.ok) throw new Error('No se pudo cargar la página de provisiones.');
+        
+        const htmlTexto = await respuesta.text();
+        contenedor.innerHTML = htmlTexto;
+        
+        await cargarProvisionesData();
+    } catch (error) {
+        console.error("Error al cargar la vista de provisiones:", error);
+        contenedor.innerHTML = `<div class="p-4 text-center text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> Error al cargar el módulo de Provisiones.</div>`;
+    } finally {
+        solicitandoVistaProvisiones = false;
+    }
 }
 
 async function cargarProvisionesData() {
+    const tbody = document.querySelector('#tbody-provisiones');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando provisiones...</td></tr>`;
+
     try {
         const token = localStorage.getItem('token');
         const res = await fetch('/api/provisiones', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();
-        const tbody = document.querySelector('#tbody-provisiones');
         
-        if (!tbody) return;
         tbody.innerHTML = '';
 
         if (json.success && json.data.length > 0) {
@@ -45,20 +72,20 @@ async function cargarProvisionesData() {
                         <td class="text-center pe-3">${botonAccion}</td>
                     </tr>
 
-                    <!-- 2. VISTA MÓVIL (Tarjeta oscura adaptable al 100%) -->
-                    <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3" style="background-color: #1a222c !important; border-color: #2d3748 !important; color: #e2e8f0; margin-bottom: 1rem !important;">
-                        <td class="text-start border-0 p-0" style="background-color: transparent !important; color: inherit;">
+                    <!-- 2. VISTA MÓVIL (Tarjeta adaptable al 100%) -->
+                    <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3 bg-white">
+                        <td class="text-start border-0 p-0">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <div class="fw-bold text-info">Provisión #${p.id}</div>
+                                    <div class="fw-bold text-primary">Provisión #${p.id}</div>
                                     <div class="small text-muted">Solicitud Orig. #${p.solicitud_id || 'N/A'}</div>
                                 </div>
                                 <div><span class="badge ${badgeClass}">${p.estado}</span></div>
                             </div>
-                            <div class="small mb-1 text-light"><strong>Detalle / Insumos:</strong> ${p.detalle}</div>
-                            <div class="small mb-1 text-light"><strong>Destino:</strong> ${p.destino}</div>
+                            <div class="small mb-1 text-dark"><strong>Detalle / Insumos:</strong> ${p.detalle}</div>
+                            <div class="small mb-1 text-dark"><strong>Destino:</strong> ${p.destino}</div>
                             <div class="small mb-2 text-muted"><strong>Observaciones:</strong> ${p.observaciones || 'Sin observaciones'}</div>
-                            <div class="dropdown-divider" style="border-color: #2d3748 !important;"></div>
+                            <div class="dropdown-divider"></div>
                             <div class="mt-2 text-center w-100">
                                 ${botonAccion}
                             </div>
@@ -71,10 +98,7 @@ async function cargarProvisionesData() {
         }
     } catch (err) {
         console.error("Error al cargar provisiones:", err);
-        const tbody = document.querySelector('#tbody-provisiones');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error al conectar con el servidor.</td></tr>`;
-        }
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error al conectar con el servidor.</td></tr>`;
     }
 }
 
@@ -109,5 +133,8 @@ async function cerrarCircuitoProvision(id) {
     }
 }
 
-window.cerrarCircuitoProvision = cerrarCircuitoProvision;
-window.cargarModuloProvisiones = cargarModuloProvisiones;
+// Exposición global idéntica a solicitudes.js
+if (typeof window !== 'undefined') {
+    window.verListaProvisiones = verListaProvisiones;
+    window.cerrarCircuitoProvision = cerrarCircuitoProvision;
+}

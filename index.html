@@ -49,7 +49,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/frontend/pages/provisiones.html" class="nav-link text-white">
+                <a href="#" class="nav-link text-white" id="btn-menu-provisiones">
                     <i class="fas fa-boxes me-2"></i> Provisiones
                 </a>
             </li>
@@ -110,7 +110,7 @@
                         <a class="nav-link" id="btn-mobile-solicitudes" href="#"><i class="bi bi-file-earmark-text me-2"></i> Solicitudes</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/frontend/pages/provisiones.html" class="nav-link text-white">
+                        <a class="nav-link" id="btn-mobile-provisiones" href="#">
                             <i class="fas fa-boxes me-2"></i> Provisiones
                         </a>
                     </li>
@@ -148,6 +148,7 @@
         import { cargarModuloUsuarios } from './frontend/js/usuarios.js';
         import { verPanelPrincipal, verListaRelevamientos, editarRelevamientoGeneral } from './frontend/js/relevamientos.js';
         import { verListaSolicitudes } from './frontend/js/solicitudes.js';
+        import { verListaProvisiones } from './frontend/js/provisiones.js';
 
         document.addEventListener('DOMContentLoaded', () => {
             window.editarRelevamientoGeneral = editarRelevamientoGeneral;
@@ -290,6 +291,24 @@
             };
             if (btnSolDesk) btnSolDesk.addEventListener('click', handlerSol);
             if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
+
+            const btnProvDesk = document.getElementById('btn-menu-provisiones');
+const btnProvMob = document.getElementById('btn-mobile-provisiones');
+const handlerProv = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    cambiarEnlaceActivo('btn-menu-provisiones', 'btn-mobile-provisiones');
+    
+    // Si está en mobile, cerramos el menú hamburguesa al hacer clic
+    const mobileCollapse = document.getElementById('navbarNavMobile');
+    if (mobileCollapse && mobileCollapse.classList.contains('show')) {
+        bootstrap.Collapse.getInstance(mobileCollapse)?.hide();
+    }
+
+    verListaProvisiones();
+};
+if (btnProvDesk) btnProvDesk.addEventListener('click', handlerProv);
+if (btnProvMob) btnProvMob.addEventListener('click', handlerProv);
 
             const btnUsuDesk = document.getElementById('btn-sub-usuarios');
             if (btnUsuDesk) {
