@@ -792,3 +792,10 @@ body, .main-content-wrapper {
     padding-left: 15px !important;
     padding-right: 15px !important;
 }
+/* Aclarar el texto de fondo (placeholder) en áreas de texto */
+.content-principal textarea::placeholder,
+.main-content textarea::placeholder,
+form textarea::placeholder {
+    color: #94a3b8 !important; 
+    opacity: 1 !important; /* Forzar opacidad (algunos navegadores la bajan por defecto) */
+}
