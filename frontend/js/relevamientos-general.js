@@ -189,11 +189,12 @@ export async function verPanelPrincipal() {
             });
 
             if (document.getElementById('dash-relevamientos-nuevos')) {
-                document.getElementById('dash-relevamientos-nuevos').innerText = nuevos;
-                document.getElementById('dash-familias-asistidas').innerText = totalFamilias;
-                document.getElementById('dash-solicitudes-pendientes').innerText = listaRelevamientos.length; 
-                document.getElementById('dash-ordenes-aprobadas').innerText = Math.floor(totalFamilias * 0.7); 
-                document.getElementById('dash-entregas-reportes').innerText = listaRelevamientos.length;
+                // En lugar de asignarlo seco, llamamos a la animación
+                animarContador('dash-relevamientos-nuevos', nuevos, 1000); 
+                animarContador('dash-familias-asistidas', totalFamilias, 1200);
+                animarContador('dash-solicitudes-pendientes', listaRelevamientos.length, 1000); 
+                animarContador('dash-ordenes-aprobadas', Math.floor(totalFamilias * 0.7), 1300); 
+                animarContador('dash-entregas-reportes', listaRelevamientos.length, 1100);
             }
 
             const tbodyDash = document.getElementById('dash-tabla-emergencias');
@@ -222,6 +223,40 @@ export async function verPanelPrincipal() {
             }
         }
     });
+}
+
+// Función para animar números de contadores (efecto cuenta kilómetros)
+function animarContador(elementoId, valorFinal, duracion = 1500) {
+    const elemento = document.getElementById(elementoId);
+    if (!elemento) return;
+
+    // Asegurarse de que sea un número válido
+    const objetivo = parseInt(valorFinal, 10);
+    if (isNaN(objetivo) || objetivo === 0) {
+        elemento.innerText = objetivo || '0';
+        return; 
+    }
+
+    let tiempoInicio = null;
+
+    const animar = (tiempoActual) => {
+        if (!tiempoInicio) tiempoInicio = tiempoActual;
+        const progreso = tiempoActual - tiempoInicio;
+        
+        // Easing (aceleración y desaceleración suave)
+        const avancePorcentaje = Math.min(progreso / duracion, 1);
+        const valorActual = Math.floor(avancePorcentaje * objetivo);
+
+        elemento.innerText = valorActual;
+
+        if (progreso < duracion) {
+            window.requestAnimationFrame(animar);
+        } else {
+            elemento.innerText = objetivo; // Asegurar que termine exacto
+        }
+    };
+
+    window.requestAnimationFrame(animar);
 }
 
 // Función principal que hace el fetch UNA VEZ y almacena en memoria

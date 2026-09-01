@@ -753,3 +753,12 @@ body, .main-content-wrapper {
 .content-principal > .card {
     padding-bottom: 5px !important; 
 }
+
+/* Transición suave para cuando cambia el texto del contador */
+#dash-relevamientos-nuevos,
+#dash-familias-asistidas,
+#dash-solicitudes-pendientes,
+#dash-ordenes-aprobadas,
+#dash-entregas-reportes {
+    transition: color 0.3s ease;
+}
