@@ -359,25 +359,65 @@ function renderizarFilasFamilias(familias) {
 
     tbody.innerHTML = familias.map((f, index) => {
         const idFamilia = f.id_familia || f.id;
+        const orden = index + 1;
+        const dni = f.dni_jefe || 'N/D';
+        const apellidoNombre = f.jefe_familia || 'Sin especificar';
+        const integrantes = f.cantidad_integrantes || 1;
+        const urgencia = f.urgencia_familiar || 'Normal';
+        const estado = f.estado_asistencia || 'Pendiente';
+
+        // Lógica visual para la urgencia
+        let claseUrgencia = 'bg-secondary';
+        if (urgencia.toLowerCase().includes('alta')) claseUrgencia = 'bg-danger';
+        else if (urgencia.toLowerCase().includes('media')) claseUrgencia = 'bg-warning text-dark';
+        
+        // Lógica visual para el estado
+        let claseEstado = 'text-muted';
+        if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado')) claseEstado = 'text-success fw-bold';
+        else if (estado.toLowerCase().includes('proceso')) claseEstado = 'text-warning fw-bold';
+
+        // Botones de acción reutilizables
+        const botonesAccion = `
+            <button class="btn btn-sm btn-outline-primary" onclick="window.verFichaNecesidades('${idFamilia}')" title="Ver Ficha">
+                <i class="bi bi-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${idFamilia}')" title="Editar Ficha">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${idFamilia}')" title="Eliminar">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+
         return `
-            <tr>
-                <td class="text-center">${index + 1}</td> <!-- Orden N° -->
-                <td>${f.dni_jefe || 'N/D'}</td>              <!-- DNI Jefe/a -->
-                <td><strong>${f.jefe_familia || 'Sin especificar'}</strong></td> <!-- Apellido y Nombre -->
-                <td class="text-center"><span class="badge bg-secondary">${f.cantidad_integrantes || 1}</span></td> <!-- Integrantes -->
-                <td>${f.urgencia_familiar || 'Normal'}</td> <!-- Urgencia Familiar -->
-                <td>${f.estado_asistencia || 'Pendiente'}</td> <!-- Estado Asistencia -->
+            <!-- 1. VISTA DE ESCRITORIO (Fila clásica) -->
+            <tr class="d-none d-md-table-row">
+                <td class="text-center">${orden}</td> 
+                <td>${dni}</td>               
+                <td><strong>${apellidoNombre}</strong></td> 
+                <td class="text-center"><span class="badge bg-secondary">${integrantes}</span></td> 
+                <td><span class="badge ${claseUrgencia}">${urgencia}</span></td> 
+                <td class="text-center <span class="math-inline">\{claseEstado\}"></span>{estado}</td> 
                 <td class="text-center">
                     <div class="d-flex justify-content-center gap-1">
-                        <button class="btn btn-sm btn-outline-primary" onclick="window.verFichaNecesidades('${idFamilia}')" title="Ver Ficha">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning" onclick="window.editarDatosFamilia('${idFamilia}')" title="Editar Ficha">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${idFamilia}')" title="Eliminar">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        ${botonesAccion}
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 2. VISTA MÓVIL (Tarjeta compacta adaptable) -->
+            <tr class="d-block d-md-none mb-3 border rounded shadow-sm bg-white p-3">
+                <td class="d-block border-0 p-0 text-start w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
+                        <strong class="text-primary">Orden N° ${orden}</strong>
+                        <span class="badge ${claseUrgencia}">${urgencia}</span>
+                    </div>
+                    <div class="small mb-1"><strong>DNI Jefe/a:</strong> ${dni}</div>
+                    <div class="small mb-1"><strong>Familia:</strong> ${apellidoNombre}</div>
+                    <div class="small mb-2"><strong>Integrantes:</strong> <span class="badge bg-secondary">${integrantes}</span> | <strong>Estado:</strong> <span class="${claseEstado}">${estado}</span></div>
+                    
+                    <div class="mt-2 text-center w-100 border-top pt-2 d-flex justify-content-center gap-2">
+                        ${botonesAccion}
                     </div>
                 </td>
             </tr>

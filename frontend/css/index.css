@@ -299,11 +299,8 @@ h1, h2, h3, h4, h5, h6,
     #tablaProvisiones thead {
         display: none !important;
     }
-    .content-principal .card td,
-    .main-content .card td {
-        display: block !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
+    #tabla-familias thead { /* Ajustá el ID al que tenga tu tabla de familias */
+        display: none !important;
     }
 }
 
