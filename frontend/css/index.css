@@ -534,3 +534,50 @@ h1, h2, h3, h4, h5, h6,
 .modal-body td div {
     color: #f8fafc !important;
 }
+
+/* ========================================================
+   11. 🌙 CORRECCIÓN PARA FORMULARIOS, SELECTS Y ARCHIVOS (Editar Familia)
+   ======================================================== */
+
+/* Inputs de archivos nativos (Adjuntar Evidencia) y sus botones */
+.content-principal input[type="file"],
+.main-content input[type="file"],
+.form-control[type="file"] {
+    background-color: #0f172a !important;
+    color: #94a3b8 !important;
+    border: 1px solid #334155 !important;
+}
+
+/* El botón de "Seleccionar archivo" nativo del explorador */
+.content-principal input[type="file"]::file-selector-button,
+.main-content input[type="file"]::file-selector-button {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.content-principal input[type="file"]::file-selector-button:hover {
+    background-color: #475569 !important;
+}
+
+/* Selects y menús desplegables de catálogos (Seleccionar Insumo) */
+.content-principal select,
+.main-content select,
+.form-select {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Cajas contenedoras internas blancas o grises claras de listas (como los materiales seleccionados) */
+.content-principal .border.bg-light,
+.main-content .border.bg-light,
+.bg-light {
+    background-color: #212b38 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
