@@ -508,6 +508,12 @@ window.cambiarPaginaFamilias = function(nuevaPagina) {
     manejarCambioFiltros(false); // false para no resetear a página 1
 };
 
+// Función auxiliar para que los botones de paginación funcionen
+window.cambiarPaginaFamilias = function(nuevaPagina) {
+    paginaActualFamilias = nuevaPagina;
+    manejarCambioFiltros(false); // false para no resetear a página 1
+};
+
 window.agregarArchivoALista = () => {
     const input = document.getElementById('inputArchivo');
     if (input.files.length === 0) return alert("Selecciona un archivo.");
