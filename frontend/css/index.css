@@ -788,16 +788,14 @@ body, .main-content-wrapper {
 }
 
 /* ========================================================
-   19. 🛠️ CORRECCIÓN DE MENSAJES DE TABLA VACÍA
+   19. 🛠️ CORRECCIÓN DE MENSAJES DE TABLA VACÍA (Especificidad Alta)
    ======================================================== */
-   .fila-sin-datos {
-    display: table-row !important; /* Fuerza a que sea una fila real */
-    width: 100% !important;
-}
-
-.fila-sin-datos td {
-    display: table-cell !important; /* Fuerza a que sea una celda real */
-    width: 100vw !important; /* Intenta ocupar todo el ancho visual */
-    text-align: center !important;
-    white-space: normal !important;
-}
+   .content-principal .card tr.fila-sin-datos td,
+   .main-content .card tr.fila-sin-datos td,
+   .table-responsive tr.fila-sin-datos td {
+       display: table-cell !important; /* Recupera el control del colspan */
+       text-align: center !important;
+       white-space: normal !important;
+       width: 100% !important;
+       padding: 20px 10px !important;
+   }
