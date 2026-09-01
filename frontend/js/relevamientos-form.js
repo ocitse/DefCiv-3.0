@@ -188,8 +188,15 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
 
+        // Recuperamos el token de seguridad
+        const token = localStorage.getItem('token');
+
+        // Enviamos el FormData CON el token de autorización
         const respuesta = await fetch(url, {
             method: metodo,
+            headers: {
+                'Authorization': `Bearer ${token}` // ¡Faltaba esto!
+            },
             body: formData
         });
 

@@ -61,9 +61,23 @@ export const crearFamilia = async (req, res) => {
             ...restoDeCampos
         });
 
-        // Si el frontend envió el array de materiales/necesidades, los guardamos en su tabla
-        if (necesidades && Array.isArray(necesidades) && necesidades.length > 0) {
-            const necesidadesAInsertar = necesidades.map(nec => ({
+        // --- PARSEO DE NECESIDADES (Soporte para FormData) ---
+        let necesidadesParsed = [];
+        if (necesidades) {
+            if (typeof necesidades === 'string') {
+                try {
+                    necesidadesParsed = JSON.parse(necesidades);
+                } catch (e) {
+                    console.error("Error al parsear necesidades:", e);
+                }
+            } else {
+                necesidadesParsed = necesidades;
+            }
+        }
+
+        // Si hay materiales válidos, los insertamos en la tabla relacional
+        if (Array.isArray(necesidadesParsed) && necesidadesParsed.length > 0) {
+            const necesidadesAInsertar = necesidadesParsed.map(nec => ({
                 id_familia: nuevaFamilia.id_familia,
                 tipo_material: nec.tipo_material,
                 cantidad: nec.cantidad || 1
