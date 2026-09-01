@@ -505,3 +505,32 @@ h1, h2, h3, h4, h5, h6,
     background-color: #1a222c !important;
     border-top: 1px solid #2d3748 !important;
 }
+
+/* ========================================================
+   10. 🌙 CORRECCIÓN FINAL PARA FILAS REBELDES (Materiales)
+   ======================================================== */
+
+/* Forzar fondo oscuro y texto claro en cualquier tabla o ítem dentro del modal */
+.modal-body .table,
+.modal-body .table tr,
+.modal-body .table td,
+.modal-body .list-group-item,
+.modal-body .card-body tr {
+    background-color: #1a222c !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+/* Específicamente para los ítems de materiales de construcción si son filas o listas */
+.modal-body div[class*="material"],
+.modal-body .table-responsive td,
+.modal-body tr td {
+    background-color: #1a222c !important;
+    color: #f8fafc !important;
+}
+
+/* Textos de los nombres de materiales que queden claros */
+.modal-body td span,
+.modal-body td div {
+    color: #f8fafc !important;
+}
