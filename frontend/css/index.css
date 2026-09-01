@@ -678,3 +678,36 @@ h1, h2, h3, h4, h5, h6,
     box-shadow: none !important;
     padding: 10px !important; 
 }
+
+/* ========================================================
+   15. 🛑 ELIMINACIÓN TOTAL DE MÁRGENES (Modo Pantalla Completa)
+   ======================================================== */
+
+/* Igualamos el fondo exterior al interior para que no haya contraste de cajas */
+body, .main-content-wrapper {
+    background-color: #1a222c !important; 
+}
+
+/* Cero espacio desperdiciado en los bordes del monitor y la barra lateral */
+.main-content {
+    padding: 0 10px 0 0 !important; /* Solo dejamos un hilito a la derecha para que no pegue contra el scrollbar */
+    max-width: 100% !important;
+}
+
+/* Quitamos los bordes de la tarjeta contenedora y del wrapper de la tabla */
+.content-principal > .card,
+.main-content > .card,
+.table-responsive {
+    border: none !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+}
+
+/* Liberamos la caja de filtros para que fluya de lado a lado */
+.filtros-relevamiento-box {
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
