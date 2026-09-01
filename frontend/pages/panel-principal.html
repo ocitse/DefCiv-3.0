@@ -11,29 +11,29 @@
     
     <!-- Tarjeta 1: Relevamientos Nuevos -->
     <div class="col-12 col-md-6 col-xl-3">
-        <!-- AGREGAMOS kpi-card y onclick -->
         <div class="card h-100 border-0 border-start border-4 border-primary shadow-sm bg-dark kpi-card" 
              style="background-color: #212b38 !important;"
-             onclick="navegarYFiltrar('estado', 'nuevo')">
+             onclick="window.navegarYFiltrar('estado', 'nuevo')">
             <div class="card-body">
-                <!-- ... resto del contenido ... -->
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-uppercase text-muted small fw-bold mb-1">Relevamientos Nuevos</div>
+                        <div class="text-uppercase text-muted small fw-bold mb-1">Nuevos</div>
                         <h3 class="text-white mb-0 fw-bold" id="dash-relevamientos-nuevos">0</h3>
                     </div>
                     <div class="fs-1 text-primary opacity-50"><i class="bi bi-file-earmark-plus"></i></div>
                 </div>
                 <div class="mt-2 text-white-50" style="font-size: 0.75rem;">
-                    <i class="bi bi-arrow-up-right-circle text-primary me-1"></i> Pendientes de asignación
+                    <i class="bi bi-arrow-up-right-circle text-primary me-1"></i> Ver pendientes
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tarjeta 2: Solicitudes Pendientes -->
+    <!-- Tarjeta 2: Solicitudes Pendientes (En Proceso) -->
     <div class="col-12 col-md-6 col-xl-3">
-        <div class="card h-100 border-0 border-start border-4 border-warning shadow-sm bg-dark" style="background-color: #212b38 !important;">
+        <div class="card h-100 border-0 border-start border-4 border-warning shadow-sm bg-dark kpi-card" 
+             style="background-color: #212b38 !important;"
+             onclick="window.navegarYFiltrar('estado', 'en proceso')">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -49,9 +49,11 @@
         </div>
     </div>
 
-    <!-- Tarjeta 3: Familias Asistidas -->
+    <!-- Tarjeta 3: Familias Asistidas (Completados) -->
     <div class="col-12 col-md-6 col-xl-3">
-        <div class="card h-100 border-0 border-start border-4 border-success shadow-sm bg-dark" style="background-color: #212b38 !important;">
+        <div class="card h-100 border-0 border-start border-4 border-success shadow-sm bg-dark kpi-card" 
+             style="background-color: #212b38 !important;"
+             onclick="window.navegarYFiltrar('estado', 'completado')">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -61,7 +63,7 @@
                     <div class="fs-1 text-success opacity-50"><i class="bi bi-people"></i></div>
                 </div>
                 <div class="mt-2 text-white-50" style="font-size: 0.75rem;">
-                    <i class="bi bi-check-circle text-success me-1"></i> Relevamientos completados
+                    <i class="bi bi-check-circle text-success me-1"></i> Ver completados
                 </div>
             </div>
         </div>
@@ -69,7 +71,9 @@
 
     <!-- Tarjeta 4: Entregas / Reportes -->
     <div class="col-12 col-md-6 col-xl-3">
-        <div class="card h-100 border-0 border-start border-4 border-info shadow-sm bg-dark" style="background-color: #212b38 !important;">
+        <div class="card h-100 border-0 border-start border-4 border-info shadow-sm bg-dark kpi-card" 
+             style="background-color: #212b38 !important;"
+             onclick="window.navegarYFiltrar('estado', '')">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -79,7 +83,7 @@
                     <div class="fs-1 text-info opacity-50"><i class="bi bi-box-seam"></i></div>
                 </div>
                 <div class="mt-2 text-white-50" style="font-size: 0.75rem;">
-                    <i class="bi bi-truck text-info me-1"></i> Insumos y materiales
+                    <i class="bi bi-truck text-info me-1"></i> Quitar filtros
                 </div>
             </div>
         </div>
