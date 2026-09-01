@@ -371,10 +371,10 @@ function renderizarFilasFamilias(familias) {
         if (urgencia.toLowerCase().includes('alta')) claseUrgencia = 'bg-danger';
         else if (urgencia.toLowerCase().includes('media')) claseUrgencia = 'bg-warning text-dark';
         
-        // Lógica visual para el estado
-        let claseEstado = 'text-muted';
-        if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado')) claseEstado = 'text-success fw-bold';
-        else if (estado.toLowerCase().includes('proceso')) claseEstado = 'text-warning fw-bold';
+        // Lógica visual para el estado (¡Ahora con formato Badge!)
+        let claseEstado = 'badge bg-secondary'; // Por defecto (Pendiente)
+        if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado')) claseEstado = 'badge bg-success';
+        else if (estado.toLowerCase().includes('proceso')) claseEstado = 'badge bg-warning text-dark';
 
         // Botones de acción reutilizables
         const botonesAccion = `
@@ -387,6 +387,40 @@ function renderizarFilasFamilias(familias) {
             <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarFamiliar('${idFamilia}')" title="Eliminar">
                 <i class="bi bi-trash"></i>
             </button>
+        `;
+
+        return `
+            <!-- 1. VISTA DE ESCRITORIO (Fila clásica) -->
+            <tr class="d-none d-md-table-row">
+                <td class="text-center">${orden}</td> 
+                <td>${dni}</td>               
+                <td><strong>${apellidoNombre}</strong></td> 
+                <td class="text-center"><span class="badge bg-secondary">${integrantes}</span></td> 
+                <td><span class="badge ${claseUrgencia}">${urgencia}</span></td> 
+                <td class="text-center"><span class="${claseEstado}">${estado}</span></td> 
+                <td class="text-center">
+                    <div class="d-flex justify-content-center gap-1">
+                        ${botonesAccion}
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 2. VISTA MÓVIL (Tarjeta compacta adaptable) -->
+            <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3" style="background-color: #212b38 !important; border-color: #334155 !important;">
+                <td class="d-block border-0 p-0 text-start w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2" style="border-color: #334155 !important;">
+                        <strong class="text-primary">Orden N° ${orden}</strong>
+                        <span class="badge ${claseUrgencia}">${urgencia}</span>
+                    </div>
+                    <div class="small mb-1"><strong>DNI Jefe/a:</strong> ${dni}</div>
+                    <div class="small mb-1"><strong>Familia:</strong> ${apellidoNombre}</div>
+                    <div class="small mb-2"><strong>Integrantes:</strong> <span class="badge bg-secondary">${integrantes}</span> | <strong>Estado:</strong> <span class="${claseEstado}">${estado}</span></div>
+                    
+                    <div class="mt-2 text-center w-100 border-top pt-3 d-flex justify-content-center gap-2" style="border-color: rgba(255,255,255,0.05) !important;">
+                        ${botonesAccion}
+                    </div>
+                </td>
+            </tr>
         `;
 
         return `
