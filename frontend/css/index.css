@@ -581,3 +581,51 @@ h1, h2, h3, h4, h5, h6,
     border-color: #334155 !important;
     color: #f8fafc !important;
 }
+
+/* ========================================================
+   12. 🛡️ BLINDAJE ANTI-REBELDÍA PARA EL PASO 3 DE EDICIÓN
+   ======================================================== */
+
+/* Forzar tarjeta y cuerpo de tarjeta a oscuro en formularios de edición */
+.content-principal form .card,
+.main-content form .card,
+.content-principal form .card-body,
+.main-content form .card-body {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Neutralizar cualquier clase bg-white o bg-light que se cuele en los formularios */
+.content-principal form .bg-white,
+.main-content form .bg-white,
+.content-principal form .bg-light,
+.main-content form .bg-light {
+    background-color: #212b38 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Forzar los inputs de texto, textareas y selects dentro del formulario */
+.content-principal form input[type="text"],
+.content-principal form input[type="number"],
+.content-principal form textarea,
+.content-principal form select,
+.main-content form input[type="text"],
+.main-content form input[type="number"],
+.main-content form textarea,
+.main-content form select {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Cajas de elementos seleccionados (como la lista de materiales agregados) */
+.content-principal form .list-group-item,
+.main-content form .list-group-item,
+.content-principal form div[style*="background"],
+.main-content form div[style*="background"] {
+    background-color: #1a222c !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
