@@ -352,7 +352,8 @@ function renderizarFilasFamilias(familias) {
     if (!tbody) return;
 
     if (!familias || familias.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4 w-100">No se encontraron familias registradas.</td></tr>`;
+        // Le sumamos la clase "fila-sin-datos" al <tr>
+        tbody.innerHTML = `<tr class="fila-sin-datos"><td colspan="7" class="text-center text-muted py-4">No se encontraron familias registradas.</td></tr>`;
         return;
     }
 

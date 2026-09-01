@@ -786,3 +786,18 @@ body, .main-content-wrapper {
     padding-left: 15px !important;
     padding-right: 15px !important;
 }
+
+/* ========================================================
+   19. 🛠️ CORRECCIÓN DE MENSAJES DE TABLA VACÍA
+   ======================================================== */
+   .fila-sin-datos {
+    display: table-row !important; /* Fuerza a que sea una fila real */
+    width: 100% !important;
+}
+
+.fila-sin-datos td {
+    display: table-cell !important; /* Fuerza a que sea una celda real */
+    width: 100vw !important; /* Intenta ocupar todo el ancho visual */
+    text-align: center !important;
+    white-space: normal !important;
+}
