@@ -238,13 +238,6 @@ h1, h2, h3, h4, h5, h6,
         width: 100% !important;
     }
 
-    .content-principal .card td,
-    .main-content .card td {
-        display: block !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
     /* 2. BLINDAJE DEL ENCABEZADO: Código a la izquierda, Estado bien a la derecha */
     .content-principal .card td .d-flex.justify-content-between,
     .main-content .card td .d-flex.justify-content-between,
@@ -305,6 +298,12 @@ h1, h2, h3, h4, h5, h6,
     /* Ocultar el encabezado de la tabla de provisiones en móviles */
     #tablaProvisiones thead {
         display: none !important;
+    }
+    .content-principal .card td,
+    .main-content .card td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
@@ -786,16 +785,3 @@ body, .main-content-wrapper {
     padding-left: 15px !important;
     padding-right: 15px !important;
 }
-
-/* ========================================================
-   19. 🛠️ CORRECCIÓN DE MENSAJES DE TABLA VACÍA (Especificidad Alta)
-   ======================================================== */
-   .content-principal .card tr.fila-sin-datos td,
-   .main-content .card tr.fila-sin-datos td,
-   .table-responsive tr.fila-sin-datos td {
-       display: table-cell !important; /* Recupera el control del colspan */
-       text-align: center !important;
-       white-space: normal !important;
-       width: 100% !important;
-       padding: 20px 10px !important;
-   }
