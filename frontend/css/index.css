@@ -680,67 +680,50 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   15. 🛑 ELIMINACIÓN TOTAL DE MÁRGENES (Modo Pantalla Completa)
+   15. 🧨 MODO FLUIDO AISLADO (Solo para Lista de Relevamientos)
    ======================================================== */
 
-/* Igualamos el fondo exterior al interior para que no haya contraste de cajas */
+/* Restauramos el fondo oscuro global para que todo encaje */
 body, .main-content-wrapper {
     background-color: #1a222c !important; 
 }
 
-/* Cero espacio desperdiciado en los bordes del monitor y la barra lateral */
+/* 1. Aseguramos que el contenedor general mantenga su padding original para el Panel Principal */
 .main-content {
-    padding: 0 10px 0 0 !important; /* Solo dejamos un hilito a la derecha para que no pegue contra el scrollbar */
-    max-width: 100% !important;
+    padding: 30px !important; /* Si tu padding original era otro, ajustalo aquí */
+    max-width: 100%;
 }
 
-/* Quitamos los bordes de la tarjeta contenedora y del wrapper de la tabla */
-.content-principal > .card,
-.main-content > .card,
-.table-responsive {
+/* 2. Clase maestra para aislar la expansión: "come" el padding del contenedor hacia afuera */
+.vista-relevamientos-fluida {
+    margin: -30px !important; /* Se expande hacia los bordes absorbiendo el padding de .main-content */
+    padding: 20px 15px 5px 15px !important; 
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+}
+
+/* 3. Limpiamos bordes internos solo dentro de esta vista fluida */
+.vista-relevamientos-fluida .table-responsive {
     border: none !important;
     border-radius: 0 !important;
     background-color: transparent !important;
+    margin-bottom: 0 !important;
 }
 
-/* Liberamos la caja de filtros para que fluya de lado a lado */
-.filtros-relevamiento-box {
-    border-left: none !important;
-    border-right: none !important;
+.vista-relevamientos-fluida .filtros-relevamiento-box {
+    border: none !important;
+    background-color: #1e293b !important; 
     border-radius: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
 }
 
-/* ========================================================
-   16. 🧨 MODO FLUIDO TOTAL (Sin marco ni espaciados)
-   ======================================================== */
-
-/* 1. Eliminar el padding del contenedor principal que empuja todo hacia adentro */
-.main-content, 
-.content-principal,
-#main-content {
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-}
-
-/* 2. Destruir la "caja" visual que envuelve la lista */
-.main-content > .card,
-.content-principal > .card {
-    border: none !important;
-    box-shadow: none !important;
-    background-color: transparent !important; /* Funde el fondo de la tarjeta con el fondo general */
-    border-radius: 0 !important;
-    margin: 0 !important;
-    /* Solo dejamos un respiro mínimo interno para que las letras no choquen contra la barra lateral */
-    padding: 20px 15px !important; 
-}
-
-/* 3. Asegurar que la barra superior de filtros no tenga bordes residuales */
-.filtros-relevamiento-box {
-    border: none !important;
-    background-color: #1e293b !important; /* Un tono apenas diferente para distinguirla sin líneas */
+/* 4. Compactación inferior del paginador aislada */
+.vista-relevamientos-fluida #contenedor-paginacion-relevamientos,
+.vista-relevamientos-fluida #contenedor-paginacion-relevamientos > div {
+    margin-top: 0 !important;
+    padding-top: 5px !important;
+    padding-bottom: 0 !important;
 }
 
 /* ========================================================
