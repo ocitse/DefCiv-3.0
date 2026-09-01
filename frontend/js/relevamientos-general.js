@@ -352,7 +352,7 @@ function renderizarFilasRelevamientos(relevamientos) {
 
         // Bloque de botones reutilizable para ambos diseños (forzando centrado)
         const botonesAccion = `
-            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap w-100">
+            <div class="d-flex justify-content-center align-items-center gap-2">
                 ${esCompletado ? `
                     <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador">
                         <i class="bi bi-arrow-counterclockwise"></i> Devolver
