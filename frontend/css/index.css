@@ -711,3 +711,34 @@ body, .main-content-wrapper {
     margin-left: 0 !important;
     margin-right: 0 !important;
 }
+
+/* ========================================================
+   16. 🧨 MODO FLUIDO TOTAL (Sin marco ni espaciados)
+   ======================================================== */
+
+/* 1. Eliminar el padding del contenedor principal que empuja todo hacia adentro */
+.main-content, 
+.content-principal,
+#main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+/* 2. Destruir la "caja" visual que envuelve la lista */
+.main-content > .card,
+.content-principal > .card {
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important; /* Funde el fondo de la tarjeta con el fondo general */
+    border-radius: 0 !important;
+    margin: 0 !important;
+    /* Solo dejamos un respiro mínimo interno para que las letras no choquen contra la barra lateral */
+    padding: 20px 15px !important; 
+}
+
+/* 3. Asegurar que la barra superior de filtros no tenga bordes residuales */
+.filtros-relevamiento-box {
+    border: none !important;
+    background-color: #1e293b !important; /* Un tono apenas diferente para distinguirla sin líneas */
+}
