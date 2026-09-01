@@ -695,6 +695,7 @@ window.navegarYFiltrar = function(criterio, valor) {
 window.completarRelevamientoGeneral = completarRelevamientoGeneral;
 
 // Exposiciones globales necesarias
+window.verPanelPrincipal = verPanelPrincipal;
 window.editarRelevamiento = editarRelevamientoGeneral;
 window.eliminarRelevamiento = eliminarRelevamientoGeneral;
 window.mostrarFormularioNuevoRelevamiento = mostrarFormularioNuevoRelevamiento;
