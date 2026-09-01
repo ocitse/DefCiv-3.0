@@ -462,8 +462,8 @@ function renderizarFilasFamilias(familias) {
 
 // Renderiza los controles de paginación estilizados para Familias
 function renderizarControlesPaginacionFamilias(totalRegistros, porPagina, totalPaginas) {
-    const contenedor = document.getElementById('contenedor-paginacion-familias');
-    // Si tu div HTML tiene otro ID (como 'contenedor-paginacion' a secas), cambialo arriba
+    const contenedor = document.getElementById('contenedor-paginacion');
+    
     if (!contenedor) return;
 
     if (totalRegistros === 0) {
@@ -471,7 +471,7 @@ function renderizarControlesPaginacionFamilias(totalRegistros, porPagina, totalP
         return;
     }
 
-    const selectPaginacion = document.getElementById('selectPaginacionFamilias')?.value || '10';
+    const selectPaginacion = document.getElementById('selectPaginacion')?.value || '10';
     if (selectPaginacion === 'todos') {
         contenedor.innerHTML = `<span class="text-white-50 small">Mostrando todas las familias (${totalRegistros} en total)</span>`;
         return;
