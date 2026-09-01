@@ -377,19 +377,33 @@ function renderizarFilasRelevamientos(relevamientos) {
         `;
 
         return `
-        <!-- 1. VISTA DE ESCRITORIO (Tabla tradicional de 11 columnas) -->
+        <!-- 1. VISTA DE ESCRITORIO (Columnas Agrupadas) -->
         <tr class="d-none d-md-table-row">
-            <td><strong>${codigo}</strong></td>
+            <!-- Código / Fecha -->
+            <td>
+                <strong>${codigo}</strong><br>
+                <small class="text-muted" style="font-size: 0.8em;">${fecha}</small>
+            </td>
+            <!-- Estado -->
             <td><span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span></td>
-            <td>${fecha}</td>
-            <td>${ubicacion}</td>
-            <td>${barrio}</td>
-            <td>${evento}</td>
-            <td>${solicitante}</td>
-            <td><span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></td>
+            <!-- Ubicación / Barrio -->
+            <td>
+                ${ubicacion}<br>
+                <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${barrio}</small>
+            </td>
+            <!-- Evento / Prioridad -->
+            <td>
+                ${evento}<br>
+                <span class="badge ${getBadgePrioridad(r.prioridad)} mt-1" style="font-size: 0.75em;">${r.prioridad || 'Baja'}</span>
+            </td>
+            <!-- Solicitante Truncado -->
+            <td class="col-truncada" title="${solicitante}">${solicitante}</td>
+            <!-- Relevador -->
             <td>${relevador}</td>
+            <!-- Familias -->
             <td class="text-center">${cantFamilias}</td>
-            <td class="text-center">${botonesAccion}</td>
+            <!-- Acciones ancladas -->
+            <td class="text-center col-acciones">${botonesAccion}</td>
         </tr>
 
         <!-- 2. VISTA MÓVIL (Tarjeta adaptable para celulares) -->
