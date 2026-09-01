@@ -742,3 +742,31 @@ body, .main-content-wrapper {
     border: none !important;
     background-color: #1e293b !important; /* Un tono apenas diferente para distinguirla sin líneas */
 }
+
+/* ========================================================
+   17. 📉 COMPACTACIÓN INFERIOR (Paginación y Tabla)
+   ======================================================== */
+
+/* 1. Eliminar el margen sobrante debajo de la tabla */
+.table-responsive,
+.table {
+    margin-bottom: 0 !important;
+}
+
+/* 2. Neutralizar los márgenes superiores (mt-3 y mt-2) del paginador */
+#contenedor-paginacion-relevamientos {
+    margin-top: 0 !important;
+    padding-top: 5px !important; /* Apenas un respiro para que no toque la línea */
+}
+
+#contenedor-paginacion-relevamientos > div {
+    margin-top: 0 !important;
+    padding-top: 5px !important;
+    padding-bottom: 0 !important;
+}
+
+/* 3. Ajustar el padding inferior de la tarjeta principal (pisando el padding de 20px anterior) */
+.main-content > .card,
+.content-principal > .card {
+    padding-bottom: 5px !important; 
+}
