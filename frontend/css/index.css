@@ -657,3 +657,24 @@ h1, h2, h3, h4, h5, h6,
     font-size: 0.85rem !important;
     line-height: 1.1 !important;
 }
+
+/* ========================================================
+   14. 🚀 EXPANSIÓN DE PANEL (Eliminar efecto mosaico)
+   ======================================================== */
+   .main-content {
+    padding: 15px !important; /* Reducimos el margen general */
+    max-width: 100% !important; /* Forzamos a que use toda la pantalla */
+}
+
+.main-content-wrapper {
+    background-color: #1a222c; /* Igualamos el fondo exterior al interior para fundirlo */
+}
+
+/* Quitamos los bordes y redondeos de la tarjeta principal para que se funda con la pantalla */
+.content-principal > .card,
+.main-content > .card {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 10px !important; 
+}
