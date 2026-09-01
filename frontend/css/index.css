@@ -762,3 +762,17 @@ body, .main-content-wrapper {
 #dash-entregas-reportes {
     transition: color 0.3s ease;
 }
+
+/* ========================================================
+   18. 🖱️ INTERACTIVIDAD DE TARJETAS (Dashboard)
+   ======================================================== */
+   .kpi-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+    filter: brightness(1.1);
+}

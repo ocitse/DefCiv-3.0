@@ -279,6 +279,18 @@ export async function cargarTablaRelevamientos() {
 
         relevamientosOriginales = relevamientos || [];
         paginaActualRelevamientos = 1;
+
+        // --- Atrapamos el filtro si venimos del Dashboard ---
+        const filtroPendiente = sessionStorage.getItem('filtroRapido');
+        if (filtroPendiente) {
+            const inputBusqueda = document.getElementById('inputBusquedaRelevamiento');
+            if (inputBusqueda) {
+                inputBusqueda.value = filtroPendiente;
+            }
+            sessionStorage.removeItem('filtroRapido');
+        }
+        // ----------------------------------------------------
+
         manejarCambioFiltrosRelevamientos();
 
     } catch (error) {
@@ -295,19 +307,21 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
     const criterioOrden = document.getElementById('selectOrdenarRelevamientos')?.value || '';
     const selectPaginacion = document.getElementById('selectPaginacionRelevamientos')?.value || '10';
 
-    // 1. Filtrado local por Código, Localidad, Barrio o Solicitante
+    // 1. Filtrado local por Código, Localidad, Barrio, Solicitante o Estado
     let resultado = relevamientosOriginales.filter(r => {
         const codigo = (r.codigo_relevamiento || '').toLowerCase();
         const localidad = (r.localidad || '').toLowerCase();
         const departamento = (r.departamento || '').toLowerCase();
         const barrio = (r.barrio || '').toLowerCase();
         const solicitante = (r.solicitante || '').toLowerCase();
+        const estado = (r.estado || '').toLowerCase(); // <-- Agregado
 
         return codigo.includes(textoBusqueda) || 
                localidad.includes(textoBusqueda) || 
                departamento.includes(textoBusqueda) || 
                barrio.includes(textoBusqueda) || 
-               solicitante.includes(textoBusqueda);
+               solicitante.includes(textoBusqueda) ||
+               estado.includes(textoBusqueda); // <-- Agregado
     });
 
     // 2. Ordenamiento local
@@ -660,6 +674,20 @@ window.confirmarDevolucionRelevamiento = async function() {
     } catch (error) {
         console.error('Error de red al devolver relevamiento:', error);
         mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
+    }
+};
+
+// Función para navegar desde los KPIs del dashboard a la tabla filtrada
+window.navegarYFiltrar = function(criterio, valor) {
+    sessionStorage.setItem('filtroRapido', valor);
+    
+    // Busca el enlace de "Relevamientos" en el menú y lo clickea
+    const enlacesMenu = document.querySelectorAll('a, .nav-link');
+    for (let enlace of enlacesMenu) {
+        if (enlace.innerText.trim() === 'Relevamientos') {
+            enlace.click();
+            return; 
+        }
     }
 };
 
