@@ -397,7 +397,7 @@ function renderizarFilasFamilias(familias) {
                 <td><strong>${apellidoNombre}</strong></td> 
                 <td class="text-center"><span class="badge bg-secondary">${integrantes}</span></td> 
                 <td><span class="badge ${claseUrgencia}">${urgencia}</span></td> 
-                <td class="text-center <span class="math-inline">\{claseEstado\}"></span>{estado}</td> 
+                <td class="text-center text-muted fw-bold">${estado}</td> 
                 <td class="text-center">
                     <div class="d-flex justify-content-center gap-1">
                         ${botonesAccion}
