@@ -345,6 +345,7 @@ export function manejarCambioFiltros(resetPagina = true) {
     }
 
     renderizarFilasFamilias(familiasPaginadas);
+    renderizarControlesPaginacionFamilias(resultado.length, selectPaginacion === 'todos' ? resultado.length : parseInt(selectPaginacion, 10), totalPaginas);
 }
 // Renderizado de filas en la tabla de familias (Permite visualización aun estando bloqueado/completado)
 function renderizarFilasFamilias(familias) {
@@ -458,6 +459,54 @@ function renderizarFilasFamilias(familias) {
         `;
     }).join('');
 }
+
+// Renderiza los controles de paginación estilizados para Familias
+function renderizarControlesPaginacionFamilias(totalRegistros, porPagina, totalPaginas) {
+    const contenedor = document.getElementById('contenedor-paginacion-familias');
+    // Si tu div HTML tiene otro ID (como 'contenedor-paginacion' a secas), cambialo arriba
+    if (!contenedor) return;
+
+    if (totalRegistros === 0) {
+        contenedor.innerHTML = '';
+        return;
+    }
+
+    const selectPaginacion = document.getElementById('selectPaginacionFamilias')?.value || '10';
+    if (selectPaginacion === 'todos') {
+        contenedor.innerHTML = `<span class="text-white-50 small">Mostrando todas las familias (${totalRegistros} en total)</span>`;
+        return;
+    }
+
+    const inicioRegistro = ((paginaActualFamilias - 1) * porPagina) + 1;
+    const finRegistro = Math.min(paginaActualFamilias * porPagina, totalRegistros);
+
+    contenedor.innerHTML = `
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center w-100 py-2 px-1 mt-2 border-top border-secondary">
+            <span class="text-light small mb-2 mb-md-0 opacity-75">
+                Mostrando <strong class="text-white">${inicioRegistro}</strong> a <strong class="text-white">${finRegistro}</strong> de <strong class="text-white">${totalRegistros}</strong> familias
+            </span>
+            <nav aria-label="Navegación de páginas">
+                <ul class="pagination pagination-sm m-0">
+                    <li class="page-item ${paginaActualFamilias === 1 ? 'disabled' : ''}">
+                        <button class="page-link bg-dark text-light border-secondary" onclick="window.cambiarPaginaFamilias(${paginaActualFamilias - 1})">Anterior</button>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link bg-secondary text-white border-secondary fw-semibold">Pág. ${paginaActualFamilias} de ${totalPaginas}</span>
+                    </li>
+                    <li class="page-item ${paginaActualFamilias >= totalPaginas ? 'disabled' : ''}">
+                        <button class="page-link bg-dark text-light border-secondary" onclick="window.cambiarPaginaFamilias(${paginaActualFamilias + 1})">Siguiente</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    `;
+}
+
+// Función auxiliar para que los botones de paginación funcionen
+window.cambiarPaginaFamilias = function(nuevaPagina) {
+    paginaActualFamilias = nuevaPagina;
+    manejarCambioFiltros(false); // false para no resetear a página 1
+};
 
 window.agregarArchivoALista = () => {
     const input = document.getElementById('inputArchivo');
