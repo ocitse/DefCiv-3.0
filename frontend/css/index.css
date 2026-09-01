@@ -434,3 +434,74 @@ h1, h2, h3, h4, h5, h6,
 .card .text-muted {
     color: #94a3b8 !important;
 }
+
+/* ========================================================
+   9. 🌙 MODO OSCURO PARA MODAL DE FICHA DE FAMILIA
+   ======================================================== */
+
+/* Contenedor principal de la ventana modal / ficha */
+.modal-content,
+.modal-dialog .card,
+.modal-body {
+    background-color: #1a222c !important;
+    border: 1px solid #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Encabezado del modal (Ficha: PULLARELLO...) */
+.modal-header {
+    background-color: #003d7a !important; /* Azul institucional unificado */
+    color: #ffffff !important;
+    border-bottom: 1px solid #2d3748 !important;
+}
+
+.modal-header .modal-title,
+.modal-header h5,
+.modal-header .btn-close {
+    color: #ffffff !important;
+    filter: invert(1) grayscale(100%) brightness(200%); /* Asegura que la 'X' de cierre se vea blanca */
+}
+
+/* Sub-tarjetas internas dentro de la ficha (Datos Demográficos, Estado de Vivienda, Insumos, etc.) */
+.modal-body .card,
+.modal-body .p-3,
+.modal-body .bg-light,
+.ficha-seccion {
+    background-color: #212b38 !important; /* El gris intermedio que nos gustó para los bloques */
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Títulos internos de las secciones de la ficha */
+.modal-body h5, 
+.modal-body h6, 
+.modal-body .text-primary,
+.modal-body .text-dark {
+    color: #60a5fa !important; /* Azul suave o blanco para destacar títulos internos */
+}
+
+/* Textos descriptivos e información de los campos */
+.modal-body p, 
+.modal-body span, 
+.modal-body strong,
+.modal-body label {
+    color: #e2e8f0 !important;
+}
+
+.modal-body .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Área de observaciones (la caja marrón/oscura de abajo) */
+.modal-body textarea,
+.modal-body .observaciones-box {
+    background-color: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Pie del modal (Botones "Cerrar Ficha" y "Editar Ficha") */
+.modal-footer {
+    background-color: #1a222c !important;
+    border-top: 1px solid #2d3748 !important;
+}
