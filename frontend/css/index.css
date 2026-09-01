@@ -696,12 +696,14 @@ body, .main-content-wrapper {
 
 /* 2. Clase maestra para aislar la expansión: "come" el padding del contenedor hacia afuera */
 .vista-relevamientos-fluida {
-    margin: -30px !important; /* Se expande hacia los bordes absorbiendo el padding de .main-content */
-    padding: 20px 15px 5px 15px !important; 
+    margin: -15px !important; /* Margen negativo más suave */
+    padding: 15px 15px 5px 15px !important; 
     border: none !important;
     box-shadow: none !important;
     background-color: transparent !important;
     border-radius: 0 !important;
+    width: calc(100% + 30px) !important; /* Compensa exactamente el margen negativo */
+    max-width: none !important;
 }
 
 /* 3. Limpiamos bordes internos solo dentro de esta vista fluida */
