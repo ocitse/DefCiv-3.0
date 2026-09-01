@@ -778,3 +778,11 @@ body, .main-content-wrapper {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
     filter: brightness(1.1);
 }
+
+/* Asegurar que los mensajes de tabla vacía ocupen todo el ancho en móviles */
+#tabla-familias-body td[colspan] {
+    white-space: normal !important;
+    text-align: center !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
