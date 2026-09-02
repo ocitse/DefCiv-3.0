@@ -33,10 +33,8 @@ export function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    // Destruimos absolutamente TODO lo que esté adentro, sin importar quién lo haya puesto
-    while (ul.firstChild) {
-        ul.removeChild(ul.firstChild);
-    }
+    // BORRADO NUCLEAR: Elimina cualquier nodo fantasma que traiga el HTML estático
+    ul.innerHTML = '';
 
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
