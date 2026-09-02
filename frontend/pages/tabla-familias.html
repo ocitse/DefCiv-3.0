@@ -23,23 +23,28 @@
     </div>
 
     <!-- ==================== BARRA DE FILTROS, ORDEN Y PAGINACIÓN LOCAL ==================== -->
-    <div class="row g-3 mb-4 p-3 bg-light rounded border align-items-center">
-        <div class="col-md-4">
-            <label for="inputBusquedaApellido" class="form-label fw-semibold small">Buscar por Apellido o DNI</label>
-            <input type="text" id="inputBusquedaApellido" class="form-control form-control-sm" placeholder="Ej: Gómez o DNI..." oninput="manejarCambioFiltros()">
+    <div class="row g-2 mb-3 p-3 bg-dark rounded border border-secondary align-items-center">
+        <!-- Buscador: Ocupa todo el ancho en cel (col-12), y un tercio en escritorio (col-md-4) -->
+        <div class="col-12 col-md-4 mb-2 mb-md-0">
+            <label for="inputBusquedaApellido" class="form-label fw-semibold small text-light">Buscar por Apellido o DNI</label>
+            <input type="text" id="inputBusquedaApellido" class="form-control form-control-sm bg-dark text-light border-secondary" placeholder="Ej: Gómez o DNI..." oninput="manejarCambioFiltros()">
         </div>
-        <div class="col-md-4">
-            <label for="selectOrdenar" class="form-label fw-semibold small">Ordenar listado</label>
-            <select id="selectOrdenar" class="form-select form-select-sm" onchange="manejarCambioFiltros()">
+        
+        <!-- Ordenar listado: Ocupa la mitad en cel (col-6), y un tercio en escritorio (col-md-4) -->
+        <div class="col-6 col-md-4">
+            <label for="selectOrdenar" class="form-label fw-semibold small text-light">Ordenar listado</label>
+            <select id="selectOrdenar" class="form-select form-select-sm bg-dark text-light border-secondary" onchange="manejarCambioFiltros()">
                 <option value="">Orden N°</option>
                 <option value="alfabetico">Apellido (A-Z)</option>
                 <option value="urgencia">Urgencia (Alta a Baja)</option>
                 <option value="asistencia">Estado de Asistencia</option>
             </select>
         </div>
-        <div class="col-md-4">
-            <label for="selectPaginacion" class="form-label fw-semibold small">Mostrar registros</label>
-            <select id="selectPaginacion" class="form-select form-select-sm" onchange="manejarCambioFiltros()">
+    
+        <!-- Mostrar registros: Ocupa la mitad en cel (col-6), y un tercio en escritorio (col-md-4) -->
+        <div class="col-6 col-md-4">
+            <label for="selectPaginacion" class="form-label fw-semibold small text-light">Mostrar registros</label>
+            <select id="selectPaginacion" class="form-select form-select-sm bg-dark text-light border-secondary" onchange="manejarCambioFiltros()">
                 <option value="10">10 por página</option>
                 <option value="20">20 por página</option>
                 <option value="50">50 por página</option>
