@@ -76,7 +76,25 @@ export function renderizarListaArchivosPendientes() {
         ul.appendChild(li);
     });
 }
+export function renderizarDocumentosGuardados(documentos) {
+    const contenedor = document.getElementById('lista-archivos-guardados');
+    if (!contenedor) return;
 
+    // Si no hay documentos en la base de datos, limpiamos el contenedor
+    if (!documentos || documentos.length === 0) {
+        contenedor.innerHTML = '';
+        return;
+    }
+
+    // Dibujamos los enlaces a los archivos ya subidos en Cloudinary
+    contenedor.innerHTML = documentos.map(doc => `
+        <div class="d-flex justify-content-between align-items-center bg-light border border-secondary-subtle p-2 mb-1 rounded small">
+            <a href="${doc.url}" target="_blank" class="text-decoration-none text-truncate fw-semibold text-dark" style="max-width: 85%;">
+                <i class="bi bi-cloud-check-fill text-success me-2"></i>${doc.nombre_original || doc.nombre || 'Documento adjunto'}
+            </a>
+        </div>
+    `).join('');
+}
 export function agregarItemLista(tipo) {
     const inputItem = document.getElementById(`input-item-${tipo}`);
     const inputCant = document.getElementById(`input-cant-${tipo}`);
