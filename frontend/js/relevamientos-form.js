@@ -77,30 +77,20 @@ function renderizarDocumentosGuardados(documentos) {
 }
 
 export function agregarArchivoALista() {
-    if (!window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal = [];
-    }
+    if (!window.archivosTemporalesFamiliaGlobal) window.archivosTemporalesFamiliaGlobal = [];
 
     const input = document.getElementById('inputArchivo');
-    if (!input || input.files.length === 0) {
-        mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
-        return;
-    }
+    if (!input || input.files.length === 0) return;
 
     const archivo = input.files[0];
     const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
 
     if (!yaExiste) {
-        // Guardamos el archivo en la memoria global
+        // Guardado forzado y directo en la memoria del navegador
         window.archivosTemporalesFamiliaGlobal.push(archivo);
-        
-        // ¡IMPORTANTE! Actualizamos la interfaz para que dibuje el archivo y borre el texto de "Ninguno"
         renderizarListaArchivosPendientes();
-        
-        mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
-        input.value = ""; // Limpiamos el input visualmente
-    } else {
-        mostrarNotificacion("Ese archivo ya está en la lista.", "error");
+        input.value = ""; // Ahora sí es seguro limpiar el input visual
+        console.log("✅ Archivo asegurado en memoria. Total:", window.archivosTemporalesFamiliaGlobal.length);
     }
 }
 
