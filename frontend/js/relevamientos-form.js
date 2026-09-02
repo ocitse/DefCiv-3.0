@@ -30,13 +30,13 @@ function renderizarListaVisual(tipo, arreglo) {
 }
 
 export function renderizarListaArchivosPendientes() {
-    // Buscamos el elemento directamente por su ID en el DOM actual
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    ul.replaceChildren();
-
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
+
+    // Limpiamos todo el contenido previo
+    ul.replaceChildren();
 
     if (archivos.length === 0) {
         const liVacio = document.createElement('li');
@@ -46,6 +46,7 @@ export function renderizarListaArchivosPendientes() {
         return;
     }
 
+    // SI HAY ARCHIVOS: Nos aseguramos de renderizarlos y prohibimos explícitamente el cartel vacío
     archivos.forEach((file, index) => {
         const li = document.createElement('li');
         li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
