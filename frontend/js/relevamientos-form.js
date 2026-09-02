@@ -30,32 +30,35 @@ function renderizarListaVisual(tipo, arreglo) {
 }
 
 export function renderizarListaArchivosPendientes() {
-    const ul = document.getElementById('lista-archivos-pendientes');
-    if (!ul) return;
-
-    // BORRADO NUCLEAR: Elimina cualquier nodo fantasma que traiga el HTML estático
-    ul.innerHTML = '';
+    // Buscamos TODOS los elementos con ese ID en el DOM para erradicar cualquier vista fantasma duplicada
+    const listElements = document.querySelectorAll('#lista-archivos-pendientes');
+    if (listElements.length === 0) return;
 
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
-    if (archivos.length === 0) {
-        const liVacio = document.createElement('li');
-        liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
-        liVacio.textContent = "Ningún archivo adjuntado";
-        ul.appendChild(liVacio);
-        return;
-    }
+    listElements.forEach(ul => {
+        // Limpiamos cada instancia encontrada en el DOM
+        ul.replaceChildren();
 
-    archivos.forEach((file, index) => {
-        const li = document.createElement('li');
-        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
-        li.innerHTML = `
-            <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
-            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
-                <i class="bi bi-trash-fill"></i>
-            </button>
-        `;
-        ul.appendChild(li);
+        if (archivos.length === 0) {
+            const liVacio = document.createElement('li');
+            liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
+            liVacio.textContent = "Ningún archivo adjuntado";
+            ul.appendChild(liVacio);
+            return;
+        }
+
+        archivos.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
+            li.innerHTML = `
+                <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
+                <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+            `;
+            ul.appendChild(li);
+        });
     });
 }
 
