@@ -79,17 +79,22 @@ function renderizarDocumentosGuardados(documentos) {
 export function agregarArchivoALista() {
     if (!window.archivosTemporalesFamiliaGlobal) window.archivosTemporalesFamiliaGlobal = [];
 
-    const input = document.getElementById('inputArchivo');
-    if (!input || input.files.length === 0) return;
+    // Busca TODOS los inputs del DOM y se queda solo con el que tiene un archivo cargado
+    const inputs = document.querySelectorAll('#inputArchivo');
+    const inputReal = Array.from(inputs).find(inp => inp.files.length > 0);
 
-    const archivo = input.files[0];
+    if (!inputReal) {
+        console.warn("⚠️ No se detectó ningún archivo en los inputs.");
+        return;
+    }
+
+    const archivo = inputReal.files[0];
     const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
 
     if (!yaExiste) {
-        // Guardado forzado y directo en la memoria del navegador
         window.archivosTemporalesFamiliaGlobal.push(archivo);
         renderizarListaArchivosPendientes();
-        input.value = ""; // Ahora sí es seguro limpiar el input visual
+        inputReal.value = ""; // Limpiamos el input correcto
         console.log("✅ Archivo asegurado en memoria. Total:", window.archivosTemporalesFamiliaGlobal.length);
     }
 }
@@ -200,15 +205,19 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             });
         }
 
-        // NUEVO: Salvavidas por si el usuario seleccionó un archivo pero olvidó presionar "+ Agregar"
-        const inputArchivo = document.getElementById('inputArchivo');
-        if (inputArchivo && inputArchivo.files.length > 0) {
-            // Verificamos que no lo hayamos agregado ya desde la lista global
-            const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === inputArchivo.files[0].name);
-            if (!yaAgregado) {
-                formData.append('documentos', inputArchivo.files[0]);
-            }
-        }
+   // NUEVO: Salvavidas por si el usuario olvidó presionar "+ Agregar" (Versión Anti-Fantasmas)
+const inputsSalvavidas = document.querySelectorAll('#inputArchivo');
+const inputArchivoFinal = Array.from(inputsSalvavidas).find(inp => inp.files.length > 0);
+
+if (inputArchivoFinal) {
+    const archivoSalvavidas = inputArchivoFinal.files[0];
+    const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivoSalvavidas.name);
+    
+    if (!yaAgregado) {
+        formData.append('documentos', archivoSalvavidas);
+        console.log("🛟 Salvavidas activado: Archivo inyectado directo al envío.");
+    }
+}
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
