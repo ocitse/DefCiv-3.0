@@ -51,29 +51,44 @@ function renderizarListaArchivosPendientes() {
     `).join('');
 }
 
-export function agregarArchivoALista() {
-    console.log("⚡ 1. ¡ENTRÓ A agregarArchivoALista!");
-    
-    // Asegurarnos de que el array global exista
-    if (!window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal = [];
-    }
+function renderizarDocumentosGuardados(documentos) {
+    const contenedor = document.getElementById('lista-archivos-guardados');
+    if (!contenedor) return;
 
-    const input = document.getElementById('inputArchivo');
-    if (!input || input.files.length === 0) {
-        mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
+    if (!documentos || documentos.length === 0) {
+        contenedor.innerHTML = ''; // Si no hay documentos, dejamos el espacio vacío
         return;
     }
 
+    // Dibujamos un botón/enlace por cada archivo
+    contenedor.innerHTML = documentos.map(doc => `
+        <div class="d-flex justify-content-between align-items-center p-2 mb-1 bg-success-subtle border border-success rounded small shadow-sm">
+            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-dark text-truncate fw-medium" style="max-width: 85%;" title="${doc.nombre_archivo}">
+                <i class="bi bi-cloud-check-fill text-success me-2"></i> ${doc.nombre_archivo}
+            </a>
+            <span class="badge bg-success" style="font-size: 0.7em;">Guardado en Nube</span>
+        </div>
+    `).join('');
+}
+
+export function agregarArchivoALista() {
+    if (!window.archivosTemporalesFamiliaGlobal) window.archivosTemporalesFamiliaGlobal = [];
+
+    const input = document.getElementById('inputArchivo');
+    if (!input || input.files.length === 0) return;
+
     const archivo = input.files[0];
     const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
-    
+
     if (!yaExiste) {
+        // Guardamos el objeto binario real en la memoria de la ventana ANTES de limpiar el input
         window.archivosTemporalesFamiliaGlobal.push(archivo);
+        
         renderizarListaArchivosPendientes();
-        mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
-        input.value = ""; // Limpiamos el input visualmente
-        console.log("⚡ 5. Archivo agregado exitosamente a la lista temporal.");
+        
+        // Ahora es seguro limpiar la interfaz visual
+        input.value = ""; 
+        console.log("✅ Archivo asegurado en memoria global. Total:", window.archivosTemporalesFamiliaGlobal.length);
     } else {
         mostrarNotificacion("Ese archivo ya está en la lista.", "error");
     }
@@ -304,6 +319,14 @@ export async function editarDatosFamilia(idFamilia) {
             renderizarListaVisual('mat', listaTemporalMateriales);
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
+
+            // --- INICIO CÓDIGO NUEVO: Dibujar los archivos guardados en Cloudinary ---
+            if (fam.documentacion && Array.isArray(fam.documentacion)) {
+                renderizarDocumentosGuardados(fam.documentacion);
+            } else {
+                renderizarDocumentosGuardados([]);
+            }
+            // --- FIN CÓDIGO NUEVO ---
 
         } catch (error) {
             console.error("Error al cargar datos para editar:", error);
