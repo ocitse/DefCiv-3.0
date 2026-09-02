@@ -29,12 +29,14 @@ function renderizarListaVisual(tipo, arreglo) {
     `).join('');
 }
 
-function renderizarListaArchivosPendientes() {
+export function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    // Vaciamos por completo el contenedor de cualquier nodo fantasma
-    ul.replaceChildren();
+    // Destruimos absolutamente TODO lo que esté adentro, sin importar quién lo haya puesto
+    while (ul.firstChild) {
+        ul.removeChild(ul.firstChild);
+    }
 
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
@@ -48,7 +50,7 @@ function renderizarListaArchivosPendientes() {
 
     archivos.forEach((file, index) => {
         const li = document.createElement('li');
-        li.className = "d-flex justify-content-between align-items-center p-2 mb-1 bg-dark border border-secondary rounded small text-light";
+        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
         li.innerHTML = `
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
             <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
