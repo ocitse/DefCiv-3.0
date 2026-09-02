@@ -35,13 +35,11 @@ function renderizarListaArchivosPendientes() {
 
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
-    // 1. Si no hay archivos, sobreescribimos TODO con el aviso
     if (archivos.length === 0) {
         ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>`;
         return;
     }
 
-    // 2. Si hay archivos, sobreescribimos TODO (el '=' borra el texto de 'Ninguno' automáticamente)
     ul.innerHTML = archivos.map((file, index) => `
         <li class="d-flex justify-content-between align-items-center p-2 mb-1 bg-dark border border-secondary rounded small text-light">
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
