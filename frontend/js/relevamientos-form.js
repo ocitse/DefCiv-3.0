@@ -33,18 +33,17 @@ export function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
+    // Vaciamos el contenedor para garantizar que no haya basura del DOM
+    ul.replaceChildren();
+
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
-    // 1. Si no hay archivos, inyectamos el cartel con un ID único
+    // Si no hay archivos, cortamos la ejecución aquí sin dibujar ninguna leyenda
     if (archivos.length === 0) {
-        ul.innerHTML = `<li id="cartel-vacio-archivos" class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>`;
-        return;
+        return; 
     }
 
-    // 2. Si hay archivos, limpiamos el DOM por completo
-    ul.innerHTML = '';
-
-    // 3. Dibujamos los archivos temporales
+    // Dibujamos únicamente los archivos reales
     archivos.forEach((file, index) => {
         const li = document.createElement('li');
         li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
@@ -56,12 +55,6 @@ export function renderizarListaArchivosPendientes() {
         `;
         ul.appendChild(li);
     });
-
-    // 4. BARRIDA DE SEGURIDAD: Si el cartel sigue vivo por error de caché o asincronía, lo aniquilamos.
-    const cartelFantasma = document.getElementById('cartel-vacio-archivos');
-    if (cartelFantasma) {
-        cartelFantasma.remove();
-    }
 }
 
 function renderizarDocumentosGuardados(documentos) {
