@@ -9,17 +9,18 @@ import Documentacion from '../models/Documentacion.js';
 
 // 1. Configuración de Cloudinary (Reemplazá con tus credenciales reales)
 cloudinary.config({
-    cloud_name: 'x2hkaxmd', 
-    api_key: '328931579327174',       
-    api_secret: 'Aq5jgyQ_UJ5lrLtf4Pk3NJ9mgV4'  
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // 2. Le decimos a Multer que envíe los archivos directo a la nube
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'defensa_civil_documentos', // Nombre de la carpeta que se creará en Cloudinary
-        allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'] // Formatos permitidos
+        folder: 'defensa_civil_documentos',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
+        resource_type: 'auto' // <-- ESTA LÍNEA PERMITE PDFs Y DOCUMENTOS
     }
 });
 

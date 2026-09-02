@@ -1,7 +1,7 @@
 // backend/app.js
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
@@ -20,8 +20,6 @@ import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
 import solicitudroutes from './routes/solicitudroutes.js';
 import provisionesroutes from './routes/provisionesroutes.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
