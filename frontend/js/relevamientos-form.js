@@ -33,16 +33,17 @@ function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    // Leemos siempre directo de la fuente global para evitar desincronizaciones
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
+    // 1. Si no hay archivos, sobreescribimos TODO con el aviso
     if (archivos.length === 0) {
-        ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-light opacity-75 small border-0">Ningún archivo adjuntado</li>`;
+        ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>`;
         return;
     }
 
+    // 2. Si hay archivos, sobreescribimos TODO (el '=' borra el texto de 'Ninguno' automáticamente)
     ul.innerHTML = archivos.map((file, index) => `
-        <li class="list-group-item d-flex justify-content-between align-items-center p-1 ps-2 bg-light border-secondary-subtle mb-1 rounded">
+        <li class="d-flex justify-content-between align-items-center p-2 mb-1 bg-dark border border-secondary rounded small text-light">
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
             <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
                 <i class="bi bi-trash-fill"></i>
