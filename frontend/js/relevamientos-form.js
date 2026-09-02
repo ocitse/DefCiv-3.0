@@ -81,11 +81,11 @@ export function agregarArchivoALista() {
         window.archivosTemporalesFamiliaGlobal = [];
     }
 
-    // Buscamos TODOS los inputs y nos quedamos con el que realmente tiene el archivo
-    const inputs = document.querySelectorAll('#inputArchivo');
-    const inputReal = Array.from(inputs).find(inp => inp.files && inp.files.length > 0);
+    // Buscamos el input EXCLUSIVAMENTE dentro del paso activo del wizard
+    const contenedorActivo = document.querySelector('.wizard-step:not(.d-none)') || document.getElementById('form-nueva-familia');
+    const inputReal = contenedorActivo ? contenedorActivo.querySelector('#inputArchivo') : document.getElementById('inputArchivo');
 
-    if (!inputReal) {
+    if (!inputReal || inputReal.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
         return;
     }
@@ -96,7 +96,7 @@ export function agregarArchivoALista() {
     if (!yaExiste) {
         window.archivosTemporalesFamiliaGlobal.push(archivo);
         renderizarListaArchivosPendientes();
-        inputReal.value = ""; // Limpiamos el input correcto
+        inputReal.value = ""; // Vaciamos el input correcto
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
     } else {
         mostrarNotificacion("Ese archivo ya está en la lista.", "error");
@@ -209,14 +209,16 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             });
         }
 
-   // NUEVO: Salvavidas anti-fantasmas por si el usuario olvidó presionar "+ Agregar"
-const inputsSalvavidas = document.querySelectorAll('#inputArchivo');
-const inputArchivoFinal = Array.from(inputsSalvavidas).find(inp => inp.files && inp.files.length > 0);
+ // NUEVO: Salvavidas infalible. Busca el input directamente dentro del formulario que está siendo enviado (e.target)
+const formActivo = e.target;
+const inputArchivoFinal = formActivo.querySelector('#inputArchivo');
 
-if (inputArchivoFinal) {
-    const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === inputArchivoFinal.files[0].name);
+if (inputArchivoFinal && inputArchivoFinal.files.length > 0) {
+    const archivoSalvavidas = inputArchivoFinal.files[0];
+    const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivoSalvavidas.name);
+    
     if (!yaAgregado) {
-        formData.append('documentos', inputArchivoFinal.files[0]);
+        formData.append('documentos', archivoSalvavidas);
     }
 }
 
