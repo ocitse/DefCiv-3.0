@@ -200,19 +200,47 @@ export async function verPanelPrincipal() {
             const tbodyDash = document.getElementById('dash-tabla-emergencias');
             if (tbodyDash) {
                 if (listaRelevamientos.length === 0) {
-                    tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay incidentes reportados</td></tr>`;
+                    tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay emergencias asignadas</td></tr>`;
                     return;
                 }
                 
                 const ultimos = listaRelevamientos.slice(-4).reverse();
-                tbodyDash.innerHTML = ultimos.map(r => `
-                    <tr>
-                        <td><strong>${r.departamento || 'N/D'}</strong> (${r.localidad || 'N/D'})</td>
-                        <td>${r.tipo_evento || 'N/D'}</td>
-                        <td><small>${r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar')}</small></td>
-                        <td><span class="badge ${r.prioridad === 'Alta' ? 'bg-danger' : r.prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-secondary'}">${r.prioridad || 'Normal'}</span></td>
-                    </tr>
-                `).join('');
+                
+                // Renderizamos la tabla para escritorio y las tarjetas descriptivas para móvil
+                tbodyDash.innerHTML = ultimos.map(r => {
+                    const codigo = r.codigo_relevamiento || 'N/D';
+                    const fecha = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
+                    const deptoLoc = `<strong>${r.departamento || 'N/D'}</strong> (${r.localidad || 'N/D'})`;
+                    const barrio = r.barrio ? ` - Barrio: ${r.barrio}` : '';
+                    const evento = r.tipo_evento || 'N/D';
+                    const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
+                    const badgePrioridad = `<span class="badge ${r.prioridad === 'Alta' ? 'bg-danger' : r.prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-secondary'}">${r.prioridad || 'Normal'}</span>`;
+
+                    return `
+                        <!-- Fila clásica para Escritorio -->
+                        <tr class="d-none d-md-table-row">
+                            <td>${deptoLoc}</td>
+                            <td>${evento}</td>
+                            <td><small>${relevador}</small></td>
+                            <td>${badgePrioridad}</td>
+                        </tr>
+
+                        <!-- Tarjeta descriptiva para Celular (Panel Principal) -->
+                        <tr class="d-block d-md-none border-0 bg-transparent p-0 mb-3">
+                            <td class="d-block p-0">
+                                <div class="card bg-dark text-light border border-secondary shadow-sm p-3 rounded-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-secondary">
+                                        <span class="fw-bold text-primary small">${codigo}</span>
+                                        ${badgePrioridad}
+                                    </div>
+                                    <div class="small mb-1"><i class="bi bi-geo-alt text-primary me-1"></i><strong>Ubicación:</strong> ${r.departamento || ''} / ${r.localidad || ''} ${barrio}</div>
+                                    <div class="small mb-1"><i class="bi bi-exclamation-triangle text-warning me-1"></i><strong>Incidente:</strong> ${evento}</div>
+                                    <div class="small mb-0"><i class="bi bi-person-badge text-success me-1"></i><strong>Relevador:</strong> ${relevador}</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
         } catch (error) {
             console.error("Error al cargar los datos del panel principal:", error);

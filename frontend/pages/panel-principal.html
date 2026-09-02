@@ -91,25 +91,36 @@
 
 </div>
 
-    <div class="row g-3">
-        <div class="col-md-12">
-            <div class="card border-0 shadow-sm p-4 h-100">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-fill-exclamation text-danger me-2"></i>Últimas Emergencias Asignadas</h5>
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover align-middle small m-0">
-                        <thead>
-                            <tr>
-                                <th>Ubicación</th>
-                                <th>Incidente</th>
-                                <th>Relevador</th>
-                                <th>Urgencia</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dash-tabla-emergencias">
-                            </tbody>
-                    </table>
+<div class="row g-3">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-dark text-light" style="background-color: #212b38 !important;">
+            <h5 class="fw-bold text-light mb-3"><i class="bi bi-shield-fill-exclamation text-danger me-2"></i>Últimas Emergencias Asignadas</h5>
+            
+            <!-- Contenedor general -->
+            <div class="table-responsive">
+                
+                <!-- 1. VISTA DE ESCRITORIO (Tabla clásica que ya tenías) -->
+                <table class="table table-sm table-dark table-hover align-middle small m-0 d-none d-md-table">
+                    <thead>
+                        <tr class="text-muted">
+                            <th>Ubicación</th>
+                            <th>Incidente</th>
+                            <th>Relevador</th>
+                            <th>Urgencia</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dash-tabla-emergencias">
+                        <!-- Los datos se inyectan aquí por JS -->
+                    </tbody>
+                </table>
+
+                <!-- 2. VISTA RESPONSIVA / CELULAR (Tarjetas descriptivas con etiquetas) -->
+                <div id="dash-tarjetas-emergencias-mobile" class="d-md-none">
+                    <!-- El script renderizará aquí las tarjetas adaptadas para celular -->
                 </div>
+
             </div>
         </div>
     </div>
+</div>
 </div>
