@@ -80,20 +80,30 @@ export function renderizarDocumentosGuardados(documentos) {
     const contenedor = document.getElementById('lista-archivos-guardados');
     if (!contenedor) return;
 
-    // Si no hay documentos en la base de datos, limpiamos el contenedor
     if (!documentos || documentos.length === 0) {
         contenedor.innerHTML = '';
         return;
     }
 
-    // Dibujamos los enlaces a los archivos ya subidos en Cloudinary
-    contenedor.innerHTML = documentos.map(doc => `
-        <div class="d-flex justify-content-between align-items-center bg-light border border-secondary-subtle p-2 mb-1 rounded small">
-            <a href="${doc.url}" target="_blank" class="text-decoration-none text-truncate fw-semibold text-dark" style="max-width: 85%;">
-                <i class="bi bi-cloud-check-fill text-success me-2"></i>${doc.nombre_original || doc.nombre || 'Documento adjunto'}
-            </a>
+    contenedor.innerHTML = documentos.map(doc => {
+        let nombreArchivo = doc.nombre_original || doc.nombre;
+        if (!nombreArchivo && doc.url) {
+            nombreArchivo = doc.url.split('/').pop();
+        } else if (!nombreArchivo) {
+            nombreArchivo = 'Documento';
+        }
+
+        return `
+        <div class="list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small">
+            <span class="text-truncate" style="max-width: 80%;">
+                <a href="${doc.url}" target="_blank" class="text-decoration-none text-light">
+                    📎 ${nombreArchivo}
+                </a>
+            </span>
+            <span class="badge bg-success rounded-pill" style="font-size: 0.7rem;">En Nube</span>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 export function agregarItemLista(tipo) {
     const inputItem = document.getElementById(`input-item-${tipo}`);
