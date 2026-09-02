@@ -7,7 +7,7 @@ if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
     window.archivosTemporalesFamiliaGlobal = [];
 }
 
-let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal;
+let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; 
 let listaTemporalMateriales = [];
 
 function renderizarListaVisual(tipo, arreglo) {
@@ -29,56 +29,56 @@ function renderizarListaVisual(tipo, arreglo) {
     `).join('');
 }
 
-function renderizarListaArchivosPendientes() {
+export function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    // Leemos siempre directo de la fuente global para evitar desincronizaciones
+    // BORRADO NUCLEAR: Elimina cualquier nodo fantasma que traiga el HTML estático
+    ul.innerHTML = '';
+
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
     if (archivos.length === 0) {
-        ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-light opacity-75 small border-0">Ningún archivo adjuntado</li>`;
+        const liVacio = document.createElement('li');
+        liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
+        liVacio.textContent = "Ningún archivo adjuntado";
+        ul.appendChild(liVacio);
         return;
     }
 
-    ul.innerHTML = archivos.map((file, index) => `
-        <li class="list-group-item d-flex justify-content-between align-items-center p-1 ps-2 bg-light border-secondary-subtle mb-1 rounded">
+    archivos.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
+        li.innerHTML = `
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
             <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
                 <i class="bi bi-trash-fill"></i>
             </button>
-        </li>
-    `).join('');
+        `;
+        ul.appendChild(li);
+    });
 }
 
-// NUEVO: Renderiza los archivos que ya están subidos en la nube al editar la ficha
-export function renderizarDocumentosGuardados(documentos) {
+function renderizarDocumentosGuardados(documentos) {
     const contenedor = document.getElementById('lista-archivos-guardados');
     if (!contenedor) return;
 
     if (!documentos || documentos.length === 0) {
-        contenedor.innerHTML = '<div class="text-muted small text-center py-1">Ningún archivo adjuntado</div>';
+        contenedor.innerHTML = ''; 
         return;
     }
 
-    contenedor.innerHTML = documentos.map(doc => {
-        const nombreArchivo = doc.nombre_original || doc.nombre || doc.url.split('/').pop();
-
-        return `
-        <div class="list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small">
-            <a href="${doc.url}" target="_blank" class="text-decoration-none text-truncate text-light" style="max-width: 80%;">
-                <i class="bi bi-file-earmark-pdf text-danger me-1"></i> ${nombreArchivo}
+    contenedor.innerHTML = documentos.map(doc => `
+        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark border border-secondary rounded shadow-sm">
+            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
+                <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
             </a>
-            <span class="badge bg-success rounded-pill" style="font-size: 0.7rem;">En Nube</span>
+            <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
         </div>
-        `;
-    }).join('');
+    `).join('');
 }
 
 export function agregarArchivoALista() {
-    console.log("⚡ 1. ¡ENTRÓ A agregarArchivoALista!");
-   
-    // Asegurarnos de que el array global exista
     if (!window.archivosTemporalesFamiliaGlobal) {
         window.archivosTemporalesFamiliaGlobal = [];
     }
@@ -91,13 +91,16 @@ export function agregarArchivoALista() {
 
     const archivo = input.files[0];
     const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
-   
+
     if (!yaExiste) {
+        // Guardamos el archivo en la memoria global
         window.archivosTemporalesFamiliaGlobal.push(archivo);
+        
+        // ¡IMPORTANTE! Actualizamos la interfaz para que dibuje el archivo y borre el texto de "Ninguno"
         renderizarListaArchivosPendientes();
+        
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
         input.value = ""; // Limpiamos el input visualmente
-        console.log("⚡ 5. Archivo agregado exitosamente a la lista temporal.");
     } else {
         mostrarNotificacion("Ese archivo ya está en la lista.", "error");
     }
@@ -113,7 +116,7 @@ export function eliminarArchivoDeLista(index) {
 export function agregarItemLista(tipo) {
     const inputItem = document.getElementById(`input-item-${tipo}`);
     const inputCant = document.getElementById(`input-cant-${tipo}`);
-   
+    
     if (!inputItem || !inputCant) return;
 
     const nombre = inputItem.value.trim();
@@ -154,7 +157,7 @@ export function inicializarCalculoIntegrantes() {
 
     inputMayores.oninput = calcular;
     inputMenores.oninput = calcular;
-   
+    
     calcular();
 }
 
@@ -181,7 +184,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('menores', parseInt(document.getElementById('f_menores').value) || 0);
         formData.append('cantidad_integrantes', parseInt(document.getElementById('f_total').value) || 1);
         formData.append('urgencia_familiar', document.getElementById('f_urgencia_familiar').value);
-       
+        
         // Daños
         formData.append('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
         formData.append('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
@@ -224,6 +227,14 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
         // Recuperamos el token de seguridad
         const token = localStorage.getItem('token');
+
+        // --- CÁMARA DE SEGURIDAD ---
+        console.log("📦 VERIFICANDO QUÉ HAY EN EL PAQUETE ANTES DE ENVIAR:");
+        for (let [key, value] of formData.entries()) {
+            console.log(key + ':', value instanceof File ? `📄 ARCHIVO ENCONTRADO: ${value.name}` : value);
+        }
+        console.log("Lista global temporal tiene:", window.archivosTemporalesFamiliaGlobal.length, "archivos");
+        // -----------------------------
 
         // Enviamos el FormData CON el token de autorización
         const respuesta = await fetch(url, {
@@ -271,9 +282,9 @@ export async function editarDatosFamilia(idFamilia) {
         try {
             const respuesta = await fetch(`/api/familias/${idFamilia}`);
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
-           
+            
             const fam = await respuesta.json();
-           
+            
             if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
             if (fam.jefe_familia) {
                 const partes = fam.jefe_familia.split(',');
@@ -282,11 +293,11 @@ export async function editarDatosFamilia(idFamilia) {
             }
             if (document.getElementById('f_telefono')) document.getElementById('f_telefono').value = fam.telefono || '';
             if (document.getElementById('f_direccion')) document.getElementById('f_direccion').value = fam.direccion || '';
-           
+            
             if (document.getElementById('f_mayores')) document.getElementById('f_mayores').value = fam.mayores ?? 1;
             if (document.getElementById('f_menores')) document.getElementById('f_menores').value = fam.menores ?? 0;
             if (document.getElementById('f_total')) document.getElementById('f_total').value = fam.cantidad_integrantes || fam.total_personas || 1;
-           
+            
             const selectPrioridad = document.getElementById('f_urgencia_familiar');
             if (selectPrioridad) selectPrioridad.value = fam.urgencia_familiar || fam.prioridad || '';
 
@@ -321,12 +332,13 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
-            // Renderizamos los documentos que ya están guardados en la nube
+            // --- INICIO CÓDIGO NUEVO: Dibujar los archivos guardados en Cloudinary ---
             if (fam.documentacion && Array.isArray(fam.documentacion)) {
                 renderizarDocumentosGuardados(fam.documentacion);
             } else {
                 renderizarDocumentosGuardados([]);
             }
+            // --- FIN CÓDIGO NUEVO ---
 
         } catch (error) {
             console.error("Error al cargar datos para editar:", error);
@@ -355,7 +367,7 @@ export function cambiarPasoWizard(paso) {
     }
 
     document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('d-none'));
-   
+    
     const pasoActivo = document.getElementById(`step-${paso}`);
     if (pasoActivo) pasoActivo.classList.remove('d-none');
 
@@ -373,20 +385,19 @@ export function mostrarFormularioNuevaFamilia() {
     window.archivosTemporalesFamiliaGlobal = [];
     archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal;
     listaTemporalMateriales = [];
-   
+    
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) {
             titulo.innerHTML = `<i class="bi bi-plus-circle text-primary me-2"></i> Registrar Nueva Familia`;
         }
-       
+        
         const inputIdEdicion = document.getElementById('f_id_edicion');
         if (inputIdEdicion) inputIdEdicion.value = '';
 
         inicializarCalculoIntegrantes();
         renderizarListaVisual('mat', listaTemporalMateriales);
         renderizarListaArchivosPendientes();
-        renderizarDocumentosGuardados([]);
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
