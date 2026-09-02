@@ -30,9 +30,9 @@ function renderizarListaVisual(tipo, arreglo) {
 }
 
 export function renderizarListaArchivosPendientes() {
-    // Buscamos el contenedor únicamente DENTRO del formulario activo actual para evitar vistas fantasmas
-    const formActivo = document.getElementById('form-nueva-familia');
-    const ul = formActivo ? formActivo.querySelector('#lista-archivos-pendientes') : document.getElementById('lista-archivos-pendientes');
+    // Buscamos el contenedor dentro de la tarjeta activa actual del wizard o del form principal
+    const contenedorActivo = document.querySelector('.wizard-step:not(.d-none)') || document.getElementById('form-nueva-familia');
+    const ul = contenedorActivo ? contenedorActivo.querySelector('#lista-archivos-pendientes') : document.getElementById('lista-archivos-pendientes');
     
     if (!ul) return;
 
