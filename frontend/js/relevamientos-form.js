@@ -201,6 +201,14 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         // Recuperamos el token de seguridad
         const token = localStorage.getItem('token');
 
+        // --- CÁMARA DE SEGURIDAD ---
+        console.log("📦 VERIFICANDO QUÉ HAY EN EL PAQUETE ANTES DE ENVIAR:");
+        for (let [key, value] of formData.entries()) {
+            console.log(key + ':', value instanceof File ? `📄 ARCHIVO ENCONTRADO: ${value.name}` : value);
+        }
+        console.log("Lista global temporal tiene:", window.archivosTemporalesFamiliaGlobal.length, "archivos");
+        // -----------------------------
+
         // Enviamos el FormData CON el token de autorización
         const respuesta = await fetch(url, {
             method: metodo,
