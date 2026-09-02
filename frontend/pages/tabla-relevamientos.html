@@ -16,31 +16,36 @@
     
     <!-- ==================== BARRA DE FILTROS, ORDEN Y PAGINACIÓN LOCAL ==================== -->
 <div class="row g-2 mb-3 px-3 py-2 rounded border align-items-center filtros-relevamiento-box">
-        <div class="col-md-4">
-            <label for="inputBusquedaRelevamiento" class="form-label fw-semibold small">Buscar (Código, Localidad, Barrio...)</label>
-            <input type="text" id="inputBusquedaRelevamiento" class="form-control form-control-sm" placeholder="Ej: Capital, Centro..." oninput="manejarCambioFiltrosRelevamientos()">
-        </div>
-        <div class="col-md-4">
-            <label for="selectOrdenarRelevamientos" class="form-label fw-semibold small">Ordenar listado</label>
-            <select id="selectOrdenarRelevamientos" class="form-select form-select-sm" onchange="manejarCambioFiltrosRelevamientos()">
-                <option value="">Más recientes primero</option>
-                <option value="localidad">Localidad (A-Z)</option>
-                <option value="solicitante">Solicitante (A-Z)</option>
-                <option value="prioridad">Prioridad</option>
-                <option value="relevador">Relevador (A-Z)</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="selectPaginacionRelevamientos" class="form-label fw-semibold small">Mostrar registros</label>
-            <select id="selectPaginacionRelevamientos" class="form-select form-select-sm" onchange="manejarCambioFiltrosRelevamientos()">
-                <option value="5">5 por página</option>
-                <option value="10">10 por página</option>
-                <option value="20">20 por página</option>
-                <option value="50">50 por página</option>
-                <option value="todos">Todos</option>
-            </select>
-        </div>
+    <!-- Buscador: Ocupa todo el ancho en celulares (col-12), y un tercio en escritorio (col-md-4) -->
+    <div class="col-12 col-md-4 mb-2 mb-md-0">
+        <label for="inputBusquedaRelevamiento" class="form-label fw-semibold small">Buscar (Código, Localidad, Barrio...)</label>
+        <input type="text" id="inputBusquedaRelevamiento" class="form-control form-control-sm" placeholder="Ej: Capital, Centro..." oninput="manejarCambioFiltrosRelevamientos()">
     </div>
+    
+    <!-- Ordenar listado: Ocupa la mitad en celulares (col-6), y un tercio en escritorio (col-md-4) -->
+    <div class="col-6 col-md-4">
+        <label for="selectOrdenarRelevamientos" class="form-label fw-semibold small">Ordenar listado</label>
+        <select id="selectOrdenarRelevamientos" class="form-select form-select-sm" onchange="manejarCambioFiltrosRelevamientos()">
+            <option value="">Más recientes primero</option>
+            <option value="localidad">Localidad (A-Z)</option>
+            <option value="solicitante">Solicitante (A-Z)</option>
+            <option value="prioridad">Prioridad</option>
+            <option value="relevador">Relevador (A-Z)</option>
+        </select>
+    </div>
+
+    <!-- Mostrar registros: Ocupa la mitad en celulares (col-6), y un tercio en escritorio (col-md-4) -->
+    <div class="col-6 col-md-4">
+        <label for="selectPaginacionRelevamientos" class="form-label fw-semibold small">Mostrar registros</label>
+        <select id="selectPaginacionRelevamientos" class="form-select form-select-sm" onchange="manejarCambioFiltrosRelevamientos()">
+            <option value="5">5 por página</option>
+            <option value="10">10 por página</option>
+            <option value="20">20 por página</option>
+            <option value="50">50 por página</option>
+            <option value="todos">Todos</option>
+        </select>
+    </div>
+</div>
 
     <div class="table-responsive">
         <table class="table table-striped table-hover align-middle mt-2">
