@@ -202,25 +202,25 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // Adjuntar archivos desde la lista temporal global
-        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
-            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
-                formData.append('documentos', archivo);
-            });
+        // 1. Adjuntar archivos desde la lista temporal global de forma segura
+        const archivosReales = window.archivosTemporalesFamiliaGlobal || [];
+        
+        archivosReales.forEach(archivo => {
+            formData.append('documentos', archivo);
+        });
+
+        // 2. NUEVO: Salvavidas infalible. Busca el input directamente dentro del formulario activo (e.target)
+        const formActivo = e.target;
+        const inputArchivoFinal = formActivo.querySelector('#inputArchivo');
+
+        if (inputArchivoFinal && inputArchivoFinal.files.length > 0) {
+            const archivoSalvavidas = inputArchivoFinal.files[0];
+            const yaAgregado = archivosReales.some(f => f.name === archivoSalvavidas.name);
+            
+            if (!yaAgregado) {
+                formData.append('documentos', archivoSalvavidas);
+            }
         }
-
- // NUEVO: Salvavidas infalible. Busca el input directamente dentro del formulario que está siendo enviado (e.target)
-const formActivo = e.target;
-const inputArchivoFinal = formActivo.querySelector('#inputArchivo');
-
-if (inputArchivoFinal && inputArchivoFinal.files.length > 0) {
-    const archivoSalvavidas = inputArchivoFinal.files[0];
-    const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivoSalvavidas.name);
-    
-    if (!yaAgregado) {
-        formData.append('documentos', archivoSalvavidas);
-    }
-}
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
@@ -233,7 +233,7 @@ if (inputArchivoFinal && inputArchivoFinal.files.length > 0) {
         for (let [key, value] of formData.entries()) {
             console.log(key + ':', value instanceof File ? `📄 ARCHIVO ENCONTRADO: ${value.name}` : value);
         }
-        console.log("Lista global temporal tiene:", window.archivosTemporalesFamiliaGlobal.length, "archivos");
+        console.log("Lista global temporal tiene:", archivosReales.length, "archivos");
         // -----------------------------
 
         // Enviamos el FormData CON el token de autorización
