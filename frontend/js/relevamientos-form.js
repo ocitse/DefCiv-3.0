@@ -30,10 +30,8 @@ function renderizarListaVisual(tipo, arreglo) {
 }
 
 export function renderizarListaArchivosPendientes() {
-    // Buscamos el contenedor dentro de la tarjeta activa actual del wizard o del form principal
-    const contenedorActivo = document.querySelector('.wizard-step:not(.d-none)') || document.getElementById('form-nueva-familia');
-    const ul = contenedorActivo ? contenedorActivo.querySelector('#lista-archivos-pendientes') : document.getElementById('lista-archivos-pendientes');
-    
+    // Buscamos el elemento directamente por su ID en el DOM actual
+    const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
     ul.replaceChildren();
