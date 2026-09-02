@@ -9,6 +9,7 @@ if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
 
 let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; 
 let listaTemporalMateriales = [];
+export let archivosAsegurados = [];
 
 function renderizarListaVisual(tipo, arreglo) {
     const ul = document.getElementById(`lista-dinamica-${tipo}`);
@@ -57,31 +58,7 @@ export function renderizarListaArchivosPendientes() {
     });
 }
 
-function renderizarDocumentosGuardados(documentos) {
-    const contenedor = document.getElementById('lista-archivos-guardados');
-    if (!contenedor) return;
-
-    if (!documentos || documentos.length === 0) {
-        contenedor.innerHTML = ''; 
-        return;
-    }
-
-    contenedor.innerHTML = documentos.map(doc => `
-        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark border border-secondary rounded shadow-sm">
-            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
-                <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
-            </a>
-            <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
-        </div>
-    `).join('');
-}
-
 export function agregarArchivoALista() {
-    if (!window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal = [];
-    }
-
-    // Buscamos el input EXCLUSIVAMENTE dentro del paso activo del wizard
     const contenedorActivo = document.querySelector('.wizard-step:not(.d-none)') || document.getElementById('form-nueva-familia');
     const inputReal = contenedorActivo ? contenedorActivo.querySelector('#inputArchivo') : document.getElementById('inputArchivo');
 
@@ -91,12 +68,12 @@ export function agregarArchivoALista() {
     }
 
     const archivo = inputReal.files[0];
-    const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
+    const yaExiste = archivosAsegurados.some(f => f.name === archivo.name);
 
     if (!yaExiste) {
-        window.archivosTemporalesFamiliaGlobal.push(archivo);
+        archivosAsegurados.push(archivo);
         renderizarListaArchivosPendientes();
-        inputReal.value = ""; // Vaciamos el input correcto
+        inputReal.value = ""; // Vaciamos el input visual
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
     } else {
         mostrarNotificacion("Ese archivo ya está en la lista.", "error");
@@ -104,10 +81,26 @@ export function agregarArchivoALista() {
 }
 
 export function eliminarArchivoDeLista(index) {
-    if (window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal.splice(index, 1);
-        renderizarListaArchivosPendientes();
-    }
+    archivosAsegurados.splice(index, 1);
+    renderizarListaArchivosPendientes();
+}
+
+export function renderizarListaArchivosPendientes() {
+    const ul = document.getElementById('lista-archivos-pendientes');
+    if (!ul) return;
+    
+    ul.replaceChildren();
+    if (archivosAsegurados.length === 0) return; 
+
+    archivosAsegurados.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
+        li.innerHTML = `
+            <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
+            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})"><i class="bi bi-trash-fill"></i></button>
+        `;
+        ul.appendChild(li);
+    });
 }
 
 export function agregarItemLista(tipo) {
@@ -202,20 +195,20 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // 1. Adjuntar archivos desde la lista temporal global de forma segura
-        const archivosReales = window.archivosTemporalesFamiliaGlobal || [];
+        // 1. Empaquetado directo desde la variable segura
+        console.log(`Lista segura tiene: ${archivosAsegurados.length} archivos`);
         
-        archivosReales.forEach(archivo => {
+        archivosAsegurados.forEach(archivo => {
             formData.append('documentos', archivo);
         });
 
-        // 2. NUEVO: Salvavidas infalible. Busca el input directamente dentro del formulario activo (e.target)
+        // 2. Salvavidas por si el usuario olvidó hacer clic en "+ Agregar"
         const formActivo = e.target;
         const inputArchivoFinal = formActivo.querySelector('#inputArchivo');
 
         if (inputArchivoFinal && inputArchivoFinal.files.length > 0) {
             const archivoSalvavidas = inputArchivoFinal.files[0];
-            const yaAgregado = archivosReales.some(f => f.name === archivoSalvavidas.name);
+            const yaAgregado = archivosAsegurados.some(f => f.name === archivoSalvavidas.name);
             
             if (!yaAgregado) {
                 formData.append('documentos', archivoSalvavidas);
