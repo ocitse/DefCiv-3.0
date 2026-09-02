@@ -1,33 +1,30 @@
 // backend/controllers/familiaController.js
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import Familia from '../models/familia.js';
 import Relevamiento from '../models/relevamiento.js';
 import necesidadFamilia from '../models/necesidadFamilia.js';
-import Documentacion from '../models/Documentacion.js'; // Asegúrate de tener este modelo creado
+import Documentacion from '../models/Documentacion.js';
 
-// Configuración de Multer para la subida física de archivos
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadDir = path.join(__dirname, '../../frontend/public/uploads/familias');
+// 1. Configuración de Cloudinary (Reemplazá con tus credenciales reales)
+cloudinary.config({
+    cloud_name: 'x2hkaxmd', 
+    api_key: '328931579327174',       
+    api_secret: 'Aq5jgyQ_UJ5lrLtf4Pk3NJ9mgV4'  
+});
 
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
+// 2. Le decimos a Multer que envíe los archivos directo a la nube
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'defensa_civil_documentos', // Nombre de la carpeta que se creará en Cloudinary
+        allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'] // Formatos permitidos
     }
 });
 
-// Exportamos este middleware para usarlo en tus rutas (familiaroutes.js)
+// Exportamos el middleware listo para usar en las rutas
 export const uploadDocumentos = multer({ storage: storage }).array('documentos', 10);
-
 // 1. CREAR UNA NUEVA FAMILIA VINCULADA A UN RELEVAMIENTO
 export const crearFamilia = async (req, res) => {
     try {
@@ -89,7 +86,7 @@ export const crearFamilia = async (req, res) => {
             const docsAInsertar = req.files.map(file => ({
                 id_familia: nuevaFamilia.id_familia,
                 nombre_archivo: file.originalname,
-                ruta_archivo: `/uploads/familias/${file.filename}`
+                ruta_archivo: file.path // ¡Magia! Cloudinary nos devuelve la URL lista para guardar
             }));
             await Documentacion.bulkCreate(docsAInsertar);
         }
@@ -208,14 +205,14 @@ export const actualizarFamilia = async (req, res) => {
             return res.status(404).json({ mensaje: 'La familia que intenta actualizar no existe.' });
         }
         // Si llegan nuevos archivos al editar, los guardamos
-if (req.files && req.files.length > 0) {
-    const docsAInsertar = req.files.map(file => ({
-        id_familia: id,
-        nombre_archivo: file.originalname,
-        ruta_archivo: `/uploads/familias/${file.filename}`
-    }));
-    await Documentacion.bulkCreate(docsAInsertar);
-}
+        if (req.files && req.files.length > 0) {
+            const docsAInsertar = req.files.map(file => ({
+                id_familia: nuevaFamilia.id_familia,
+                nombre_archivo: file.originalname,
+                ruta_archivo: file.path // ¡Magia! Cloudinary nos devuelve la URL lista para guardar
+            }));
+            await Documentacion.bulkCreate(docsAInsertar);
+        }
 
         // --- VALIDACIÓN DE SEGURIDAD: Evitar modificar si el relevamiento está bloqueado ---
         if (familia.Relevamiento) {
