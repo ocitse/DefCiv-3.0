@@ -1,5 +1,6 @@
 // backend/routes/familiaroutes.js
 import express from 'express';
+import { verificarToken } from '../middleware/authMiddleware.js'; // <- AGREGAR ESTA LÍNEA
 import { 
     crearFamilia, 
     obtenerFamilias, 

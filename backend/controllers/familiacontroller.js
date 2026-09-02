@@ -207,14 +207,14 @@ export const actualizarFamilia = async (req, res) => {
             return res.status(404).json({ mensaje: 'La familia que intenta actualizar no existe.' });
         }
         // Si llegan nuevos archivos al editar, los guardamos
-        if (req.files && req.files.length > 0) {
-            const docsAInsertar = req.files.map(file => ({
-                id_familia: nuevaFamilia.id_familia,
-                nombre_archivo: file.originalname,
-                ruta_archivo: file.path // ¡Magia! Cloudinary nos devuelve la URL lista para guardar
-            }));
-            await Documentacion.bulkCreate(docsAInsertar);
-        }
+if (req.files && req.files.length > 0) {
+    const docsAInsertar = req.files.map(file => ({
+        id_familia: id, // Usamos directamente el 'id' de la URL
+        nombre_archivo: file.originalname,
+        ruta_archivo: file.path
+    }));
+    await Documentacion.bulkCreate(docsAInsertar);
+}
 
         // --- VALIDACIÓN DE SEGURIDAD: Evitar modificar si el relevamiento está bloqueado ---
         if (familia.Relevamiento) {
