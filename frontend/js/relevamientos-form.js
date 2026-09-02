@@ -35,19 +35,16 @@ export function renderizarListaArchivosPendientes() {
 
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
-    // Limpieza total inicial
-    ul.replaceChildren();
-
-    // Si no hay archivos, mostramos el cartel de vacío de forma limpia
+    // 1. Si no hay archivos, inyectamos el cartel con un ID único
     if (archivos.length === 0) {
-        const liVacio = document.createElement('li');
-        liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small cartel-vacio-fijo";
-        liVacio.textContent = "Ningún archivo adjuntado";
-        ul.appendChild(liVacio);
+        ul.innerHTML = `<li id="cartel-vacio-archivos" class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>`;
         return;
     }
 
-    // SI HAY ARCHIVOS: Dibujamos cada archivo de la lista
+    // 2. Si hay archivos, limpiamos el DOM por completo
+    ul.innerHTML = '';
+
+    // 3. Dibujamos los archivos temporales
     archivos.forEach((file, index) => {
         const li = document.createElement('li');
         li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
@@ -60,9 +57,11 @@ export function renderizarListaArchivosPendientes() {
         ul.appendChild(li);
     });
 
-    // BARRIDA QUIRÚRGICA FINAL: Si por algún motivo asíncrono quedó el cartel de vacío flotando, lo borramos a la fuerza
-    const fantasmas = ul.querySelectorAll('.cartel-vacio-fijo');
-    fantasmas.forEach(f => f.remove());
+    // 4. BARRIDA DE SEGURIDAD: Si el cartel sigue vivo por error de caché o asincronía, lo aniquilamos.
+    const cartelFantasma = document.getElementById('cartel-vacio-archivos');
+    if (cartelFantasma) {
+        cartelFantasma.remove();
+    }
 }
 
 function renderizarDocumentosGuardados(documentos) {
