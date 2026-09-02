@@ -185,6 +185,16 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             });
         }
 
+        // NUEVO: Salvavidas por si el usuario seleccionó un archivo pero olvidó presionar "+ Agregar"
+        const inputArchivo = document.getElementById('inputArchivo');
+        if (inputArchivo && inputArchivo.files.length > 0) {
+            // Verificamos que no lo hayamos agregado ya desde la lista global
+            const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === inputArchivo.files[0].name);
+            if (!yaAgregado) {
+                formData.append('documentos', inputArchivo.files[0]);
+            }
+        }
+
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
 
