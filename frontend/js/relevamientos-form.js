@@ -33,21 +33,30 @@ function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
+    // Vaciamos por completo el contenedor de cualquier nodo fantasma
+    ul.replaceChildren();
+
     const archivos = window.archivosTemporalesFamiliaGlobal || [];
 
     if (archivos.length === 0) {
-        ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>`;
+        const liVacio = document.createElement('li');
+        liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
+        liVacio.textContent = "Ningún archivo adjuntado";
+        ul.appendChild(liVacio);
         return;
     }
 
-    ul.innerHTML = archivos.map((file, index) => `
-        <li class="d-flex justify-content-between align-items-center p-2 mb-1 bg-dark border border-secondary rounded small text-light">
+    archivos.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = "d-flex justify-content-between align-items-center p-2 mb-1 bg-dark border border-secondary rounded small text-light";
+        li.innerHTML = `
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
             <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
                 <i class="bi bi-trash-fill"></i>
             </button>
-        </li>
-    `).join('');
+        `;
+        ul.appendChild(li);
+    });
 }
 
 function renderizarDocumentosGuardados(documentos) {
