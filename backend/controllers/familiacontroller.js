@@ -13,7 +13,8 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
-
+// Agregá esta línea temporalmente para diagnosticar:
+console.log("☁️ Verificando Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME);
 // 2. Le decimos a Multer que envíe los archivos directo a la nube
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
