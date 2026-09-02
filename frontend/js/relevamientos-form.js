@@ -30,33 +30,7 @@ function renderizarListaVisual(tipo, arreglo) {
     `).join('');
 }
 
-export function renderizarListaArchivosPendientes() {
-    const ul = document.getElementById('lista-archivos-pendientes');
-    if (!ul) return;
 
-    // Vaciamos el contenedor para garantizar que no haya basura del DOM
-    ul.replaceChildren();
-
-    const archivos = window.archivosTemporalesFamiliaGlobal || [];
-
-    // Si no hay archivos, cortamos la ejecución aquí sin dibujar ninguna leyenda
-    if (archivos.length === 0) {
-        return; 
-    }
-
-    // Dibujamos únicamente los archivos reales
-    archivos.forEach((file, index) => {
-        const li = document.createElement('li');
-        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
-        li.innerHTML = `
-            <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
-            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
-                <i class="bi bi-trash-fill"></i>
-            </button>
-        `;
-        ul.appendChild(li);
-    });
-}
 
 export function agregarArchivoALista() {
     const contenedorActivo = document.querySelector('.wizard-step:not(.d-none)') || document.getElementById('form-nueva-familia');
