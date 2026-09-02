@@ -56,17 +56,16 @@ function renderizarDocumentosGuardados(documentos) {
     if (!contenedor) return;
 
     if (!documentos || documentos.length === 0) {
-        contenedor.innerHTML = ''; // Si no hay documentos, dejamos el espacio vacío
+        contenedor.innerHTML = ''; 
         return;
     }
 
-    // Dibujamos un botón/enlace por cada archivo
     contenedor.innerHTML = documentos.map(doc => `
-        <div class="d-flex justify-content-between align-items-center p-2 mb-1 bg-success-subtle border border-success rounded small shadow-sm">
-            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-dark text-truncate fw-medium" style="max-width: 85%;" title="${doc.nombre_archivo}">
-                <i class="bi bi-cloud-check-fill text-success me-2"></i> ${doc.nombre_archivo}
+        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark border border-secondary rounded shadow-sm">
+            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
+                <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
             </a>
-            <span class="badge bg-success" style="font-size: 0.7em;">Guardado en Nube</span>
+            <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
         </div>
     `).join('');
 }
