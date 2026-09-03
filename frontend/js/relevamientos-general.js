@@ -1,3 +1,4 @@
+// frontend/js/relevamientos-general.js
 import { cargarVistaDinamica } from './utils.js';
 import { mostrarNotificacion } from './ui.js';
 import { departamentosYLocalidades } from './ubicaciones.js';
@@ -19,7 +20,7 @@ function getBadgeEstado(estado) {
     const est = (estado || 'Nuevo').toLowerCase();
     if (est === 'completado' || est === 'finalizado') return 'bg-success';
     if (est === 'en proceso' || est === 'en curso') return 'bg-warning text-dark';
-    return 'bg-info text-dark'; 
+    return 'bg-info text-dark'; // Por defecto para 'Nuevo' u otros
 }
 
 function cargarDesplegablesUbicacion() {
@@ -60,6 +61,7 @@ async function cargarDesplegableRelevadores() {
 
     try {
         const token = localStorage.getItem('token');
+        // Apuntamos a /api/usuarios pasando los filtros por URL
         const respuesta = await fetch('/api/usuarios?rol=Relevador&estado=Activo', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -85,7 +87,7 @@ export function editarRelevamientoGeneral(idRelevamiento) {
         try {
             const token = localStorage.getItem('token');
             const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
             });
             const rel = await respuesta.json();
 
@@ -129,7 +131,6 @@ export function editarRelevamientoGeneral(idRelevamiento) {
         }
     });
 }
-
 export async function eliminarRelevamientoGeneral(idRelevamiento) {
     if (!confirm('¿Estás seguro de que deseas eliminar este relevamiento y todas sus familias asociadas?')) {
         return;
@@ -139,13 +140,14 @@ export async function eliminarRelevamientoGeneral(idRelevamiento) {
         const token = localStorage.getItem('token');
         const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
         });
 
         const resultado = await respuesta.json();
 
         if (respuesta.ok) {
             mostrarNotificacion(resultado.mensaje || 'Relevamiento eliminado con éxito.', 'success');
+            // Recargamos la tabla local para reflejar los cambios al instante
             cargarTablaRelevamientos();
         } else {
             mostrarNotificacion(resultado.mensaje || 'Error al intentar eliminar el relevamiento.', 'error');
@@ -159,11 +161,12 @@ export async function eliminarRelevamientoGeneral(idRelevamiento) {
 export async function verPanelPrincipal() {
     cargarVistaDinamica('./frontend/pages/panel-principal.html', async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token'); // <-- Recuperar token
             const respuesta = await fetch('/api/relevamientos', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
             });
 
+            // Validamos primero si la respuesta es correcta antes de parsear a JSON
             if (!respuesta.ok) {
                 const errorData = await respuesta.json().catch(() => ({}));
                 throw new Error(errorData.mensaje || `Error en el servidor: ${respuesta.status}`);
@@ -172,13 +175,9 @@ export async function verPanelPrincipal() {
             const relevamientos = await respuesta.json();
             const listaRelevamientos = Array.isArray(relevamientos) ? relevamientos : [];
 
-            // Declaramos los contenedores de forma segura al inicio
-            const tbodyDash = document.getElementById('dash-tabla-emergencias');
-            const contenedorMobile = document.getElementById('dash-tarjetas-emergencias-mobile');
-
             if (listaRelevamientos.length === 0) {
-                if (tbodyDash) tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay registros cargados</td></tr>`;
-                if (contenedorMobile) contenedorMobile.innerHTML = `<div class="text-center text-muted small">No hay registros cargados</div>`;
+                // Si no hay datos, muestra un mensaje amigable o sal de la función de forma segura
+                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay registros cargados</td></tr>`;
                 return;
             }
 
@@ -203,7 +202,15 @@ export async function verPanelPrincipal() {
                 animarContador('dash-entregas-reportes', listaRelevamientos.length, 1100);
             }
 
+            const tbodyDash = document.getElementById('dash-tabla-emergencias');
             if (tbodyDash) {
+                if (listaRelevamientos.length === 0) {
+                    tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay emergencias asignadas</td></tr>`;
+                    const contenedorMobile = document.getElementById('dash-tarjetas-emergencias-mobile');
+                    if (contenedorMobile) contenedorMobile.innerHTML = `<div class="text-center text-muted small">No hay emergencias asignadas</div>`;
+                    return;
+                }
+                
                 const ultimos = listaRelevamientos.slice(0, 5);
                 
                 // 1. Llenamos la tabla de ESCRITORIO
@@ -224,6 +231,7 @@ export async function verPanelPrincipal() {
                 }).join('');
 
                 // 2. Llenamos las tarjetas descriptivas de CELULAR
+                const contenedorMobile = document.getElementById('dash-tarjetas-emergencias-mobile');
                 if (contenedorMobile) {
                     contenedorMobile.innerHTML = ultimos.map(r => {
                         const codigo = r.codigo_relevamiento || 'N/D';
@@ -250,16 +258,19 @@ export async function verPanelPrincipal() {
             console.error("Error al cargar los datos del panel principal:", error);
             const tbodyDash = document.getElementById('dash-tabla-emergencias');
             if (tbodyDash) {
+                // Cambiamos el mensaje de error rojo por un aviso limpio de que no hay registros
                 tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay emergencias asignadas</td></tr>`;
             }
         }
     });
 }
 
+// Función para animar números de contadores (efecto cuenta kilómetros)
 function animarContador(elementoId, valorFinal, duracion = 1500) {
     const elemento = document.getElementById(elementoId);
     if (!elemento) return;
 
+    // Asegurarse de que sea un número válido
     const objetivo = parseInt(valorFinal, 10);
     if (isNaN(objetivo) || objetivo === 0) {
         elemento.innerText = objetivo || '0';
@@ -272,6 +283,7 @@ function animarContador(elementoId, valorFinal, duracion = 1500) {
         if (!tiempoInicio) tiempoInicio = tiempoActual;
         const progreso = tiempoActual - tiempoInicio;
         
+        // Easing (aceleración y desaceleración suave)
         const avancePorcentaje = Math.min(progreso / duracion, 1);
         const valorActual = Math.floor(avancePorcentaje * objetivo);
 
@@ -280,13 +292,14 @@ function animarContador(elementoId, valorFinal, duracion = 1500) {
         if (progreso < duracion) {
             window.requestAnimationFrame(animar);
         } else {
-            elemento.innerText = objetivo; 
+            elemento.innerText = objetivo; // Asegurar que termine exacto
         }
     };
 
     window.requestAnimationFrame(animar);
 }
 
+// Función principal que hace el fetch UNA VEZ y almacena en memoria
 export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
@@ -294,9 +307,9 @@ export async function cargarTablaRelevamientos() {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
-        const token = localStorage.getItem('token'); 
+        const token = localStorage.getItem('token'); // <-- Recuperar token
         const respuesta = await fetch('/api/relevamientos', {
-            headers: { 'Authorization': `Bearer ${token}` } 
+            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
         });
         const relevamientos = await respuesta.json();
 
@@ -307,6 +320,7 @@ export async function cargarTablaRelevamientos() {
         relevamientosOriginales = relevamientos || [];
         paginaActualRelevamientos = 1;
 
+        // --- Atrapamos el filtro si venimos del Dashboard ---
         const filtroPendiente = sessionStorage.getItem('filtroRapido');
         if (filtroPendiente) {
             const inputBusqueda = document.getElementById('inputBusquedaRelevamiento');
@@ -315,6 +329,7 @@ export async function cargarTablaRelevamientos() {
             }
             sessionStorage.removeItem('filtroRapido');
         }
+        // ----------------------------------------------------
 
         manejarCambioFiltrosRelevamientos();
 
@@ -324,6 +339,7 @@ export async function cargarTablaRelevamientos() {
     }
 }
 
+// Función central que procesa búsqueda, ordenamiento y paginación local de Relevamientos
 export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
     if (resetPagina) paginaActualRelevamientos = 1;
 
@@ -331,22 +347,24 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
     const criterioOrden = document.getElementById('selectOrdenarRelevamientos')?.value || '';
     const selectPaginacion = document.getElementById('selectPaginacionRelevamientos')?.value || '10';
 
+    // 1. Filtrado local por Código, Localidad, Barrio, Solicitante o Estado
     let resultado = relevamientosOriginales.filter(r => {
         const codigo = (r.codigo_relevamiento || '').toLowerCase();
         const localidad = (r.localidad || '').toLowerCase();
         const departamento = (r.departamento || '').toLowerCase();
         const barrio = (r.barrio || '').toLowerCase();
         const solicitante = (r.solicitante || '').toLowerCase();
-        const estado = (r.estado || '').toLowerCase(); 
+        const estado = (r.estado || '').toLowerCase(); // <-- Agregado
 
         return codigo.includes(textoBusqueda) || 
                localidad.includes(textoBusqueda) || 
                departamento.includes(textoBusqueda) || 
                barrio.includes(textoBusqueda) || 
                solicitante.includes(textoBusqueda) ||
-               estado.includes(textoBusqueda); 
+               estado.includes(textoBusqueda); // <-- Agregado
     });
 
+    // 2. Ordenamiento local
     if (criterioOrden === 'localidad') {
         resultado.sort((a, b) => (a.localidad || '').localeCompare(b.localidad || ''));
     } else if (criterioOrden === 'solicitante') {
@@ -365,9 +383,11 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
             return revA.localeCompare(revB);
         });
     } else {
+        // Por defecto: Más recientes primero (por fecha de creación descendente)
         resultado.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     }
 
+    // 3. Paginación local
     let relevamientosPaginados = resultado;
     let totalPaginas = 1;
 
@@ -387,11 +407,13 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
     renderizarControlesPaginacionRelevamientos(resultado.length, selectPaginacion === 'todos' ? resultado.length : parseInt(selectPaginacion, 10), totalPaginas);
 }
 
+// Función auxiliar para cambiar de página desde los botones de Relevamientos
 window.cambiarPaginaRelevamientos = function(nuevaPagina) {
     paginaActualRelevamientos = nuevaPagina;
     manejarCambioFiltrosRelevamientos(false);
 }
 
+// Renderizado de filas en la tabla y tarjetas para móviles
 function renderizarFilasRelevamientos(relevamientos) {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
@@ -415,10 +437,9 @@ function renderizarFilasRelevamientos(relevamientos) {
         const evento = r.tipo_evento || 'N/D';
         const solicitante = r.solicitante || 'N/D';
         const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
-        
-        // 🌟 ACÁ ESTÁ EL CAMBIO CLAVE PARA LEER EL CONTADOR REAL DE FAMILIAS
         const cantFamilias = r.total_familias !== undefined ? r.total_familias : 0;
 
+        // Bloque de botones reutilizable para ambos diseños (forzando centrado)
         const botonesAccion = `
             <div class="d-flex justify-content-center align-items-center gap-2">
                 ${esCompletado ? `
@@ -445,28 +466,36 @@ function renderizarFilasRelevamientos(relevamientos) {
         `;
 
         return `
-        <!-- 1. VISTA DE ESCRITORIO -->
+        <!-- 1. VISTA DE ESCRITORIO (Columnas Agrupadas) -->
         <tr class="d-none d-md-table-row">
+            <!-- Código / Fecha -->
             <td>
                 <strong>${codigo}</strong><br>
                 <small class="text-muted" style="font-size: 0.8em;">${fecha}</small>
             </td>
+            <!-- Estado -->
             <td><span class="badge ${getBadgeEstado(r.estado)}">${r.estado || 'Nuevo'}</span></td>
+            <!-- Ubicación / Barrio -->
             <td>
                 ${ubicacion}<br>
                 <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${barrio}</small>
             </td>
+            <!-- Evento / Prioridad -->
             <td>
                 ${evento}<br>
                 <span class="badge ${getBadgePrioridad(r.prioridad)} mt-1" style="font-size: 0.75em;">${r.prioridad || 'Baja'}</span>
             </td>
+            <!-- Solicitante Truncado -->
             <td class="col-truncada" title="${solicitante}">${solicitante}</td>
+            <!-- Relevador -->
             <td>${relevador}</td>
+            <!-- Familias -->
             <td class="text-center">${cantFamilias}</td>
+            <!-- Acciones ancladas -->
             <td class="text-center col-acciones">${botonesAccion}</td>
         </tr>
 
-        <!-- 2. VISTA MÓVIL -->
+        <!-- 2. VISTA MÓVIL (Tarjeta adaptable para celulares) -->
         <tr class="d-block d-md-none mb-3 border rounded shadow-sm bg-white p-3">
             <td class="text-start">
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -487,7 +516,7 @@ function renderizarFilasRelevamientos(relevamientos) {
     `;
     }).join('');
 }
-
+// Renderiza los controles de paginación estilizados y con contraste correcto
 function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, totalPaginas) {
     const contenedor = document.getElementById('contenedor-paginacion-relevamientos');
     if (!contenedor) return;
@@ -569,12 +598,12 @@ async function guardarRelevamientoGeneral(event) {
     const metodo = idEdicion ? 'PUT' : 'POST';
 
     try {
-        const token = localStorage.getItem('token'); 
+        const token = localStorage.getItem('token'); // <-- Recuperar token
         const respuesta = await fetch(url, {
             method: metodo,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
+                'Authorization': `Bearer ${token}` // <-- Enviar token
             },
             body: JSON.stringify(datosFormulario)
         });
@@ -628,13 +657,15 @@ export async function completarRelevamientoGeneral(idRelevamiento) {
     }
 }
 
+// 1. Función para abrir el modal y guardar temporalmente el ID del relevamiento
 window.abrirModalDevolucion = function(idRelevamiento) {
     const inputId = document.getElementById('devolucion_id_relevamiento');
     const inputMotivo = document.getElementById('devolucion_motivo');
     
     if (inputId) inputId.value = idRelevamiento;
-    if (inputMotivo) inputMotivo.value = ''; 
+    if (inputMotivo) inputMotivo.value = ''; // Limpiar campo anterior
 
+    // Mostrar el modal usando Bootstrap
     const modalElement = document.getElementById('modalDevolucionRelevamiento');
     if (modalElement && typeof bootstrap !== 'undefined') {
         const modal = new bootstrap.Modal(modalElement);
@@ -642,6 +673,7 @@ window.abrirModalDevolucion = function(idRelevamiento) {
     }
 };
 
+// 2. Función para confirmar la devolución y enviarla al servidor
 window.confirmarDevolucionRelevamiento = async function() {
     const idRelevamiento = document.getElementById('devolucion_id_relevamiento')?.value;
     const motivo = document.getElementById('devolucion_motivo')?.value.trim();
@@ -667,12 +699,14 @@ window.confirmarDevolucionRelevamiento = async function() {
         if (respuesta.ok) {
             mostrarNotificacion(resultado.mensaje || 'Relevamiento devuelto con éxito.', 'success');
             
+            // Cerrar el modal
             const modalElement = document.getElementById('modalDevolucionRelevamiento');
             if (modalElement && typeof bootstrap !== 'undefined') {
                 const modal = bootstrap.Modal.getInstance(modalElement);
                 if (modal) modal.hide();
             }
 
+            // Recargar la tabla para ver reflejado el cambio de estado
             cargarTablaRelevamientos();
         } else {
             mostrarNotificacion(resultado.mensaje || 'Error al intentar devolver el relevamiento.', 'error');
@@ -683,9 +717,11 @@ window.confirmarDevolucionRelevamiento = async function() {
     }
 };
 
+// Función para navegar desde los KPIs del dashboard a la tabla filtrada
 window.navegarYFiltrar = function(criterio, valor) {
     sessionStorage.setItem('filtroRapido', valor);
     
+    // Busca el enlace de "Relevamientos" en el menú y lo clickea
     const enlacesMenu = document.querySelectorAll('a, .nav-link');
     for (let enlace of enlacesMenu) {
         if (enlace.innerText.trim() === 'Relevamientos') {
@@ -695,7 +731,10 @@ window.navegarYFiltrar = function(criterio, valor) {
     }
 };
 
+// No olvides exponerla en el objeto window al final del archivo:
 window.completarRelevamientoGeneral = completarRelevamientoGeneral;
+
+// Exposiciones globales necesarias
 window.verPanelPrincipal = verPanelPrincipal;
 window.editarRelevamiento = editarRelevamientoGeneral;
 window.eliminarRelevamiento = eliminarRelevamientoGeneral;
