@@ -161,12 +161,11 @@ export async function eliminarRelevamientoGeneral(idRelevamiento) {
 export async function verPanelPrincipal() {
     cargarVistaDinamica('./frontend/pages/panel-principal.html', async () => {
         try {
-            const token = localStorage.getItem('token'); // <-- Recuperar token
+            const token = localStorage.getItem('token');
             const respuesta = await fetch('/api/relevamientos', {
-                headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            // Validamos primero si la respuesta es correcta antes de parsear a JSON
             if (!respuesta.ok) {
                 const errorData = await respuesta.json().catch(() => ({}));
                 throw new Error(errorData.mensaje || `Error en el servidor: ${respuesta.status}`);
@@ -175,13 +174,21 @@ export async function verPanelPrincipal() {
             const relevamientos = await respuesta.json();
             const listaRelevamientos = Array.isArray(relevamientos) ? relevamientos : [];
 
+            // Declaramos tbodyDash al principio para que esté disponible en cualquier validación
+            const tbodyDash = document.getElementById('dash-tabla-emergencias');
+            const contenedorMobile = document.getElementById('dash-tarjetas-emergencias-mobile');
+
             if (listaRelevamientos.length === 0) {
-                // Si no hay datos, muestra un mensaje amigable o sal de la función de forma segura
-                tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay registros cargados</td></tr>`;
+                if (tbodyDash) {
+                    tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay registros cargados</td></tr>`;
+                }
+                if (contenedorMobile) {
+                    contenedorMobile.innerHTML = `<div class="text-center text-muted small">No hay registros cargados</div>`;
+                }
                 return;
             }
 
-            // Contadores reales basados en el estado del relevamiento
+            // Contadores reales basados en el estado
             const nuevos = listaRelevamientos.filter(r => (r.estado || 'nuevo').toLowerCase() === 'nuevo').length;
             const enProceso = listaRelevamientos.filter(r => {
                 const est = (r.estado || '').toLowerCase();
@@ -202,15 +209,7 @@ export async function verPanelPrincipal() {
                 animarContador('dash-entregas-reportes', listaRelevamientos.length, 1100);
             }
 
-            const tbodyDash = document.getElementById('dash-tabla-emergencias');
             if (tbodyDash) {
-                if (listaRelevamientos.length === 0) {
-                    tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay emergencias asignadas</td></tr>`;
-                    const contenedorMobile = document.getElementById('dash-tarjetas-emergencias-mobile');
-                    if (contenedorMobile) contenedorMobile.innerHTML = `<div class="text-center text-muted small">No hay emergencias asignadas</div>`;
-                    return;
-                }
-                
                 const ultimos = listaRelevamientos.slice(0, 5);
                 
                 // 1. Llenamos la tabla de ESCRITORIO
@@ -231,7 +230,6 @@ export async function verPanelPrincipal() {
                 }).join('');
 
                 // 2. Llenamos las tarjetas descriptivas de CELULAR
-                const contenedorMobile = document.getElementById('dash-tarjetas-emergencias-mobile');
                 if (contenedorMobile) {
                     contenedorMobile.innerHTML = ultimos.map(r => {
                         const codigo = r.codigo_relevamiento || 'N/D';
@@ -258,7 +256,6 @@ export async function verPanelPrincipal() {
             console.error("Error al cargar los datos del panel principal:", error);
             const tbodyDash = document.getElementById('dash-tabla-emergencias');
             if (tbodyDash) {
-                // Cambiamos el mensaje de error rojo por un aviso limpio de que no hay registros
                 tbodyDash.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay emergencias asignadas</td></tr>`;
             }
         }
