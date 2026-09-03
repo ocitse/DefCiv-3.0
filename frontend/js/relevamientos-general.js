@@ -206,7 +206,7 @@ export async function verPanelPrincipal() {
                     return;
                 }
                 
-                const ultimos = listaRelevamientos.slice(-4).reverse();
+                const ultimos = listaRelevamientos.slice(-5);
                 
                 // 1. Llenamos la tabla de ESCRITORIO
                 tbodyDash.innerHTML = ultimos.map(r => {
