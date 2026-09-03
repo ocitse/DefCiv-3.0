@@ -191,7 +191,7 @@ export async function verPanelPrincipal() {
             
             let totalFamilias = 0;
             listaRelevamientos.forEach(r => {
-                if (r.familias) totalFamilias += r.familias.length;
+                totalFamilias += Number(r.total_familias || 0);
             });
 
             if (document.getElementById('dash-relevamientos-nuevos')) {
