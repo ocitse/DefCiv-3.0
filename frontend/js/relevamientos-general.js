@@ -437,7 +437,7 @@ function renderizarFilasRelevamientos(relevamientos) {
         const evento = r.tipo_evento || 'N/D';
         const solicitante = r.solicitante || 'N/D';
         const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
-        const cantFamilias = r.familias ? r.familias.length : 0;
+        const cantFamilias = r.total_familias !== undefined ? r.total_familias : 0;
 
         // Bloque de botones reutilizable para ambos diseños (forzando centrado)
         const botonesAccion = `

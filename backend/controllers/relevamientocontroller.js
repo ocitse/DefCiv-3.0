@@ -1,7 +1,7 @@
 // backend/controllers/relevamientocontroller.js
 import relevamiento from '../models/relevamiento.js';
 import Usuario from '../models/usuario.js';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize'; // 1. Importamos literal
 
 // Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-001-26)
 const generarCodigoRelevamiento = async (departamento, localidad) => {
@@ -76,6 +76,15 @@ export const obtenerrelevamientos = async (req, res) => {
 
         const listaRelevamientos = await relevamiento.findAll({ 
             where: condicionesWhere,
+            attributes: {
+                include: [
+                    [
+                        // Subconsulta SQL exacta apuntando a la tabla 'familias' que vimos en tu estructura
+                        literal(`(SELECT COUNT(*) FROM familias WHERE familias.id_relevamiento = relevamiento.id_relevamiento)`),
+                        'total_familias'
+                    ]
+                ]
+            },
             order: [['createdAt', 'DESC']] 
         }).catch(() => []);
 
