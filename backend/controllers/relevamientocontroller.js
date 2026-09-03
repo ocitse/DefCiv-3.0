@@ -1,6 +1,6 @@
-// backend/controllers/relevamientocontroller.js
 import relevamiento from '../models/relevamiento.js';
 import Usuario from '../models/usuario.js';
+import Familia from '../models/familia.js'; // Asegurate que el nombre del archivo y mayúsculas coincidan con tu proyecto
 import { Op } from 'sequelize';
 
 // Función auxiliar para generar el código de relevamiento (Ej: CAP-SDE-001-26)
@@ -76,6 +76,7 @@ export const obtenerrelevamientos = async (req, res) => {
 
         const listaRelevamientos = await relevamiento.findAll({ 
             where: condicionesWhere,
+            include: [{ model: Familia, as: 'familias' }], // 🌟 Esto trae las familias asociadas a cada relevamiento
             order: [['createdAt', 'DESC']] 
         }).catch(() => []);
 
