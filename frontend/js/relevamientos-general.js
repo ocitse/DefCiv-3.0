@@ -181,7 +181,13 @@ export async function verPanelPrincipal() {
                 return;
             }
 
-            const nuevos = listaRelevamientos.filter(r => r.estado === 'Nuevo' || !r.familias || r.familias.length === 0).length;
+            // Contadores reales basados en el estado del relevamiento
+            const nuevos = listaRelevamientos.filter(r => (r.estado || 'nuevo').toLowerCase() === 'nuevo').length;
+            const enProceso = listaRelevamientos.filter(r => {
+                const est = (r.estado || '').toLowerCase();
+                return est === 'en proceso' || est === 'en_proceso' || est === 'en-proceso';
+            }).length;
+            const completados = listaRelevamientos.filter(r => (r.estado || '').toLowerCase() === 'completado').length;
             
             let totalFamilias = 0;
             listaRelevamientos.forEach(r => {
@@ -189,11 +195,10 @@ export async function verPanelPrincipal() {
             });
 
             if (document.getElementById('dash-relevamientos-nuevos')) {
-                // En lugar de asignarlo seco, llamamos a la animación
                 animarContador('dash-relevamientos-nuevos', nuevos, 1000); 
-                animarContador('dash-familias-asistidas', totalFamilias, 1200);
-                animarContador('dash-solicitudes-pendientes', listaRelevamientos.length, 1000); 
-                animarContador('dash-ordenes-aprobadas', Math.floor(totalFamilias * 0.7), 1300); 
+                animarContador('dash-solicitudes-pendientes', enProceso, 1000); 
+                animarContador('dash-familias-asistidas', completados, 1200);
+                animarContador('dash-ordenes-aprobadas', totalFamilias, 1300); 
                 animarContador('dash-entregas-reportes', listaRelevamientos.length, 1100);
             }
 
@@ -206,7 +211,7 @@ export async function verPanelPrincipal() {
                     return;
                 }
                 
-                const ultimos = listaRelevamientos.slice(-5);
+                const ultimos = listaRelevamientos.slice(0, 5);
                 
                 // 1. Llenamos la tabla de ESCRITORIO
                 tbodyDash.innerHTML = ultimos.map(r => {
