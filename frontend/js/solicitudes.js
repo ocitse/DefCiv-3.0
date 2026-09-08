@@ -149,42 +149,65 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
         document.getElementById('audit-total-familias').innerText = Array.isArray(familiasData) ? familiasData.length : 0;
 
         const tbodyAudit = document.querySelector('#tabla-audit-familias tbody');
-        if (tbodyAudit) {
-            if (!Array.isArray(familiasData) || familiasData.length === 0) {
-                tbodyAudit.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">No hay registros de familias para este relevamiento.</td></tr>`;
-            } else {
-                tbodyAudit.innerHTML = familiasData.map(fam => `
-                    <tr>
-                        <td>${fam.dni_jefe || fam.dni || 'N/D'}</td>
-                        <td>${fam.jefe_familia || fam.nombre || 'N/D'}</td>
-                        <td class="text-center">${fam.cantidad_integrantes || '1'}</td>
-                        <td class="text-center">${fam.unidades_alimentarias || '0'}</td>
-                        <td class="text-center">${fam.abrigos || '0'}</td>
-                        <td class="text-center">${fam.frazadas || '0'}</td>
-                        <td class="text-center">${fam.colchones || '0'}</td>
-                        <td class="text-center">${fam.bidones_agua || '0'}</td>
-                        <td class="text-center">${fam.kits_higiene || '0'}</td>
-                        <td class="text-center">${fam.ropa || '0'}</td>
-                    </tr>
-                `).join('');
-
-                // Fila de totales en el modal
-                const tot = calcularTotales(familiasData);
-                tbodyAudit.innerHTML += `
-                    <tr class="table-secondary fw-bold">
-                        <td colspan="2" class="text-end">TOTALES ACUMULADOS:</td>
-                        <td class="text-center">${tot.integrantes}</td>
-                        <td class="text-center">${tot.unidades_alimentarias}</td>
-                        <td class="text-center">${tot.abrigos}</td>
-                        <td class="text-center">${tot.frazadas}</td>
-                        <td class="text-center">${tot.colchones}</td>
-                        <td class="text-center">${tot.bidones_agua}</td>
-                        <td class="text-center">${tot.kits_higiene}</td>
-                        <td class="text-center">${tot.ropa}</td>
-                    </tr>
-                `;
+if (tbodyAudit) {
+    if (!Array.isArray(familiasData) || familiasData.length === 0) {
+        tbodyAudit.innerHTML = `<tr><td colspan="12" class="text-center text-muted py-3">No hay registros de familias para este relevamiento.</td></tr>`;
+    } else {
+        tbodyAudit.innerHTML = familiasData.map(fam => {
+            // Procesamos los materiales de construcción (necesidades)
+            let listadoMateriales = '<span class="text-muted small">Sin materiales</span>';
+            if (fam.necesidades && Array.isArray(fam.necesidades) && fam.necesidades.length > 0) {
+                listadoMateriales = fam.necesidades.map(n => 
+                    `<span class="badge bg-dark text-light me-1 mb-1">${n.tipo_material}: <strong>${n.cantidad}</strong></span>`
+                ).join('');
             }
-        }
+
+            // Procesamos la documentación adjunta (fotos, pdfs de Cloudinary)
+            let listadoDocs = '<span class="text-muted small">Sin adjuntos</span>';
+            if (fam.documentacion && Array.isArray(fam.documentacion) && fam.documentacion.length > 0) {
+                listadoDocs = fam.documentacion.map((doc, idx) => 
+                    `<a href="${doc.ruta_archivo}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-1 me-1 mb-1" title="${doc.nombre_archivo || 'Ver archivo'}">
+                        <i class="bi bi-file-earmark-text"></i> #${idx + 1}
+                    </a>`
+                ).join('');
+            }
+
+            return `
+                <tr>
+                    <td class="small">${fam.dni_jefe || fam.dni || 'N/D'}</td>
+                    <td class="small fw-bold">${fam.jefe_familia || fam.nombre || 'N/D'}</td>
+                    <td class="text-center small">${fam.cantidad_integrantes || '1'}</td>
+                    <td class="text-center small">${fam.unidades_alimentarias || '0'}</td>
+                    <td class="text-center small">${fam.abrigos || '0'}</td>
+                    <td class="text-center small">${fam.frazadas || '0'}</td>
+                    <td class="text-center small">${fam.colchones || '0'}</td>
+                    <td class="text-center small">${fam.bidones_agua || '0'}</td>
+                    <td class="text-center small">${fam.kits_higiene || '0'}</td>
+                    <td class="text-center small">${fam.ropa || '0'}</td>
+                    <td>${listadoMateriales}</td>
+                    <td class="text-center">${listadoDocs}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // Fila de totales en el modal (12 columnas)
+        const tot = calcularTotales(familiasData);
+        tbodyAudit.innerHTML += `
+            <tr class="table-secondary fw-bold">
+                <td colspan="2" class="text-end">TOTALES ACUMULADOS:</td>
+                <td class="text-center">${tot.integrantes}</td>
+                <td class="text-center">${tot.unidades_alimentarias}</td>
+                <td class="text-center">${tot.abrigos}</td>
+                <td class="text-center">${tot.frazadas}</td>
+                <td class="text-center">${tot.colchones}</td>
+                <td class="text-center">${tot.bidones_agua}</td>
+                <td class="text-center">${tot.kits_higiene}</td>
+                <td class="text-center">${tot.ropa}</td>
+                <td colspan="2" class="text-muted small text-center">Ver detalle de materiales por familia</td>
+            </tr>
+        `;
+    }
+}
 
         // 3. Mostramos el modal usando Bootstrap
         const modalEl = document.getElementById('modalAuditoriaSolicitud');
