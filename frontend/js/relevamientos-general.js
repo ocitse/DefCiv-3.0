@@ -307,30 +307,43 @@ export async function cargarTablaRelevamientos() {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
-        const token = localStorage.getItem('token'); // <-- Recuperar token
-        const respuesta = await fetch('/api/relevamientos', {
-            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
-        });
-        const relevamientos = await respuesta.json();
+        const token = localStorage.getItem('token');
+        
+        // Hacemos las dos peticiones en paralelo: relevamientos y todas las familias
+        const [respRelevamientos, respFamilias] = await Promise.all([
+            fetch('/api/relevamientos', { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch('/api/familias', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
 
-        if (!respuesta.ok) {
+        const relevamientos = await respRelevamientos.json();
+        const todasLasFamilias = await respFamilias.json();
+
+        if (!respRelevamientos.ok) {
             throw new Error(relevamientos.mensaje || 'Error al obtener los datos.');
         }
 
-        relevamientosOriginales = relevamientos || [];
-        paginaActualRelevamientos = 1;
-
-        // --- Atrapamos el filtro si venimos del Dashboard ---
-        const filtroPendiente = sessionStorage.getItem('filtroRapido');
-        if (filtroPendiente) {
-            const inputBusqueda = document.getElementById('inputBusquedaRelevamiento');
-            if (inputBusqueda) {
-                inputBusqueda.value = filtroPendiente;
-            }
-            sessionStorage.removeItem('filtroRapido');
+        // Armamos un mapa de conteo rápido por id_relevamiento
+        // Ejemplo: { 1: 2, 2: 5, 3: 1 } donde la clave es el id y el valor es la cantidad
+        const conteoFamiliasMap = {};
+        if (Array.isArray(todasLasFamilias)) {
+            todasLasFamilias.forEach(f => {
+                const idRel = f.id_relevamiento;
+                if (idRel) {
+                    conteoFamiliasMap[idRel] = (conteoFamiliasMap[idRel] || 0) + 1;
+                }
+            });
         }
-        // ----------------------------------------------------
 
+        // Guardamos el mapa en una variable global o adjuntamos el conteo a cada relevamiento
+        relevamientosOriginales = (relevamientos || []).map(r => {
+            const idR = r.id_relevamiento || r.id;
+            return {
+                ...r,
+                cant_familias_real: conteoFamiliasMap[idR] || 0
+            };
+        });
+
+        paginaActualRelevamientos = 1;
         manejarCambioFiltrosRelevamientos();
 
     } catch (error) {
@@ -416,6 +429,7 @@ window.cambiarPaginaRelevamientos = function(nuevaPagina) {
 // Renderizado de filas en la tabla y tarjetas para móviles
 function renderizarFilasRelevamientos(relevamientos) {
     const tbody = document.getElementById('tabla-relevamientos-body');
+    const cantFamilias = r.cant_familias_real !== undefined ? r.cant_familias_real : 0;
     if (!tbody) return;
 
     if (!relevamientos || relevamientos.length === 0) {
