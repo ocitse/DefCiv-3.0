@@ -77,7 +77,7 @@ export async function cargarRelevamientosEnEspera() {
         const data = await respuesta.json();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay relevamientos completados en espera de solicitud</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-3">No hay relevamientos completados en espera de solicitud</td></tr>`;
             return;
         }
 
@@ -100,18 +100,106 @@ export async function cargarRelevamientosEnEspera() {
                         <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${idRel}">
                     </td>
                     <td class="align-middle"><strong>${codigo}</strong></td>
-                    <td class="align-middle"><small class="text-muted">${fecha}</small></td>
+                    <td class="align-middle d-none d-md-table-cell"><small class="text-muted">${fecha}</small></td>
                     <td class="align-middle">${ubicacion} ${barrio}</td>
                     <td class="align-middle">${badgeEstado}</td>
-                    <td class="align-middle">${evento}</td>
+                    <td class="align-middle d-none d-md-table-cell">${evento}</td>
                     <td class="align-middle"><small>${relevador}</small></td>
                     <td class="align-middle">${badgePrioridad}</td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}')" title="Auditar Familias e Insumos">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
         }).join('');
     } catch (error) {
         console.error("Error al cargar relevamientos en espera:", error);
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
+    }
+}
+
+/**
+ * Abre el modal de auditoría y carga las familias asociadas al relevamiento
+ */
+export async function abrirAuditoriaSolicitud(idRelevamiento) {
+    try {
+        // Buscamos los datos generales de la fila o hacemos un fetch rápido si necesitamos más detalles
+        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`);
+        const rel = await respuesta.ok ? await respuesta.json() : null;
+
+        if (rel) {
+            document.getElementById('audit-codigo').innerText = rel.codigo_relevamiento || `#${idRelevamiento}`;
+            document.getElementById('audit-ubicacion').innerText = `${rel.departamento || ''} / ${rel.localidad || ''} ${rel.barrio ? '('+rel.barrio+')' : ''}`;
+            document.getElementById('audit-evento').innerText = rel.tipo_evento || 'N/D';
+            document.getElementById('audit-relevador').innerText = rel.relevador_asignado || 'N/D';
+            document.getElementById('audit-urgencia').innerText = rel.prioridad || 'Media';
+        }
+
+        // Consultamos las familias asociadas
+        let familiasData = [];
+        try {
+            let respFam = await fetch(`/api/familias/relevamiento/${idRelevamiento}`);
+            if (!respFam.ok) {
+                respFam = await fetch(`/api/familias?relevamiento_id=${idRelevamiento}`);
+            }
+            if (respFam.ok) {
+                familiasData = await respFam.json();
+            }
+        } catch (err) {
+            console.warn('Error al obtener familias para auditoría:', err);
+        }
+
+        document.getElementById('audit-total-familias').innerText = Array.isArray(familiasData) ? familiasData.length : 0;
+
+        const tbodyAudit = document.querySelector('#tabla-audit-familias tbody');
+        if (tbodyAudit) {
+            if (!Array.isArray(familiasData) || familiasData.length === 0) {
+                tbodyAudit.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">No hay registros de familias para este relevamiento.</td></tr>`;
+            } else {
+                tbodyAudit.innerHTML = familiasData.map(fam => `
+                    <tr>
+                        <td>${fam.dni_jefe || fam.dni || 'N/D'}</td>
+                        <td>${fam.jefe_familia || fam.nombre || 'N/D'}</td>
+                        <td class="text-center">${fam.cantidad_integrantes || '1'}</td>
+                        <td class="text-center">${fam.unidades_alimentarias || '0'}</td>
+                        <td class="text-center">${fam.abrigos || '0'}</td>
+                        <td class="text-center">${fam.frazadas || '0'}</td>
+                        <td class="text-center">${fam.colchones || '0'}</td>
+                        <td class="text-center">${fam.bidones_agua || '0'}</td>
+                        <td class="text-center">${fam.kits_higiene || '0'}</td>
+                        <td class="text-center">${fam.ropa || '0'}</td>
+                    </tr>
+                `).join('');
+
+                // Fila de totales en el modal
+                const tot = calcularTotales(familiasData);
+                tbodyAudit.innerHTML += `
+                    <tr class="table-secondary fw-bold">
+                        <td colspan="2" class="text-end">TOTALES ACUMULADOS:</td>
+                        <td class="text-center">${tot.integrantes}</td>
+                        <td class="text-center">${tot.unidades_alimentarias}</td>
+                        <td class="text-center">${tot.abrigos}</td>
+                        <td class="text-center">${tot.frazadas}</td>
+                        <td class="text-center">${tot.colchones}</td>
+                        <td class="text-center">${tot.bidones_agua}</td>
+                        <td class="text-center">${tot.kits_higiene}</td>
+                        <td class="text-center">${tot.ropa}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Mostramos el modal usando Bootstrap
+        const modalEl = document.getElementById('modalAuditoriaSolicitud');
+        if (modalEl && window.bootstrap) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    } catch (error) {
+        console.error('Error al abrir la auditoría:', error);
+        alert('No se pudo cargar el detalle de auditoría del relevamiento.');
     }
 }
 
@@ -364,4 +452,5 @@ if (typeof window !== 'undefined') {
     window.verListaSolicitudes = verListaSolicitudes;
     window.cargarRelevamientosEnEspera = cargarRelevamientosEnEspera;
     window.verHistorialSolicitudes = verHistorialSolicitudes;
+    window.abrirAuditoriaSolicitud = abrirAuditoriaSolicitud;
 }
