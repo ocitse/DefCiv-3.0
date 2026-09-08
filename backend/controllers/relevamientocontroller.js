@@ -22,10 +22,12 @@ export const obtenerrelevamientos = async (req, res) => {
         const rolUsuario = req.user && (req.user.rol || req.user.tipo_rol || req.user.tipo) ? String(req.user.rol || req.user.tipo_rol || req.user.tipo).trim().toLowerCase() : '';
         const idUsuarioLogueado = req.user ? (req.user.id_usuario || req.user.id) : null;
 
-        let condicionesWhere = {};
+        let condicionesWhere = {
+            // 🌟 EXCLUSIÓN GENERAL: Los relevamientos completados o en espera ya no se muestran en la tabla operativa principal
+            estado: { [Op.notIn]: ['completado', 'En Espera', 'en_espera'] }
+        };
         const esAdministrador = rolUsuario.includes('admin');
 
-        // Obtenemos los usuarios de forma segura (si falla o está vacía, devuelve array vacío)
         const listaUsuarios = await Usuario.findAll().catch(() => []);
 
         const mapaNombres = {};
@@ -39,7 +41,6 @@ export const obtenerrelevamientos = async (req, res) => {
                 if (idUsr) {
                     const nombreProp = usrJSON.nombres || usrJSON.nombre || '';
                     const apellidoProp = usrJSON.apellido || '';
-                    
                     const nombreCompleto = `${apellidoProp}, ${nombreProp}`;
                     
                     mapaNombres[String(idUsr)] = nombreCompleto;
@@ -52,12 +53,11 @@ export const obtenerrelevamientos = async (req, res) => {
             }
         });
 
-        // Si NO es administrador y es relevador, construimos un filtro flexible
+        // Si NO es administrador y es relevador, filtramos además por el asignado
         if (!esAdministrador && rolUsuario === 'relevador') {
             if (usuarioLogueadoPerfil) {
                 const nombreCompletoLogueado = `${usuarioLogueadoPerfil.apellido || ''}, ${usuarioLogueadoPerfil.nombres || usuarioLogueadoPerfil.nombre || ''}`;
                 
-                // 🌟 AQUÍ ESTÁ EL CAMBIO: Agregamos la condición de estado
                 condicionesWhere = {
                     [Op.and]: [
                         {
@@ -66,7 +66,7 @@ export const obtenerrelevamientos = async (req, res) => {
                                 { relevador_asignado: nombreCompletoLogueado }
                             ]
                         },
-                        { estado: { [Op.notIn]: ['completado', 'En Espera'] } }
+                        { estado: { [Op.notIn]: ['completado', 'En Espera', 'en_espera'] } }
                     ]
                 };
             } else {

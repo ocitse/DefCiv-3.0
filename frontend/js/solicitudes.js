@@ -77,23 +77,45 @@ export async function cargarRelevamientosEnEspera() {
         const data = await respuesta.json();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay relevamientos nuevos disponibles</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay relevamientos completados en espera de solicitud</td></tr>`;
             return;
         }
-        tbody.innerHTML = data.map(item => `
-            <tr>
-                <td>
-                    <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${item.id || item.id_relevamiento}">
-                </td>
-                <td>#${item.id || item.id_relevamiento}</td>
-                <td class="d-none d-md-table-cell">${item.createdAt || item.created_at ? new Date(item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha'}</td>
-                <td>${item.departamento} - ${item.localidad}</td>
-                <td><span class="badge bg-secondary">${item.estado}</span></td>
-                <td class="d-none d-md-table-cell">${item.tipo_evento || 'N/D'}</td>
-                <td>${item.relevador_asignado || 'N/D'}</td>
-                <td><span class="badge bg-warning text-dark">${item.prioridad || item.urgencia_general || 'Normal'}</span></td>
-            </tr>
-        `).join('');
+
+        tbody.innerHTML = data.map(item => {
+            const idRel = item.id || item.id_relevamiento;
+            const codigo = item.codigo_relevamiento || `#${idRel}`;
+            const fecha = item.createdAt || item.created_at ? new Date(item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha';
+            const ubicacion = `<strong>${item.departamento || ''}</strong> / ${item.localidad || ''}`;
+            const barrio = item.barrio ? `<br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${item.barrio}</small>` : '';
+            const evento = item.tipo_evento || 'N/D';
+            const relevador = item.relevador_apellido ? `${item.relevador_apellido}, ${item.relevador_nombre}` : (item.relevador_asignado || 'Sin asignar');
+            const prioridad = item.prioridad || 'Baja';
+            
+            const badgePrioridad = `<span class="badge ${prioridad === 'Alta' ? 'bg-danger' : prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-success'}">${prioridad}</span>`;
+            const badgeEstado = `<span class="badge bg-success">${item.estado || 'completado'}</span>`;
+
+            return `
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${idRel}">
+                    </td>
+                    <td>
+                        <strong>${codigo}</strong><br>
+                        <small class="text-muted" style="font-size: 0.8em;">${fecha}</small>
+                    </td>
+                    <td>${badgeEstado}</td>
+                    <td>
+                        ${ubicacion}
+                        ${barrio}
+                    </td>
+                    <td>
+                        ${evento}<br>
+                        ${badgePrioridad}
+                    </td>
+                    <td>${relevador}</td>
+                </tr>
+            `;
+        }).join('');
     } catch (error) {
         console.error("Error al cargar relevamientos en espera:", error);
         tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;

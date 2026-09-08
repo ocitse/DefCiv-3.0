@@ -446,9 +446,9 @@ function renderizarFilasRelevamientos(relevamientos) {
         const botonesAccion = `
             <div class="d-flex justify-content-center align-items-center gap-2">
                 ${esCompletado ? `
-                    <button class="btn btn-sm btn-outline-warning" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador">
-                        <i class="bi bi-arrow-counterclockwise"></i> Devolver
-                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador">
+    <i class="bi bi-arrow-counterclockwise"></i>
+</button>
                 ` : `
                     <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${idRel}')" title="Editar Configuración">
                         <i class="bi bi-pencil-square"></i>
