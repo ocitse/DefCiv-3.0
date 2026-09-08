@@ -332,6 +332,9 @@ export async function cargarTablaRelevamientos() {
         // ----------------------------------------------------
 
         manejarCambioFiltrosRelevamientos();
+    
+    // Disparamos la actualización en segundo plano sin bloquear nada
+    actualizarConteoFamiliasEnSegundoPlano(relevamientosOriginales);
 
     } catch (error) {
         console.error("Error al cargar la tabla de relevamientos:", error);
@@ -490,7 +493,7 @@ function renderizarFilasRelevamientos(relevamientos) {
             <!-- Relevador -->
             <td>${relevador}</td>
             <!-- Familias -->
-            <td class="text-center">${cantFamilias}</td>
+            <td class="text-center" id="contador-familias-${idRel}">0</td>
             <!-- Acciones ancladas -->
             <td class="text-center col-acciones">${botonesAccion}</td>
         </tr>
@@ -730,6 +733,45 @@ window.navegarYFiltrar = function(criterio, valor) {
         }
     }
 };
+
+async function actualizarConteoFamiliasEnSegundoPlano(relevamientos) {
+    const token = localStorage.getItem('token');
+    if (!token || !Array.isArray(relevamientos)) return;
+
+    // Recorremos cada relevamiento y consultamos su endpoint individual en paralelo
+    relevamientos.forEach(async (r) => {
+        const idRel = r.id_relevamiento || r.id;
+        if (!idRel) return;
+
+        try {
+            const respuesta = await fetch(`/api/familias?id_relevamiento=${idRel}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (respuesta.ok) {
+                const familiasAsociadas = await respuesta.json();
+                const total = Array.isArray(familiasAsociadas) ? familiasAsociadas.length : 0;
+
+                // Actualizamos el texto en la tabla de escritorio si existe
+                const celdaEscritorio = document.getElementById(`contador-familias-${idRel}`);
+                if (celdaEscritorio) {
+                    celdaEscritorio.textContent = total;
+                }
+
+                // Actualizamos el texto en la tarjeta móvil si existe
+                const celdaMobile = document.getElementById(`contador-familias-mobile-${idRel}`);
+                if (celdaMobile) {
+                    celdaMobile.textContent = total;
+                }
+            }
+        } catch (e) {
+            // Silencioso para que no afecte en nada si falla alguna petición puntual
+        }
+    });
+}
+
+
+
 
 // No olvides exponerla en el objeto window al final del archivo:
 window.completarRelevamientoGeneral = completarRelevamientoGeneral;
