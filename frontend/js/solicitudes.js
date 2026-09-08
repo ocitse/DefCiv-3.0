@@ -89,30 +89,23 @@ export async function cargarRelevamientosEnEspera() {
             const barrio = item.barrio ? `<br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${item.barrio}</small>` : '';
             const evento = item.tipo_evento || 'N/D';
             const relevador = item.relevador_apellido ? `${item.relevador_apellido}, ${item.relevador_nombre}` : (item.relevador_asignado || 'Sin asignar');
-            const prioridad = item.prioridad || 'Baja';
+            const prioridad = item.prioridad || item.urgencia_general || 'Baja';
             
             const badgePrioridad = `<span class="badge ${prioridad === 'Alta' ? 'bg-danger' : prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-success'}">${prioridad}</span>`;
             const badgeEstado = `<span class="badge bg-success">${item.estado || 'completado'}</span>`;
 
             return `
                 <tr>
-                    <td class="text-center">
+                    <td class="text-center align-middle">
                         <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${idRel}">
                     </td>
-                    <td>
-                        <strong>${codigo}</strong><br>
-                        <small class="text-muted" style="font-size: 0.8em;">${fecha}</small>
-                    </td>
-                    <td>${badgeEstado}</td>
-                    <td>
-                        ${ubicacion}
-                        ${barrio}
-                    </td>
-                    <td>
-                        ${evento}<br>
-                        ${badgePrioridad}
-                    </td>
-                    <td>${relevador}</td>
+                    <td class="align-middle"><strong>${codigo}</strong></td>
+                    <td class="align-middle"><small class="text-muted">${fecha}</small></td>
+                    <td class="align-middle">${ubicacion} ${barrio}</td>
+                    <td class="align-middle">${badgeEstado}</td>
+                    <td class="align-middle">${evento}</td>
+                    <td class="align-middle"><small>${relevador}</small></td>
+                    <td class="align-middle">${badgePrioridad}</td>
                 </tr>
             `;
         }).join('');
