@@ -107,9 +107,9 @@ export async function cargarRelevamientosEnEspera() {
                     <td class="align-middle"><small>${relevador}</small></td>
                     <td class="align-middle">${badgePrioridad}</td>
                     <td class="text-center align-middle">
-                        <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}')" title="Auditar Familias e Insumos">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                        <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}', '${codigo}', '${item.departamento || ''}', '${item.localidad || ''}', '${evento}', '${relevador}', '${prioridad}')" title="Auditar Familias e Insumos">
+    <i class="bi bi-eye"></i>
+</button>
                     </td>
                 </tr>
             `;
@@ -123,21 +123,16 @@ export async function cargarRelevamientosEnEspera() {
 /**
  * Abre el modal de auditoría y carga las familias asociadas al relevamiento
  */
-export async function abrirAuditoriaSolicitud(idRelevamiento) {
+export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamento, localidad, evento, relevador, urgencia) {
     try {
-        // Buscamos los datos generales de la fila o hacemos un fetch rápido si necesitamos más detalles
-        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}`);
-        const rel = await respuesta.ok ? await respuesta.json() : null;
+        // 1. Rellenamos la cabecera de inmediato con los datos que ya viajan en la fila
+        document.getElementById('audit-codigo').innerText = codigo || `#${idRelevamiento}`;
+        document.getElementById('audit-ubicacion').innerText = `${departamento} / ${localidad}`;
+        document.getElementById('audit-evento').innerText = evento || 'N/D';
+        document.getElementById('audit-relevador').innerText = relevador || 'N/D';
+        document.getElementById('audit-urgencia').innerText = urgencia || 'Media';
 
-        if (rel) {
-            document.getElementById('audit-codigo').innerText = rel.codigo_relevamiento || `#${idRelevamiento}`;
-            document.getElementById('audit-ubicacion').innerText = `${rel.departamento || ''} / ${rel.localidad || ''} ${rel.barrio ? '('+rel.barrio+')' : ''}`;
-            document.getElementById('audit-evento').innerText = rel.tipo_evento || 'N/D';
-            document.getElementById('audit-relevador').innerText = rel.relevador_asignado || 'N/D';
-            document.getElementById('audit-urgencia').innerText = rel.prioridad || 'Media';
-        }
-
-        // Consultamos las familias asociadas
+        // 2. Consultamos las familias asociadas a este relevamiento
         let familiasData = [];
         try {
             let respFam = await fetch(`/api/familias/relevamiento/${idRelevamiento}`);
@@ -191,7 +186,7 @@ export async function abrirAuditoriaSolicitud(idRelevamiento) {
             }
         }
 
-        // Mostramos el modal usando Bootstrap
+        // 3. Mostramos el modal usando Bootstrap
         const modalEl = document.getElementById('modalAuditoriaSolicitud');
         if (modalEl && window.bootstrap) {
             const modal = new bootstrap.Modal(modalEl);
