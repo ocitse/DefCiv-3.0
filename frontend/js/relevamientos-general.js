@@ -307,34 +307,40 @@ export async function cargarTablaRelevamientos() {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token'); 
         
-        // Hacemos las dos peticiones en paralelo: relevamientos y todas las familias
-        const [respRelevamientos, respFamilias] = await Promise.all([
-            fetch('/api/relevamientos', { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch('/api/familias', { headers: { 'Authorization': `Bearer ${token}` } })
-        ]);
+        // 1. Cargamos primero los relevamientos de forma prioritaria y segura
+        const respuesta = await fetch('/api/relevamientos', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const relevamientos = await respuesta.json();
 
-        const relevamientos = await respRelevamientos.json();
-        const todasLasFamilias = await respFamilias.json();
-
-        if (!respRelevamientos.ok) {
+        if (!respuesta.ok) {
             throw new Error(relevamientos.mensaje || 'Error al obtener los datos.');
         }
 
-        // Armamos un mapa de conteo rápido por id_relevamiento
-        // Ejemplo: { 1: 2, 2: 5, 3: 1 } donde la clave es el id y el valor es la cantidad
-        const conteoFamiliasMap = {};
-        if (Array.isArray(todasLasFamilias)) {
-            todasLasFamilias.forEach(f => {
-                const idRel = f.id_relevamiento;
-                if (idRel) {
-                    conteoFamiliasMap[idRel] = (conteoFamiliasMap[idRel] || 0) + 1;
-                }
+        // 2. Intentamos traer el conteo de familias por separado de manera opcional
+        let conteoFamiliasMap = {};
+        try {
+            const respFamilias = await fetch('/api/familias', {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (respFamilias.ok) {
+                const todasLasFamilias = await respFamilias.json();
+                if (Array.isArray(todasLasFamilias)) {
+                    todasLasFamilias.forEach(f => {
+                        const idRel = f.id_relevamiento;
+                        if (idRel) {
+                            conteoFamiliasMap[idRel] = (conteoFamiliasMap[idRel] || 0) + 1;
+                        }
+                    });
+                }
+            }
+        } catch (errFam) {
+            console.warn("No se pudo precargar el conteo de familias, se omitirá temporalmente:", errFam);
         }
 
-        // Guardamos el mapa en una variable global o adjuntamos el conteo a cada relevamiento
+        // 3. Cruzamos los datos asegurando que la tabla siempre tenga información válida
         relevamientosOriginales = (relevamientos || []).map(r => {
             const idR = r.id_relevamiento || r.id;
             return {
@@ -344,6 +350,16 @@ export async function cargarTablaRelevamientos() {
         });
 
         paginaActualRelevamientos = 1;
+
+        const filtroPendiente = sessionStorage.getItem('filtroRapido');
+        if (filtroPendiente) {
+            const inputBusqueda = document.getElementById('inputBusquedaRelevamiento');
+            if (inputBusqueda) {
+                inputBusqueda.value = filtroPendiente;
+            }
+            sessionStorage.removeItem('filtroPendiente');
+        }
+
         manejarCambioFiltrosRelevamientos();
 
     } catch (error) {
