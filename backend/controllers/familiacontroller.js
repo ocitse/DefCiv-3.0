@@ -129,9 +129,12 @@ export const obtenerFamilias = async (req, res) => {
             whereClause.id_relevamiento = idRelevamiento;
         }
 
-        // Consultamos usando el nombre único del modelo
         const listaFamilias = await Familia.findAll({
-            where: whereClause
+            where: whereClause,
+            include: [
+                { model: necesidadFamilia, as: 'necesidades' },
+                { model: Documentacion, as: 'documentacion' }
+            ]
         });
         
         return res.json(listaFamilias);
