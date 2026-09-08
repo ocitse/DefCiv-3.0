@@ -509,7 +509,7 @@ function renderizarFilasRelevamientos(relevamientos) {
                 <div class="small mb-1"><strong>Evento:</strong> ${evento} | <strong>Solicitante:</strong> ${solicitante}</div>
                 <div class="small mb-1"><strong>Prioridad:</strong> <span class="badge ${getBadgePrioridad(r.prioridad)}">${r.prioridad || 'Baja'}</span></div>
                 <div class="small mb-1"><strong>Relevador:</strong> ${relevador}</div>
-                <div class="small mb-2"><strong>Familias cargadas:</strong> ${cantFamilias}</div>
+                <div class="small mb-2"><strong>Familias cargadas:</strong> <span id="contador-familias-mobile-${idRel}">0</span></div>
                 <div class="dropdown-divider"></div>
                 <div class="mt-2 text-center w-100">
                     ${botonesAccion}
