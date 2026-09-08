@@ -307,11 +307,9 @@ export async function cargarTablaRelevamientos() {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
-        const token = localStorage.getItem('token'); 
-        
-        // 1. Cargamos primero los relevamientos de forma prioritaria y segura
+        const token = localStorage.getItem('token'); // <-- Recuperar token
         const respuesta = await fetch('/api/relevamientos', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'Authorization': `Bearer ${token}` } // <-- Enviar token
         });
         const relevamientos = await respuesta.json();
 
@@ -319,46 +317,19 @@ export async function cargarTablaRelevamientos() {
             throw new Error(relevamientos.mensaje || 'Error al obtener los datos.');
         }
 
-        // 2. Intentamos traer el conteo de familias por separado de manera opcional
-        let conteoFamiliasMap = {};
-        try {
-            const respFamilias = await fetch('/api/familias', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (respFamilias.ok) {
-                const todasLasFamilias = await respFamilias.json();
-                if (Array.isArray(todasLasFamilias)) {
-                    todasLasFamilias.forEach(f => {
-                        const idRel = f.id_relevamiento;
-                        if (idRel) {
-                            conteoFamiliasMap[idRel] = (conteoFamiliasMap[idRel] || 0) + 1;
-                        }
-                    });
-                }
-            }
-        } catch (errFam) {
-            console.warn("No se pudo precargar el conteo de familias, se omitirá temporalmente:", errFam);
-        }
-
-        // 3. Cruzamos los datos asegurando que la tabla siempre tenga información válida
-        relevamientosOriginales = (relevamientos || []).map(r => {
-            const idR = r.id_relevamiento || r.id;
-            return {
-                ...r,
-                cant_familias_real: conteoFamiliasMap[idR] || 0
-            };
-        });
-
+        relevamientosOriginales = relevamientos || [];
         paginaActualRelevamientos = 1;
 
+        // --- Atrapamos el filtro si venimos del Dashboard ---
         const filtroPendiente = sessionStorage.getItem('filtroRapido');
         if (filtroPendiente) {
             const inputBusqueda = document.getElementById('inputBusquedaRelevamiento');
             if (inputBusqueda) {
                 inputBusqueda.value = filtroPendiente;
             }
-            sessionStorage.removeItem('filtroPendiente');
+            sessionStorage.removeItem('filtroRapido');
         }
+        // ----------------------------------------------------
 
         manejarCambioFiltrosRelevamientos();
 
@@ -445,7 +416,6 @@ window.cambiarPaginaRelevamientos = function(nuevaPagina) {
 // Renderizado de filas en la tabla y tarjetas para móviles
 function renderizarFilasRelevamientos(relevamientos) {
     const tbody = document.getElementById('tabla-relevamientos-body');
-    const cantFamilias = r.cant_familias_real !== undefined ? r.cant_familias_real : 0;
     if (!tbody) return;
 
     if (!relevamientos || relevamientos.length === 0) {
