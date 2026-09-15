@@ -389,26 +389,6 @@
                     });
                 });
             }
-            // --- VIGILANTE DE DOM PARA RELEVADORES ---
-            if (rolUsuario === 'relevador') {
-                const observer = new MutationObserver(() => {
-                    document.querySelectorAll('button, a').forEach(el => {
-                        if (
-                            (el.textContent && el.textContent.trim().toLowerCase().includes('nuevo relevamiento')) || 
-                            (el.getAttribute('onclick') && el.getAttribute('onclick').includes('mostrarFormularioNuevoRelevamiento'))
-                        ) {
-                            el.style.display = 'none';
-                        }
-                    });
-                });
-
-                // Ponemos a vigilar el contenedor dinámico de la app
-                const appContainer = document.getElementById('app-container');
-                if (appContainer) {
-                    observer.observe(appContainer, { childList: true, subtree: true });
-                }
-            }
-            // ----------------------------------------
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>

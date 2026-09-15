@@ -304,37 +304,21 @@ export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
-    // --- BLOQUE NATIVO: Ocultar botón "Nuevo Relevamiento" si es Relevador ---
+    // Ocultar botón si es relevador
     const usuarioRaw = localStorage.getItem('usuario');
     if (usuarioRaw) {
         try {
-            const usuarioLogueado = JSON.parse(usuarioRaw);
-            const rolUsuario = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
-            
-            if (rolUsuario === 'relevador') {
-                // Buscamos el botón de nuevo relevamiento en el DOM y lo ocultamos
-                // (Busca tanto por texto como por la función onclick asociada)
-                setTimeout(() => {
-                    const botonesNuevo = document.querySelectorAll('button, a');
-                    botonesNuevo.forEach(el => {
-                        if (
-                            (el.textContent && el.textContent.trim().toLowerCase().includes('nuevo relevamiento')) || 
-                            (el.getAttribute('onclick') && el.getAttribute('onclick').includes('mostrarFormularioNuevoRelevamiento'))
-                        ) {
-                            el.style.display = 'none';
-                        }
-                    });
-                }, 50); // Mínimo retraso para asegurar que la vista dinámica ya lo haya inyectado
+            const usuario = JSON.parse(usuarioRaw);
+            const rol = usuario.rol ? String(usuario.rol).trim().toLowerCase() : '';
+            if (rol === 'relevador') {
+                const btnNuevo = document.getElementById('btn-nuevo-relevamiento');
+                if (btnNuevo) btnNuevo.style.display = 'none';
             }
-        } catch (e) {
-            console.error("Error al verificar el rol para ocultar el botón:", e);
-        }
+        } catch (e) {}
     }
-    // ------------------------------------------------------------------------
 
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
-    
-    // ... (el resto de tu función original sigue exactamente igual)
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">...`;
+    // ... resto del código ...
 
     try {
         const token = localStorage.getItem('token'); // <-- Recuperar token
