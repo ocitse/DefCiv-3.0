@@ -37,35 +37,37 @@ export async function cargarModuloUsuarios() {
             </div>
         </div>
 
+        <!-- MODAL DE USUARIO OSCURO Y ELEGANTE -->
         <div class="modal fade" id="modalUsuario" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered text-dark">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-dark text-white border-0">
+            <div class="modal-dialog modal-dialog-centered text-light">
+                <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <div class="modal-header bg-dark text-white border-bottom border-secondary">
                         <h5 class="modal-title" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
                     </div>
-                    <div class="modal-body bg-light p-4">
+                    <div class="modal-body bg-dark p-4">
                         <form id="form-usuario">
                             <div class="alert alert-danger d-none small text-center" id="alert-modal-usuario"></div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Nombres *</label>
-                                    <input type="text" class="form-control" id="u-nombres" placeholder="Ej: Juan Pedro" required>
+                                    <label class="form-label fw-bold small text-light">Nombres *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-nombres" placeholder="Ej: Juan Pedro" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Apellido *</label>
-                                    <input type="text" class="form-control" id="u-apellido" placeholder="Ej: Pérez" required>
+                                    <label class="form-label fw-bold small text-light">Apellido *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-apellido" placeholder="Ej: Pérez" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">D.N.I. (Será su clave inicial) *</label>
+                                    <label class="form-label fw-bold small text-light">D.N.I. (Será su clave inicial) *</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-secondary text-white"><i class="bi bi-card-text"></i></span>
-                                        <input type="number" class="form-control" id="u-dni" placeholder="Ej: 38444222" required>
+                                        <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-card-text"></i></span>
+                                        <!-- Cambiado a type="text" para eliminar las flechitas -->
+                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="u-dni" placeholder="Ej: 38444222" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Rol del Usuario *</label>
-                                    <select class="form-select" id="u-rol" required>
+                                    <label class="form-label fw-bold small text-light">Rol del Usuario *</label>
+                                    <select class="form-select bg-dark text-light border-secondary" id="u-rol" required>
                                         <option value="" disabled selected>Seleccione un rol...</option>
                                         <option value="Administrador">Administrador</option>
                                         <option value="Operador">Operador</option>
@@ -74,18 +76,18 @@ export async function cargarModuloUsuarios() {
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Email *</label>
-                                    <input type="email" class="form-control" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
+                                    <label class="form-label fw-bold small text-light">Email *</label>
+                                    <input type="email" class="form-control bg-dark text-light border-secondary" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Celular *</label>
-                                    <input type="tel" class="form-control" id="u-celular" placeholder="Ej: 3851234567" required>
+                                    <label class="form-label fw-bold small text-light">Celular *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-celular" placeholder="Ej: 3851234567" required>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end gap-2 mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetearModalUsuario()">Cancelar</button>
-                                <button type="submit" class="btn btn-dark fw-bold" id="btn-guardar-usuario">
-                                    <i class="bi bi-save-fill me-1"></i> Guardar Usuario
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-secondary">
+                                <button type="button" class="btn btn-outline-light btn-sm px-3" data-bs-dismiss="modal" onclick="resetearModalUsuario()">Cancelar</button>
+                                <button type="submit" class="btn btn-success btn-sm fw-bold px-4 shadow-sm" id="btn-guardar-usuario">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Guardar Usuario
                                 </button>
                             </div>
                         </form>
@@ -102,8 +104,6 @@ export async function cargarModuloUsuarios() {
 
     try {
         const token = localStorage.getItem('token');
-        //console.log("🔑 [DEBUG USUARIOS]: Token recuperado de localStorage:", token ? token.substring(0, 15) + "..." : "NO EXISTE");
-
         if (!token || token === "undefined" || token === "null") {
             throw new Error("No se encontró un token de sesión válido. Por favor, vuelva a iniciar sesión.");
         }
@@ -124,8 +124,6 @@ export async function cargarModuloUsuarios() {
         if (!respuesta.ok || !resultado.success) {
             throw new Error(resultado.message || 'No se pudieron cargar los usuarios.');
         }
-        
-        // ... (el resto del código de renderizado de la tabla sigue igual abajo)
 
         if (resultado.data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3 text-muted">No hay usuarios registrados.</td></tr>`;
@@ -142,7 +140,7 @@ export async function cargarModuloUsuarios() {
             if (rolCrudo === 'administrador') {
                 nombreRolMostrar = 'Administrador';
                 badgeColor = 'bg-primary text-white';
-            } else if (rolCrudo === 'Operador') {
+            } else if (rolCrudo === 'operador') {
                 nombreRolMostrar = 'Operador';
                 badgeColor = 'bg-info text-dark';
             } else if (rolCrudo === 'relevador') {
@@ -159,7 +157,6 @@ export async function cargarModuloUsuarios() {
                 ? '<span class="badge bg-success text-white">Activo</span>' 
                 : '<span class="badge bg-danger text-white">Inactivo</span>';
 
-                // Bloque de botones horizontal y compacto para móvil
             const botonesAccion = `
             <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap w-100">
                 <button class="btn btn-sm btn-outline-warning" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
@@ -188,13 +185,13 @@ export async function cargarModuloUsuarios() {
                         <i class="bi bi-pencil-square text-dark"></i>
                      </button>
                      <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
-                             onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
-                         <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
+                           onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
+                          <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
                      </button>
                 </td>
             </tr>
 
-            <!-- 2. VISTA MÓVIL (Tarjeta oscura adaptable al 100%) -->
+            <!-- 2. VISTA MÓVIL -->
                 <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3" style="background-color: #1a222c !important; border-color: #2d3748 !important; color: #e2e8f0; margin-bottom: 1rem !important;">
                     <td class="text-start border-0 p-0" style="background-color: transparent !important; color: inherit;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -213,7 +210,7 @@ export async function cargarModuloUsuarios() {
                     </td>
                 </tr>
         `;
-});
+        });
 
     } catch (error) {
         console.error(error);
@@ -336,7 +333,7 @@ async function registrarUsuarioBackend() {
         alertModal.classList.remove('d-none');
         alertModal.textContent = error.message;
         btnGuardar.disabled = false;
-        btnGuardar.innerHTML = `<i class="bi bi-save-fill me-1"></i> Guardar Usuario`;
+        btnGuardar.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Guardar Usuario`;
     }
 }
 
