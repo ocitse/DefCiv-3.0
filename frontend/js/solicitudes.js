@@ -1,8 +1,6 @@
 // frontend/js/solicitudes.js
-
 const CONTENEDOR_APP = 'content-principal';
 let solicitandoVista = false;
-
 /**
  * Muestra la vista principal de Solicitudes inyectando el HTML
  */
@@ -470,6 +468,95 @@ export function inicializarFormularioSolicitud() {
         }
     });
 }
+
+// Función global para abrir el modal de devolución dinámicamente desde Solicitudes
+window.abrirModalDevolucion = function(idRelevamiento) {
+    // Si ya existía un modal anterior, lo removemos
+    const modalAntiguo = document.getElementById('modalDevolucionRelevamiento');
+    if (modalAntiguo) modalAntiguo.remove();
+
+    // Inyectamos el HTML del modal de devolución con diseño oscuro/Bootstrap
+    const htmlModal = `
+        <div class="modal fade" id="modalDevolucionRelevamiento" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <div class="modal-header border-bottom border-secondary bg-warning text-dark">
+                        <h5 class="modal-title" id="modalDevolucionLabel">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i> Devolver Relevamiento
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <input type="hidden" id="devolucion_id_relevamiento" value="${idRelevamiento}">
+                        <div class="mb-3">
+                            <label for="devolucion_motivo" class="form-label fw-semibold">Motivo de la devolución / Observaciones:</label>
+                            <textarea class="form-control bg-dark text-light border-secondary" id="devolucion_motivo" rows="4" placeholder="Indique qué correcciones o ajustes debe realizar el relevador..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-warning btn-sm text-dark fw-bold px-3" onclick="window.confirmarDevolucionRelevamientoDesdeSolicitudes()">
+                            <i class="bi bi-send me-1"></i> Confirmar Devolución
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', htmlModal);
+    const modalElement = document.getElementById('modalDevolucionRelevamiento');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalElement.remove();
+    });
+};
+
+// Función para procesar el envío de la devolución al backend
+window.confirmarDevolucionRelevamientoDesdeSolicitudes = async function() {
+    const idRelevamiento = document.getElementById('devolucion_id_relevamiento')?.value;
+    const motivo = document.getElementById('devolucion_motivo')?.value.trim();
+
+    if (!motivo) {
+        alert('Por favor, ingrese el motivo de la devolución.');
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}/devolver`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ motivo })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            alert(resultado.mensaje || 'Relevamiento devuelto con éxito.');
+            
+            // Cerrar el modal
+            const modalElement = document.getElementById('modalDevolucionRelevamiento');
+            if (modalElement && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+            }
+
+            // Recargar la tabla de solicitudes en espera
+            cargarRelevamientosEnEspera();
+        } else {
+            alert(resultado.mensaje || 'Error al intentar devolver el relevamiento.');
+        }
+    } catch (error) {
+        console.error('Error de red al devolver relevamiento:', error);
+        alert('No se pudo conectar con el servidor.');
+    }
+};
 
 if (typeof window !== 'undefined') {
     window.verListaSolicitudes = verListaSolicitudes;
