@@ -538,16 +538,28 @@ window.confirmarDevolucionRelevamientoDesdeSolicitudes = async function() {
         const resultado = await respuesta.json();
 
         if (respuesta.ok) {
-            alert(resultado.mensaje || 'Relevamiento devuelto con éxito.');
-            
-            // Cerrar el modal
+            // 1. Cerramos y eliminamos el modal inmediatamente para que no quede fantasma atrás
             const modalElement = document.getElementById('modalDevolucionRelevamiento');
             if (modalElement && typeof bootstrap !== 'undefined') {
                 const modal = bootstrap.Modal.getInstance(modalElement);
                 if (modal) modal.hide();
+                modalElement.remove();
             }
 
-            // Recargar la tabla de solicitudes en espera
+            // 2. Eliminamos los fondos oscuros residuales (backdrop) que a veces deja Bootstrap
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+
+            // 3. Mostramos la notificación con el diseño de la app en lugar del alert feo
+            if (typeof mostrarNotificacion === 'function') {
+                mostrarNotificacion(resultado.mensaje || 'Relevamiento devuelto al relevador con éxito.', 'success');
+            } else {
+                alert(resultado.mensaje || 'Relevamiento devuelto al relevador con éxito.');
+            }
+
+            // 4. Recargamos la tabla de solicitudes en espera
             cargarRelevamientosEnEspera();
         } else {
             alert(resultado.mensaje || 'Error al intentar devolver el relevamiento.');
