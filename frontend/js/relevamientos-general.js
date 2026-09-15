@@ -364,6 +364,9 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
     const criterioOrden = document.getElementById('selectOrdenarRelevamientos')?.value || '';
     const selectPaginacion = document.getElementById('selectPaginacionRelevamientos')?.value || '10';
 
+    // Normalizamos el texto de búsqueda (reemplazando guiones bajos por espacios para que "en_proceso" y "en proceso" sean lo mismo)
+    const textoBusquedaNormalizado = textoBusqueda.replace(/_/g, ' ');
+
     // 1. Filtrado local por Código, Localidad, Barrio, Solicitante o Estado
     let resultado = relevamientosOriginales.filter(r => {
         const codigo = (r.codigo_relevamiento || '').toLowerCase();
@@ -371,14 +374,16 @@ export function manejarCambioFiltrosRelevamientos(resetPagina = true) {
         const departamento = (r.departamento || '').toLowerCase();
         const barrio = (r.barrio || '').toLowerCase();
         const solicitante = (r.solicitante || '').toLowerCase();
-        const estado = (r.estado || '').toLowerCase(); // <-- Agregado
+        const estadoOriginal = (r.estado || '').toLowerCase();
+        const estadoNormalizado = estadoOriginal.replace(/_/g, ' '); // Normaliza el estado de la BD
 
-        return codigo.includes(textoBusqueda) || 
-               localidad.includes(textoBusqueda) || 
-               departamento.includes(textoBusqueda) || 
-               barrio.includes(textoBusqueda) || 
-               solicitante.includes(textoBusqueda) ||
-               estado.includes(textoBusqueda); // <-- Agregado
+        return codigo.includes(textoBusquedaNormalizado) || 
+               localidad.includes(textoBusquedaNormalizado) || 
+               departamento.includes(textoBusquedaNormalizado) || 
+               barrio.includes(textoBusquedaNormalizado) || 
+               solicitante.includes(textoBusquedaNormalizado) ||
+               estadoOriginal.includes(textoBusquedaNormalizado) ||
+               estadoNormalizado.includes(textoBusquedaNormalizado);
     });
 
     // 2. Ordenamiento local
