@@ -304,6 +304,27 @@ export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
+    // --- NUEVO: Ocultar botón de Nuevo Relevamiento si es Relevador ---
+    const usuarioRaw = localStorage.getItem('usuario');
+    if (usuarioRaw) {
+        try {
+            const usuarioLogueado = JSON.parse(usuarioRaw);
+            const rol = usuarioLogueado.rol ? String(usuarioLogueado.rol).trim().toLowerCase() : '';
+            if (rol === 'relevador') {
+                // Busca y oculta el botón superior de nuevo relevamiento en la vista cargada
+                document.querySelectorAll('button, a').forEach(el => {
+                    if (el.textContent.trim().toLowerCase().includes('nuevo relevamiento') || 
+                        (el.getAttribute('onclick') && el.getAttribute('onclick').includes('mostrarFormularioNuevoRelevamiento'))) {
+                        el.style.display = 'none';
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Error al verificar rol para ocultar botón:", e);
+        }
+    }
+    // -----------------------------------------------------------------
+
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando relevamientos...</td></tr>`;
 
     try {
