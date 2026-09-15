@@ -799,3 +799,7 @@ form textarea::placeholder {
     color: #94a3b8 !important; 
     opacity: 1 !important; /* Forzar opacidad (algunos navegadores la bajan por defecto) */
 }
+/* Ocultar botón de nuevo relevamiento para el rol relevador */
+body.rol-relevador #btn-nuevo-relevamiento {
+    display: none !important;
+}

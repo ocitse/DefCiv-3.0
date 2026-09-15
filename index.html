@@ -214,6 +214,7 @@
                 if (menuRelevamientosMob) menuRelevamientosMob.style.display = 'none';
                 if (menuConfigMob) menuConfigMob.style.display = 'none';
             } else if (rolUsuario === 'relevador') {
+                if (cuerpoSistema) cuerpoSistema.classList.add('rol-relevador'); // <--- AGREGA ESTA LÍNEA
                 if (menuSolicitudesDesk) menuSolicitudesDesk.style.display = 'none';
                 if (menuProvisionesDesk) menuProvisionesDesk.style.display = 'none'; // <-- ¡Aseguramos Provisiones en escritorio!
                 if (menuConfigDesk) menuConfigDesk.style.display = 'none';
