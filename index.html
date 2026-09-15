@@ -293,22 +293,21 @@
             if (btnSolMob) btnSolMob.addEventListener('click', handlerSol);
 
             const btnProvDesk = document.getElementById('btn-menu-provisiones');
-const btnProvMob = document.getElementById('btn-mobile-provisiones');
-const handlerProv = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    cambiarEnlaceActivo('btn-menu-provisiones', 'btn-mobile-provisiones');
+            const btnProvMob = document.getElementById('btn-mobile-provisiones');
+            const handlerProv = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                cambiarEnlaceActivo('btn-menu-provisiones', 'btn-mobile-provisiones');
     
-    // Si está en mobile, cerramos el menú hamburguesa al hacer clic
-    const mobileCollapse = document.getElementById('navbarNavMobile');
-    if (mobileCollapse && mobileCollapse.classList.contains('show')) {
-        bootstrap.Collapse.getInstance(mobileCollapse)?.hide();
-    }
+            // Si está en mobile, cerramos el menú hamburguesa al hacer clic
+            const mobileCollapse = document.getElementById('navbarNavMobile');
+            if (mobileCollapse && mobileCollapse.classList.contains('show')) {
+            bootstrap.Collapse.getInstance(mobileCollapse)?.hide();
+            }
 
-    verListaProvisiones();
-};
-if (btnProvDesk) btnProvDesk.addEventListener('click', handlerProv);
-if (btnProvMob) btnProvMob.addEventListener('click', handlerProv);
+            verListaProvisiones();        };
+            if (btnProvDesk) btnProvDesk.addEventListener('click', handlerProv);
+            if (btnProvMob) btnProvMob.addEventListener('click', handlerProv);
 
             const btnUsuDesk = document.getElementById('btn-sub-usuarios');
             if (btnUsuDesk) {
@@ -390,6 +389,26 @@ if (btnProvMob) btnProvMob.addEventListener('click', handlerProv);
                     });
                 });
             }
+            // --- VIGILANTE DE DOM PARA RELEVADORES ---
+            if (rolUsuario === 'relevador') {
+                const observer = new MutationObserver(() => {
+                    document.querySelectorAll('button, a').forEach(el => {
+                        if (
+                            (el.textContent && el.textContent.trim().toLowerCase().includes('nuevo relevamiento')) || 
+                            (el.getAttribute('onclick') && el.getAttribute('onclick').includes('mostrarFormularioNuevoRelevamiento'))
+                        ) {
+                            el.style.display = 'none';
+                        }
+                    });
+                });
+
+                // Ponemos a vigilar el contenedor dinámico de la app
+                const appContainer = document.getElementById('app-container');
+                if (appContainer) {
+                    observer.observe(appContainer, { childList: true, subtree: true });
+                }
+            }
+            // ----------------------------------------
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
