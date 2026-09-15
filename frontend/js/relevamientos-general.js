@@ -667,29 +667,70 @@ async function guardarRelevamientoGeneral(event) {
 }
 
 export async function completarRelevamientoGeneral(idRelevamiento) {
-    if (!confirm('¿Estás seguro de marcar este relevamiento como completado? Esta acción finalizará la carga de familias y bloqueará futuras modificaciones.')) {
-        return;
-    }
+    // Si ya existe un modal de confirmación previo, lo removemos para evitar duplicados
+    const modalAntiguo = document.getElementById('modalConfirmacionDinamico');
+    if (modalAntiguo) modalAntiguo.remove();
 
-    try {
-        const token = localStorage.getItem('token');
-        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}/completar`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+    // Creamos el HTML del modal con la estética oscura/Bootstrap de la app
+    const htmlModal = `
+        <div class="modal fade" id="modalConfirmacionDinamico" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <div class="modal-header border-bottom border-secondary bg-success text-white">
+                        <h5 class="modal-title">
+                            <i class="bi bi-check-circle-fill me-2"></i> Confirmar Finalización
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <p class="mb-0">¿Estás seguro de marcar este relevamiento como completado?</p>
+                        <small class="text-white-50">Esta acción finalizará la carga de familias y bloqueará futuras modificaciones.</small>
+                    </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success btn-sm fw-bold px-3" id="btnConfirmarAccionRel">Sí, Completar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 
-        const resultado = await respuesta.json();
+    // Inyectamos el modal al final del body
+    document.body.insertAdjacentHTML('beforeend', htmlModal);
+    const modalElement = document.getElementById('modalConfirmacionDinamico');
+    const modalInstance = new bootstrap.Modal(modalElement);
+    modalInstance.show();
 
-        if (respuesta.ok) {
-            mostrarNotificacion(resultado.mensaje || 'Relevamiento completado con éxito.', 'success');
-            cargarTablaRelevamientos();
-        } else {
-            mostrarNotificacion(resultado.mensaje || 'Error al intentar completar el relevamiento.', 'error');
+    // Manejamos la respuesta al hacer clic en "Sí, Completar"
+    document.getElementById('btnConfirmarAccionRel').onclick = async () => {
+        modalInstance.hide();
+        modalElement.remove();
+
+        try {
+            const token = localStorage.getItem('token');
+            const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}/completar`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const resultado = await respuesta.json();
+
+            if (respuesta.ok) {
+                mostrarNotificacion(resultado.mensaje || 'Relevamiento completado con éxito.', 'success');
+                cargarTablaRelevamientos();
+            } else {
+                mostrarNotificacion(resultado.mensaje || 'Error al intentar completar el relevamiento.', 'error');
+            }
+        } catch (error) {
+            console.error('Error de red al completar relevamiento:', error);
+            mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
         }
-    } catch (error) {
-        console.error('Error de red al completar relevamiento:', error);
-        mostrarNotificacion('No se pudo conectar con el servidor.', 'error');
-    }
+    };
+
+    // Limpieza si el usuario cierra el modal con la X o fuera de él
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalElement.remove();
+    });
 }
 
 // 1. Función para abrir el modal y guardar temporalmente el ID del relevamiento
