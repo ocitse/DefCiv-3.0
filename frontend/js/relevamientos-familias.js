@@ -44,14 +44,14 @@ export async function ingresarARelevamiento(idRelevamiento) {
                 }
 
                 if (contenedorAlerta) {
-                    // Comprobamos si tiene observaciones (independiente de espacios) y estado en_proceso
+                    // Comprobamos si tiene observaciones y estado en_proceso
                     if (rel.observaciones && rel.observaciones.trim() !== '' && rel.estado === 'en_proceso') {
                         contenedorAlerta.innerHTML = `
                             <div class="alert alert-warning border-warning shadow-sm mb-3 d-flex align-items-center" role="alert" style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 5px; width: 100%;">
                                 <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
                                 <div>
-                                    <h6 class="alert-heading fw-bold mb-1 text-dark" style="margin: 0 0 5px 0; font-weight: bold;">¡Relevamiento Devuelto con Observaciones!</h6>
-                                    <p class="mb-0 small text-dark" style="margin: 0;">${rel.observaciones}</p>
+                                    <h6 class="alert-heading fw-bold mb-1 text-dark">¡Relevamiento Devuelto con Observaciones!</h6>
+                                    <p class="mb-0 small text-dark fw-semibold">${rel.observaciones}</p>
                                 </div>
                             </div>
                         `;
@@ -347,13 +347,13 @@ export function manejarCambioFiltros(resetPagina = true) {
     renderizarFilasFamilias(familiasPaginadas);
     renderizarControlesPaginacionFamilias(resultado.length, selectPaginacion === 'todos' ? resultado.length : parseInt(selectPaginacion, 10), totalPaginas);
 }
+
 // Renderizado de filas en la tabla de familias (Permite visualización aun estando bloqueado/completado)
 function renderizarFilasFamilias(familias) {
     const tbody = document.getElementById('tabla-familias-body');
     if (!tbody) return;
 
     if (!familias || familias.length === 0) {
-        // Le sumamos la clase "fila-sin-datos" al <tr>
         tbody.innerHTML = `<tr class="fila-sin-datos"><td colspan="7" class="text-center text-muted py-4">No se encontraron familias registradas.</td></tr>`;
         return;
     }
@@ -372,8 +372,8 @@ function renderizarFilasFamilias(familias) {
         if (urgencia.toLowerCase().includes('alta')) claseUrgencia = 'bg-danger';
         else if (urgencia.toLowerCase().includes('media')) claseUrgencia = 'bg-warning text-dark';
         
-        // Lógica visual para el estado (¡Ahora con formato Badge!)
-        let claseEstado = 'badge bg-secondary'; // Por defecto (Pendiente)
+        // Lógica visual para el estado
+        let claseEstado = 'badge bg-secondary'; 
         if (estado.toLowerCase().includes('entregado') || estado.toLowerCase().includes('completado')) claseEstado = 'badge bg-success';
         else if (estado.toLowerCase().includes('proceso')) claseEstado = 'badge bg-warning text-dark';
 
@@ -394,7 +394,7 @@ function renderizarFilasFamilias(familias) {
             <!-- 1. VISTA DE ESCRITORIO (Fila clásica) -->
             <tr class="d-none d-md-table-row">
                 <td class="text-center">${orden}</td> 
-                <td>${dni}</td>               
+                <td>${dni}</td>              
                 <td><strong>${apellidoNombre}</strong></td> 
                 <td class="text-center"><span class="badge bg-secondary">${integrantes}</span></td> 
                 <td><span class="badge ${claseUrgencia}">${urgencia}</span></td> 
@@ -418,40 +418,6 @@ function renderizarFilasFamilias(familias) {
                     <div class="small mb-2"><strong>Integrantes:</strong> <span class="badge bg-secondary">${integrantes}</span> | <strong>Estado:</strong> <span class="${claseEstado}">${estado}</span></div>
                     
                     <div class="mt-2 text-center w-100 border-top pt-3 d-flex justify-content-center gap-2" style="border-color: rgba(255,255,255,0.05) !important;">
-                        ${botonesAccion}
-                    </div>
-                </td>
-            </tr>
-        `;
-
-        return `
-            <!-- 1. VISTA DE ESCRITORIO (Fila clásica) -->
-            <tr class="d-none d-md-table-row">
-                <td class="text-center">${orden}</td> 
-                <td>${dni}</td>               
-                <td><strong>${apellidoNombre}</strong></td> 
-                <td class="text-center"><span class="badge bg-secondary">${integrantes}</span></td> 
-                <td><span class="badge ${claseUrgencia}">${urgencia}</span></td> 
-                <td class="text-center text-muted fw-bold">${estado}</td> 
-                <td class="text-center">
-                    <div class="d-flex justify-content-center gap-1">
-                        ${botonesAccion}
-                    </div>
-                </td>
-            </tr>
-
-            <!-- 2. VISTA MÓVIL (Tarjeta compacta adaptable) -->
-            <tr class="d-block d-md-none mb-3 border rounded shadow-sm bg-white p-3">
-                <td class="d-block border-0 p-0 text-start w-100">
-                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
-                        <strong class="text-primary">Orden N° ${orden}</strong>
-                        <span class="badge ${claseUrgencia}">${urgencia}</span>
-                    </div>
-                    <div class="small mb-1"><strong>DNI Jefe/a:</strong> ${dni}</div>
-                    <div class="small mb-1"><strong>Familia:</strong> ${apellidoNombre}</div>
-                    <div class="small mb-2"><strong>Integrantes:</strong> <span class="badge bg-secondary">${integrantes}</span> | <strong>Estado:</strong> <span class="${claseEstado}">${estado}</span></div>
-                    
-                    <div class="mt-2 text-center w-100 border-top pt-2 d-flex justify-content-center gap-2">
                         ${botonesAccion}
                     </div>
                 </td>
