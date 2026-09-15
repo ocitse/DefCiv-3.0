@@ -107,9 +107,14 @@ export async function cargarRelevamientosEnEspera() {
                     <td class="align-middle"><small>${relevador}</small></td>
                     <td class="align-middle">${badgePrioridad}</td>
                     <td class="text-center align-middle">
-                        <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}', '${codigo}', '${item.departamento || ''}', '${item.localidad || ''}', '${evento}', '${relevador}', '${prioridad}')" title="Auditar Familias e Insumos">
-    <i class="bi bi-eye"></i>
-</button>
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}', '${codigo}', '${item.departamento || ''}', '${item.localidad || ''}', '${evento}', '${relevador}', '${prioridad}')" title="Auditar Familias e Insumos">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador con observaciones">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
