@@ -57,7 +57,7 @@ export async function cargarModuloUsuarios() {
                                     <input type="text" class="form-control" id="u-apellido" placeholder="Ej: Pérez" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Documento (Será su clave inicial) *</label>
+                                    <label class="form-label fw-bold small">D.N.I. (Será su clave inicial) *</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-secondary text-white"><i class="bi bi-card-text"></i></span>
                                         <input type="number" class="form-control" id="u-dni" placeholder="Ej: 38444222" required>
