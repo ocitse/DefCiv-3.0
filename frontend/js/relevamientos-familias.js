@@ -47,14 +47,14 @@ export async function ingresarARelevamiento(idRelevamiento) {
                     // Comprobamos si tiene observaciones y estado en_proceso
                     if (rel.observaciones && rel.observaciones.trim() !== '' && rel.estado === 'en_proceso') {
                         contenedorAlerta.innerHTML = `
-                            <div class="alert alert-warning border-warning shadow-sm mb-3 d-flex align-items-center" role="alert" style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 5px; width: 100%;">
-                                <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
-                                <div>
-                                    <h6 class="alert-heading fw-bold mb-1 text-dark">¡Relevamiento Devuelto con Observaciones!</h6>
-                                    <p class="mb-0 small text-dark fw-semibold">${rel.observaciones}</p>
-                                </div>
-                            </div>
-                        `;
+    <div class="alert border border-warning shadow-sm mb-3 d-flex align-items-center rounded-3 p-3" role="alert" style="background-color: #1e293b; color: #f8fafc;">
+        <i class="bi bi-exclamation-triangle-fill fs-3 text-warning me-3"></i>
+        <div>
+            <h6 class="alert-heading fw-bold mb-1 text-warning">¡Relevamiento Devuelto con Observaciones!</h6>
+            <p class="mb-0 small text-light opacity-90">${rel.observaciones}</p>
+        </div>
+    </div>
+`;
                     } else {
                         contenedorAlerta.innerHTML = ''; 
                     }
