@@ -439,6 +439,18 @@ function renderizarFilasRelevamientos(relevamientos) {
         const solicitante = r.solicitante || 'N/D';
         const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
         const cantFamilias = r.total_familias !== undefined ? r.total_familias : 0;
+        // Verificamos si el usuario es administrador u operador (o si NO es relevador)
+    let esAdminOOperador = true;
+    const usuarioRaw = localStorage.getItem('usuario');
+    if (usuarioRaw) {
+        try {
+            const usr = JSON.parse(usuarioRaw);
+            const rol = usr.rol ? String(usr.rol).trim().toLowerCase() : '';
+            if (rol === 'relevador') {
+                esAdminOOperador = false;
+            }
+        } catch (e) {}
+    }
 
         // Bloque de botones reutilizable para ambos diseños (forzando centrado)
         const botonesAccion = `
