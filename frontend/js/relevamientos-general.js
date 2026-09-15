@@ -304,22 +304,6 @@ export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
-    // Ocultar botón si es relevador
-    const usuarioRaw = localStorage.getItem('usuario');
-    if (usuarioRaw) {
-        try {
-            const usuario = JSON.parse(usuarioRaw);
-            const rol = usuario.rol ? String(usuario.rol).trim().toLowerCase() : '';
-            if (rol === 'relevador') {
-                const btnNuevo = document.getElementById('btn-nuevo-relevamiento');
-                if (btnNuevo) btnNuevo.style.display = 'none';
-            }
-        } catch (e) {}
-    }
-
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">...`;
-    // ... resto del código ...
-
     try {
         const token = localStorage.getItem('token'); // <-- Recuperar token
         const respuesta = await fetch('/api/relevamientos', {
