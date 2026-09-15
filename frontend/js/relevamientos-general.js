@@ -304,6 +304,22 @@ export async function cargarTablaRelevamientos() {
     const tbody = document.getElementById('tabla-relevamientos-body');
     if (!tbody) return;
 
+    // Ocultar botón si es relevador
+    const usuarioRaw = localStorage.getItem('usuario');
+    if (usuarioRaw) {
+        try {
+            const usuario = JSON.parse(usuarioRaw);
+            const rol = usuario.rol ? String(usuario.rol).trim().toLowerCase() : '';
+            if (rol === 'relevador') {
+                const btnNuevo = document.getElementById('btn-nuevo-relevamiento');
+                if (btnNuevo) btnNuevo.style.display = 'none';
+            }
+        } catch (e) {}
+    }
+
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">...`;
+    // ... resto del código ...
+
     try {
         const token = localStorage.getItem('token'); // <-- Recuperar token
         const respuesta = await fetch('/api/relevamientos', {
@@ -424,6 +440,19 @@ function renderizarFilasRelevamientos(relevamientos) {
         return;
     }
 
+    // Verificamos si el usuario actual es administrador u operador (o si NO es relevador)
+    let esAdminOOperador = true;
+    const usuarioRaw = localStorage.getItem('usuario');
+    if (usuarioRaw) {
+        try {
+            const usr = JSON.parse(usuarioRaw);
+            const rol = usr.rol ? String(usr.rol).trim().toLowerCase() : '';
+            if (rol === 'relevador') {
+                esAdminOOperador = false;
+            }
+        } catch (e) {}
+    }
+
     tbody.innerHTML = relevamientos.map(r => {
         const estadoRaw = (r.estado || '').toLowerCase().trim();
         const esNuevo = estadoRaw === 'nuevo';
@@ -439,30 +468,20 @@ function renderizarFilasRelevamientos(relevamientos) {
         const solicitante = r.solicitante || 'N/D';
         const relevador = r.relevador_apellido ? `${r.relevador_apellido}, ${r.relevador_nombre}` : (r.relevador_asignado || 'Sin asignar');
         const cantFamilias = r.total_familias !== undefined ? r.total_familias : 0;
-        // Verificamos si el usuario es administrador u operador (o si NO es relevador)
-    let esAdminOOperador = true;
-    const usuarioRaw = localStorage.getItem('usuario');
-    if (usuarioRaw) {
-        try {
-            const usr = JSON.parse(usuarioRaw);
-            const rol = usr.rol ? String(usr.rol).trim().toLowerCase() : '';
-            if (rol === 'relevador') {
-                esAdminOOperador = false;
-            }
-        } catch (e) {}
-    }
 
-        // Bloque de botones reutilizable para ambos diseños (forzando centrado)
+        // Bloque de botones condicionado según el rol (oculta editar y eliminar para relevadores)
         const botonesAccion = `
             <div class="d-flex justify-content-center align-items-center gap-2">
                 ${esCompletado ? `
                     <button class="btn btn-sm btn-outline-secondary" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador">
-    <i class="bi bi-arrow-counterclockwise"></i>
-</button>
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
                 ` : `
+                    ${esAdminOOperador ? `
                     <button class="btn btn-sm btn-outline-warning" onclick="window.editarRelevamiento('${idRel}')" title="Editar Configuración">
                         <i class="bi bi-pencil-square"></i>
                     </button>
+                    ` : ''}
                     ${esEnProceso ? `
                     <button class="btn btn-sm btn-outline-success" onclick="window.completarRelevamientoGeneral('${idRel}')" title="Marcar como Completado">
                         <i class="bi bi-check-circle"></i>
@@ -472,9 +491,11 @@ function renderizarFilasRelevamientos(relevamientos) {
                 <button class="btn btn-sm btn-outline-primary" onclick="window.ingresarARelevamiento('${idRel}')" title="Ver Familias">
                     <i class="bi bi-eye"></i>
                 </button>
+                ${esAdminOOperador ? `
                 <button class="btn btn-sm btn-outline-danger" onclick="window.eliminarRelevamiento('${idRel}')" title="Eliminar Relevamiento">
                     <i class="bi bi-trash"></i>
                 </button>
+                ` : ''}
             </div>
         `;
 
@@ -529,6 +550,7 @@ function renderizarFilasRelevamientos(relevamientos) {
     `;
     }).join('');
 }
+
 // Renderiza los controles de paginación estilizados y con contraste correcto
 function renderizarControlesPaginacionRelevamientos(totalRegistros, porPagina, totalPaginas) {
     const contenedor = document.getElementById('contenedor-paginacion-relevamientos');
