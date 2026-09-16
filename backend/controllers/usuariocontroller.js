@@ -3,23 +3,37 @@ import bcrypt from 'bcryptjs';
 import Usuario from '../models/usuario.js'; // 👈 Corregido: Importamos con 'Usuario' en mayúscula
 import { Op } from 'sequelize'; 
 
-// 1. Obtener todos los usuarios (para listar en la tabla)
+// 1. Obtener todos los usuarios con soporte robusto de filtros por query params
 export const obtenerUsuarios = async (req, res) => {
     try {
+        const { rol, estado } = req.query;
+        
+        // Construimos un objeto de condiciones plano y seguro
+        const filtros = {};
+
+        if (rol) {
+            filtros.rol = rol;
+        }
+
+        if (estado) {
+            filtros.estado = estado;
+        } else {
+            // Si no se pide un estado específico, traemos todos menos los de baja
+            filtros.estado = {
+                [Op.ne]: 'Baja'
+            };
+        }
+
         const usuarios = await Usuario.findAll({
-            where: {
-                estado: {
-                    [Op.ne]: 'Baja' 
-                }
-            },
-            // Atributos que devolvemos (excluimos la clave por seguridad)
-            attributes: ['id', 'username', 'dni', 'apellido', 'nombres', 'email', 'celular', 'rol', 'estado', 'ultimoAcceso']
+            where: filtros,
+            attributes: ['id', 'username', 'dni', 'apellido', 'nombres', 'email', 'celular', 'rol', 'estado']
         });
 
-        res.json({ success: true, data: usuarios });
+        return res.json({ success: true, data: usuarios });
     } catch (error) {
-        console.error('Error al obtener usuarios con Sequelize:', error);
-        res.status(500).json({ success: false, message: 'Error interno del servidor' });
+        // Esto imprimirá en los logs de tu servidor el motivo exacto del fallo 500
+        console.error('ERROR CRITICO EN obtenerUsuarios:', error.message, error.stack);
+        return res.status(500).json({ success: false, message: 'Error interno del servidor: ' + error.message });
     }
 };
 

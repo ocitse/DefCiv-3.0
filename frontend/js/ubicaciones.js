@@ -204,7 +204,10 @@ export const departamentosYLocalidades = {
         "Beltrán",
         "Ingeniero Forres",
         "Colonia El Simbolar",
-        ""
+        "Los Romanos - Santo Domingo",
+        "Vilmer",
+        "Villa Hipólita",
+        "Villa Robles",
     ],
     "Salavina": [
         "Los Telares",

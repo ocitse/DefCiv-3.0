@@ -1,4 +1,5 @@
-// 🛠️ FUNCIÓN 1: CARGA DE LA TABLA Y EL MODAL (ROLES ACTUALIZADOS)
+// 🛠️ MÓDULO DE GESTIÓN DE USUARIOS
+
 export async function cargarModuloUsuarios() {
     const contenedor = document.querySelector('.content-principal');
     if (!contenedor) return;
@@ -7,7 +8,7 @@ export async function cargarModuloUsuarios() {
         <div class="animate__animated animate__fadeIn">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="mb-1 text-dark"><i class="bi bi-people-fill text-warning me-2"></i> Gestión de Usuarios</h2>
+                    <h2 class="mb-1 text-white"><i class="bi bi-people-fill text-warning me-2"></i> Gestión de Usuarios</h2>
                     <p class="text-muted mb-0">Administración de accesos y roles del sistema.</p>
                 </div>
                 <button class="btn btn-warning fw-bold d-flex align-items-center gap-2 shadow-sm" id="btn-nuevo-usuario" onclick="abrirModalNuevoUsuario()">
@@ -15,10 +16,10 @@ export async function cargarModuloUsuarios() {
                 </button>
             </div>
 
-            <div class="card shadow-sm border-0" style="background-color: #f8f9fa;">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle mb-0" id="tabla-usuarios" style="border-color: #dee2e6;">
+            <div class="card shadow-sm border-0" style="background-color: transparent !important;">
+                <div class="card-body p-0" style="background-color: transparent !important;">
+                    <div class="table-responsive" style="background-color: transparent !important;">
+                        <table class="table align-middle mb-0" id="tabla-usuarios" style="background-color: transparent !important;">
                             <thead class="table-dark text-white fw-bold">
                                 <tr>
                                     <th class="ps-3 text-center" style="width: 80px;">ID</th>
@@ -29,62 +30,64 @@ export async function cargarModuloUsuarios() {
                                     <th class="text-end pe-3" style="width: 120px;">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbody-usuarios" class="bg-white"></tbody>
+                            <tbody id="tbody-usuarios"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- MODAL DE USUARIO OSCURO Y ELEGANTE -->
         <div class="modal fade" id="modalUsuario" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered text-dark">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-dark text-white border-0">
+            <div class="modal-dialog modal-dialog-centered text-light">
+                <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <div class="modal-header bg-dark text-white border-bottom border-secondary">
                         <h5 class="modal-title" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
                     </div>
-                    <div class="modal-body bg-light p-4">
+                    <div class="modal-body bg-dark p-4">
                         <form id="form-usuario">
                             <div class="alert alert-danger d-none small text-center" id="alert-modal-usuario"></div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Nombres *</label>
-                                    <input type="text" class="form-control" id="u-nombres" placeholder="Ej: Juan Pedro" required>
+                                    <label class="form-label fw-bold small text-light">Nombres *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-nombres" placeholder="Ej: Juan Pedro" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Apellido *</label>
-                                    <input type="text" class="form-control" id="u-apellido" placeholder="Ej: Pérez" required>
+                                    <label class="form-label fw-bold small text-light">Apellido *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-apellido" placeholder="Ej: Pérez" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Documento (Será su clave inicial) *</label>
+                                    <label class="form-label fw-bold small text-light">D.N.I. (Será su clave inicial) *</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-secondary text-white"><i class="bi bi-card-text"></i></span>
-                                        <input type="number" class="form-control" id="u-dni" placeholder="Ej: 38444222" required>
+                                        <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-card-text"></i></span>
+                                        <!-- Cambiado a type="text" para eliminar las flechitas -->
+                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="u-dni" placeholder="Ej: 38444222" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Rol del Usuario *</label>
-                                    <select class="form-select" id="u-rol" required>
+                                    <label class="form-label fw-bold small text-light">Rol del Usuario *</label>
+                                    <select class="form-select bg-dark text-light border-secondary" id="u-rol" required>
                                         <option value="" disabled selected>Seleccione un rol...</option>
                                         <option value="Administrador">Administrador</option>
-                                        <option value="Administrativo">Administrativo</option>
+                                        <option value="Operador">Operador</option>
                                         <option value="Relevador">Relevador</option>
                                         <option value="Consulta">Consulta</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Email *</label>
-                                    <input type="email" class="form-control" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
+                                    <label class="form-label fw-bold small text-light">Email *</label>
+                                    <input type="email" class="form-control bg-dark text-light border-secondary" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small">Celular *</label>
-                                    <input type="tel" class="form-control" id="u-celular" placeholder="Ej: 3851234567" required>
+                                    <label class="form-label fw-bold small text-light">Celular *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-celular" placeholder="Ej: 3851234567" required>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end gap-2 mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetearModalUsuario()">Cancelar</button>
-                                <button type="submit" class="btn btn-dark fw-bold" id="btn-guardar-usuario">
-                                    <i class="bi bi-save-fill me-1"></i> Guardar Usuario
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-secondary">
+                                <button type="button" class="btn btn-outline-light btn-sm px-3" data-bs-dismiss="modal" onclick="resetearModalUsuario()">Cancelar</button>
+                                <button type="submit" class="btn btn-success btn-sm fw-bold px-4 shadow-sm" id="btn-guardar-usuario">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Guardar Usuario
                                 </button>
                             </div>
                         </form>
@@ -100,7 +103,19 @@ export async function cargarModuloUsuarios() {
     });
 
     try {
-        const respuesta = await fetch('/api/usuarios');
+        const token = localStorage.getItem('token');
+        if (!token || token === "undefined" || token === "null") {
+            throw new Error("No se encontró un token de sesión válido. Por favor, vuelva a iniciar sesión.");
+        }
+
+        const respuesta = await fetch('https://defciv-app.onrender.com/api/usuarios', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
         const resultado = await respuesta.json();
 
         const tbody = document.getElementById('tbody-usuarios');
@@ -125,8 +140,8 @@ export async function cargarModuloUsuarios() {
             if (rolCrudo === 'administrador') {
                 nombreRolMostrar = 'Administrador';
                 badgeColor = 'bg-primary text-white';
-            } else if (rolCrudo === 'administrativo') {
-                nombreRolMostrar = 'Administrativo';
+            } else if (rolCrudo === 'operador') {
+                nombreRolMostrar = 'Operador';
                 badgeColor = 'bg-info text-dark';
             } else if (rolCrudo === 'relevador') {
                 nombreRolMostrar = 'Relevador';
@@ -142,27 +157,59 @@ export async function cargarModuloUsuarios() {
                 ? '<span class="badge bg-success text-white">Activo</span>' 
                 : '<span class="badge bg-danger text-white">Inactivo</span>';
 
-            tbody.innerHTML += `
-                <tr class="text-dark">
-                    <td class="ps-3 fw-bold text-center text-muted" style="background-color: #f1f3f5;">${u.id}</td>
-                    <td>
-                        <div class="fw-bold text-primary">@${u.username}</div>
-                        <div class="small text-muted">DNI: ${u.dni || 'S/D'}</div>
-                    </td>
-                    <td class="fw-bold">${u.apellido || ''}, ${u.nombres || ''}</td>
-                    <td><span class="badge ${badgeColor}">${nombreRolMostrar}</span></td>
-                    <td>${badgeEstado}</td>
-                    <td class="text-end pe-3">
-                       <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
-                            <i class="bi bi-pencil-square text-dark"></i>
-                        </button>
-                        <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
-                                onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
-                            <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
-                        </button>
+            const botonesAccion = `
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap w-100">
+                <button class="btn btn-sm btn-outline-warning" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
+                    <i class="bi bi-pencil-square"></i> Editar
+                </button>
+                <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
+                        onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
+                    <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i> ${u.estado === 'Activo' ? 'Baja' : 'Activar'}
+                </button>
+            </div>
+        `;
+
+        tbody.innerHTML += `
+            <!-- 1. VISTA DE ESCRITORIO -->
+            <tr class="text-dark d-none d-md-table-row">
+                <td class="ps-3 fw-bold text-center text-muted" style="background-color: #f1f3f5;">${u.id}</td>
+                <td>
+                    <div class="fw-bold text-primary">@${u.username}</div>
+                    <div class="small text-muted">DNI: ${u.dni || 'S/D'}</div>
+                </td>
+                <td class="fw-bold">${u.apellido || ''}, ${u.nombres || ''}</td>
+                <td><span class="badge ${badgeColor}">${nombreRolMostrar}</span></td>
+                <td>${badgeEstado}</td>
+                <td class="text-end pe-3">
+                     <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" onclick='abrirModalEditar(${JSON.stringify(u)})'>
+                        <i class="bi bi-pencil-square text-dark"></i>
+                     </button>
+                     <button class="btn btn-sm ${u.estado === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'}" 
+                           onclick="cambiarEstadoUsuario(${u.id}, '${u.estado}')">
+                          <i class="bi ${u.estado === 'Activo' ? 'bi-person-x-fill' : 'bi-person-check-fill'}"></i>
+                     </button>
+                </td>
+            </tr>
+
+            <!-- 2. VISTA MÓVIL -->
+                <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3" style="background-color: #1a222c !important; border-color: #2d3748 !important; color: #e2e8f0; margin-bottom: 1rem !important;">
+                    <td class="text-start border-0 p-0" style="background-color: transparent !important; color: inherit;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="fw-bold text-info">@${u.username}</div>
+                                <div class="small text-muted">ID: ${u.id} | DNI: ${u.dni || 'S/D'}</div>
+                            </div>
+                            <div>${badgeEstado}</div>
+                        </div>
+                        <div class="small mb-1 text-light"><strong>Nombre:</strong> ${u.apellido || ''}, ${u.nombres || ''}</div>
+                        <div class="small mb-2 text-light"><strong>Rol:</strong> <span class="badge ${badgeColor}">${nombreRolMostrar}</span></div>
+                        <div class="dropdown-divider" style="border-color: #2d3748 !important;"></div>
+                        <div class="mt-2 text-center w-100">
+                            ${botonesAccion}
+                        </div>
                     </td>
                 </tr>
-            `;
+        `;
         });
 
     } catch (error) {
@@ -174,7 +221,6 @@ export async function cargarModuloUsuarios() {
     }
 }
 
-// ➕ FUNCIÓN PARA ABRIR NUEVO USUARIO
 window.abrirModalNuevoUsuario = function() {
     resetearModalUsuario();
     const modalElement = document.getElementById('modalUsuario');
@@ -184,7 +230,6 @@ window.abrirModalNuevoUsuario = function() {
     }
 }
 
-// ✏️ FUNCIÓN PARA ABRIR MODAL EN EDICIÓN
 window.abrirModalEditar = function(u) {
     const tituloModal = document.getElementById('modalUsuarioLabel');
     if (tituloModal) {
@@ -210,7 +255,6 @@ window.abrirModalEditar = function(u) {
     }
 }
 
-// 🧹 LIMPIEZA DE ESTADOS DEL MODAL
 window.resetearModalUsuario = function() {
     const form = document.getElementById('form-usuario');
     if (form) {
@@ -228,7 +272,6 @@ window.resetearModalUsuario = function() {
     }
 }
 
-// 🛠️ REGISTRO O EDICIÓN DE UN USUARIO (INTELIGENTE: POST O PUT)
 async function registrarUsuarioBackend() {
     const btnGuardar = document.getElementById('btn-guardar-usuario');
     const alertModal = document.getElementById('alert-modal-usuario');
@@ -254,12 +297,16 @@ async function registrarUsuarioBackend() {
         btnGuardar.disabled = true;
         btnGuardar.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Guardando...`;
 
-        const url = editId ? `/api/usuarios/${editId}` : '/api/usuarios';
+        const url = editId ? `https://defciv-app.onrender.com/api/usuarios/${editId}` : 'https://defciv-app.onrender.com/api/usuarios';
         const method = editId ? 'PUT' : 'POST';
+        const token = localStorage.getItem('token');
 
         const respuesta = await fetch(url, {
             method: method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ username, dni, apellido, nombres, email, celular, rol })
         });
 
@@ -286,11 +333,10 @@ async function registrarUsuarioBackend() {
         alertModal.classList.remove('d-none');
         alertModal.textContent = error.message;
         btnGuardar.disabled = false;
-        btnGuardar.innerHTML = `<i class="bi bi-save-fill me-1"></i> Guardar Usuario`;
+        btnGuardar.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Guardar Usuario`;
     }
 }
 
-// 🔄 CAMBIAR ESTADO (ACTIVO/INACTIVO) EN EL BACKEND
 window.cambiarEstadoUsuario = async function(id, estadoActual) {
     const accion = estadoActual === 'Activo' ? 'dar de BAJA' : 'ACTIVAR';
     
@@ -299,9 +345,13 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
     }
 
     try {
-        const respuesta = await fetch(`/api/usuarios/${id}/estado`, {
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch(`https://defciv-app.onrender.com/api/usuarios/${id}/estado`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         const resultado = await respuesta.json();
@@ -319,5 +369,4 @@ window.cambiarEstadoUsuario = async function(id, estadoActual) {
     }
 }
 
-// Exponemos las funciones principales al objeto global window
 window.cargarModuloUsuarios = cargarModuloUsuarios;

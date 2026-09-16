@@ -1,4 +1,3 @@
-// backend/models/usuario.js
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js'; // Apunta a tu archivo de conexión
 
@@ -7,8 +6,8 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-        field: 'id_usuario' // <-- ESTO le dice a Sequelize: "en el código llamalo 'id', pero en la base de datos buscalo como 'id_usuario'"
-      },
+        field: 'id_usuario' // Mapea al id_usuario real de tu base
+    },
     username: {
         type: DataTypes.STRING(50),
         allowNull: false,
@@ -29,37 +28,36 @@ const Usuario = sequelize.define('Usuario', {
     },
     email: {
         type: DataTypes.STRING(100),
-        allowNull: true, // Permitimos nulo por ahora, si viene vacío
+        allowNull: true,
         unique: true
     },
     celular: {
         type: DataTypes.STRING(30),
-        allowNull: false // Obligatorio como acordamos
+        allowNull: false
     },
-    // REEMPLAZÁ EL BLOQUE DE passwordHash POR ESTE:
     password: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    field: 'password_hash' // En MySQL se llamará password_hash, pero en JS lo usás como .password
-   },
-   rol: {
-    type: DataTypes.ENUM('Administrador', 'Administrativo', 'Relevador', 'Consulta'),
-    allowNull: false,
-    defaultValue: 'Consulta'
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        field: 'password_hash' 
+    },
+    rol: {
+        type: DataTypes.ENUM('Administrador', 'Operador', 'Relevador', 'Consulta'),
+        allowNull: false,
+        defaultValue: 'Consulta'
     },
     estado: {
         type: DataTypes.ENUM('Activo', 'Inactivo', 'Baja'),
         allowNull: false,
-        defaultValue: 'Activo' // En el alta entra directo como Activo
+        defaultValue: 'Activo'
     },
     requiereCambioPass: {
         type: DataTypes.BOOLEAN,
-        defaultValue: true, // Fuerza el cambio de contraseña la primera vez
+        defaultValue: true,
         field: 'requiere_cambio_pass'
     },
     fechaUltimoCambioPass: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW, // Setea la fecha actual para el control de los 3 meses
+        defaultValue: DataTypes.NOW,
         field: 'fecha_ultimo_cambio_pass'
     },
     ultimoAcceso: {
@@ -68,7 +66,10 @@ const Usuario = sequelize.define('Usuario', {
         field: 'ultimo_acceso'
     }
 }, {
-    tableName: 'usuarios' // Nombre de la tabla en MySQL
+    tableName: 'usuarios',
+    timestamps: true,
+    createdAt: 'created_at', // Mapea exactamente a tu columna created_at
+    updatedAt: 'updated_at'  // Mapea exactamente a tu columna updated_at
 });
 
 export default Usuario;

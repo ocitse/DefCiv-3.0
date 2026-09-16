@@ -1,19 +1,14 @@
 // frontend/js/solicitudes.js
-
 const CONTENEDOR_APP = 'content-principal';
-
 let solicitandoVista = false;
-
 /**
- * Muestra la vista principal de Solicitudes inyectando el HTML sin recargar la URL
+ * Muestra la vista principal de Solicitudes inyectando el HTML
  */
 export async function verListaSolicitudes() {
     const contenedor = document.querySelector('.content-principal');
     if (!contenedor) return;
 
-    if (document.getElementById('seccion-nueva-solicitud')) {
-        return; 
-    }
+    if (document.getElementById('seccion-nueva-solicitud')) return;
 
     if (solicitandoVista) return;
     solicitandoVista = true;
@@ -80,25 +75,152 @@ export async function cargarRelevamientosEnEspera() {
         const data = await respuesta.json();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">No hay relevamientos nuevos disponibles</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-3">No hay relevamientos completados en espera de solicitud</td></tr>`;
             return;
         }
 
-        tbody.innerHTML = data.map(item => `
-            <tr>
-                <td>
-                    <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${item.id_relevamiento}">
-                </td>
-                <td>#${item.id_relevamiento}</td>
-                <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Sin fecha'}</td>
-                <td>${item.departamento} - ${item.localidad}</td>
-                <td>${item.tipo_evento}</td>
-                <td>${item.relevador_asignado}</td>
-                <td><span class="badge bg-warning text-dark">${item.urgencia_general}</span></td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = data.map(item => {
+            const idRel = item.id || item.id_relevamiento;
+            const codigo = item.codigo_relevamiento || `#${idRel}`;
+            const fecha = item.createdAt || item.created_at ? new Date(item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha';
+            const ubicacion = `<strong>${item.departamento || ''}</strong> / ${item.localidad || ''}`;
+            const barrio = item.barrio ? `<br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${item.barrio}</small>` : '';
+            const evento = item.tipo_evento || 'N/D';
+            const relevador = item.relevador_apellido ? `${item.relevador_apellido}, ${item.relevador_nombre}` : (item.relevador_asignado || 'Sin asignar');
+            const prioridad = item.prioridad || item.urgencia_general || 'Baja';
+            
+            const badgePrioridad = `<span class="badge ${prioridad === 'Alta' ? 'bg-danger' : prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-success'}">${prioridad}</span>`;
+            const badgeEstado = `<span class="badge bg-success">${item.estado || 'completado'}</span>`;
+
+            return `
+                <tr>
+                    <td class="text-center align-middle">
+                        <input class="form-check-input radio-relevamiento" type="radio" name="relevamientoSeleccionado" value="${idRel}">
+                    </td>
+                    <td class="align-middle"><strong>${codigo}</strong></td>
+                    <td class="align-middle d-none d-md-table-cell"><small class="text-muted">${fecha}</small></td>
+                    <td class="align-middle">${ubicacion} ${barrio}</td>
+                    <td class="align-middle">${badgeEstado}</td>
+                    <td class="align-middle d-none d-md-table-cell">${evento}</td>
+                    <td class="align-middle"><small>${relevador}</small></td>
+                    <td class="align-middle">${badgePrioridad}</td>
+                    <td class="text-center align-middle">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}', '${codigo}', '${item.departamento || ''}', '${item.localidad || ''}', '${evento}', '${relevador}', '${prioridad}')" title="Auditar Familias e Insumos">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador con observaciones">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
+        console.error("Error al cargar relevamientos en espera:", error);
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-3">Error al cargar relevamientos en espera</td></tr>`;
+    }
+}
+
+/**
+ * Abre el modal de auditoría y carga las familias asociadas al relevamiento
+ */
+export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamento, localidad, evento, relevador, urgencia) {
+    try {
+        // 1. Rellenamos la cabecera de inmediato con los datos que ya viajan en la fila
+        document.getElementById('audit-codigo').innerText = codigo || `#${idRelevamiento}`;
+        document.getElementById('audit-ubicacion').innerText = `${departamento} / ${localidad}`;
+        document.getElementById('audit-evento').innerText = evento || 'N/D';
+        document.getElementById('audit-relevador').innerText = relevador || 'N/D';
+        document.getElementById('audit-urgencia').innerText = urgencia || 'Media';
+
+        // 2. Consultamos las familias asociadas a este relevamiento
+        let familiasData = [];
+        try {
+            let respFam = await fetch(`/api/familias/relevamiento/${idRelevamiento}`);
+            if (!respFam.ok) {
+                respFam = await fetch(`/api/familias?relevamiento_id=${idRelevamiento}`);
+            }
+            if (respFam.ok) {
+                familiasData = await respFam.json();
+            }
+        } catch (err) {
+            console.warn('Error al obtener familias para auditoría:', err);
+        }
+
+        document.getElementById('audit-total-familias').innerText = Array.isArray(familiasData) ? familiasData.length : 0;
+
+        const tbodyAudit = document.querySelector('#tabla-audit-familias tbody');
+if (tbodyAudit) {
+    if (!Array.isArray(familiasData) || familiasData.length === 0) {
+        tbodyAudit.innerHTML = `<tr><td colspan="12" class="text-center text-muted py-3">No hay registros de familias para este relevamiento.</td></tr>`;
+    } else {
+        tbodyAudit.innerHTML = familiasData.map(fam => {
+            // Procesamos los materiales de construcción (necesidades)
+            let listadoMateriales = '<span class="text-muted small">Sin materiales</span>';
+            if (fam.necesidades && Array.isArray(fam.necesidades) && fam.necesidades.length > 0) {
+                listadoMateriales = fam.necesidades.map(n => 
+                    `<span class="badge bg-dark text-light me-1 mb-1">${n.tipo_material}: <strong>${n.cantidad}</strong></span>`
+                ).join('');
+            }
+
+            // Procesamos la documentación adjunta (fotos, pdfs de Cloudinary)
+            let listadoDocs = '<span class="text-muted small">Sin adjuntos</span>';
+            if (fam.documentacion && Array.isArray(fam.documentacion) && fam.documentacion.length > 0) {
+                listadoDocs = fam.documentacion.map((doc, idx) => 
+                    `<a href="${doc.ruta_archivo}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-1 me-1 mb-1" title="${doc.nombre_archivo || 'Ver archivo'}">
+                        <i class="bi bi-file-earmark-text"></i> #${idx + 1}
+                    </a>`
+                ).join('');
+            }
+
+            return `
+                <tr>
+                    <td class="small">${fam.dni_jefe || fam.dni || 'N/D'}</td>
+                    <td class="small fw-bold">${fam.jefe_familia || fam.nombre || 'N/D'}</td>
+                    <td class="text-center small">${fam.cantidad_integrantes || '1'}</td>
+                    <td class="text-center small">${fam.unidades_alimentarias || '0'}</td>
+                    <td class="text-center small">${fam.abrigos || '0'}</td>
+                    <td class="text-center small">${fam.frazadas || '0'}</td>
+                    <td class="text-center small">${fam.colchones || '0'}</td>
+                    <td class="text-center small">${fam.bidones_agua || '0'}</td>
+                    <td class="text-center small">${fam.kits_higiene || '0'}</td>
+                    <td class="text-center small">${fam.ropa || '0'}</td>
+                    <td>${listadoMateriales}</td>
+                    <td class="text-center">${listadoDocs}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // Fila de totales en el modal (12 columnas)
+        const tot = calcularTotales(familiasData);
+        tbodyAudit.innerHTML += `
+            <tr class="table-secondary fw-bold">
+                <td colspan="2" class="text-end">TOTALES ACUMULADOS:</td>
+                <td class="text-center">${tot.integrantes}</td>
+                <td class="text-center">${tot.unidades_alimentarias}</td>
+                <td class="text-center">${tot.abrigos}</td>
+                <td class="text-center">${tot.frazadas}</td>
+                <td class="text-center">${tot.colchones}</td>
+                <td class="text-center">${tot.bidones_agua}</td>
+                <td class="text-center">${tot.kits_higiene}</td>
+                <td class="text-center">${tot.ropa}</td>
+                <td colspan="2" class="text-muted small text-center">Ver detalle de materiales por familia</td>
+            </tr>
+        `;
+    }
+}
+
+        // 3. Mostramos el modal usando Bootstrap
+        const modalEl = document.getElementById('modalAuditoriaSolicitud');
+        if (modalEl && window.bootstrap) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    } catch (error) {
+        console.error('Error al abrir la auditoría:', error);
+        alert('No se pudo cargar el detalle de auditoría del relevamiento.');
     }
 }
 
@@ -132,7 +254,24 @@ export async function verHistorialSolicitudes() {
 }
 
 /**
- * Inicializa el evento del formulario para enviar el relevamiento seleccionado
+ * Calcula la sumatoria de personas e insumos
+ */
+function calcularTotales(familias) {
+    return familias.reduce((acc, f) => {
+        acc.integrantes += (Number(f.cantidad_integrantes) || 0);
+        acc.unidades_alimentarias += (Number(f.unidades_alimentarias) || 0);
+        acc.abrigos += (Number(f.abrigos) || 0);
+        acc.frazadas += (Number(f.frazadas) || 0);
+        acc.bidones_agua += (Number(f.bidones_agua) || 0);
+        acc.kits_higiene += (Number(f.kits_higiene) || 0);
+        acc.ropa += (Number(f.ropa) || 0);
+        acc.colchones += (Number(f.colchones) || 0);
+        return acc;
+    }, { integrantes: 0, unidades_alimentarias: 0, abrigos: 0, frazadas: 0, bidones_agua: 0, kits_higiene: 0, ropa: 0, colchones: 0 });
+}
+
+/**
+ * Procesa la solicitud y genera el PDF oficial
  */
 export function inicializarFormularioSolicitud() {
     const botonOriginal = document.getElementById('btn-enviar-solicitud');
@@ -153,20 +292,33 @@ export function inicializarFormularioSolicitud() {
         const idRelevamiento = seleccionado.value;
         const observaciones = document.querySelector('#seccion-nueva-solicitud textarea')?.value || '';
 
-        // Buscamos la fila completa en la tabla para extraer los datos visuales y armar el mensaje de WhatsApp
         const fila = seleccionado.closest('tr');
+        const idTexto = fila.cells[1]?.innerText || `#${idRelevamiento}`;
         const fecha = fila.cells[2]?.innerText || 'Sin fecha';
         const ubicacion = fila.cells[3]?.innerText || 'Sin ubicación';
-        const evento = fila.cells[4]?.innerText || 'Sin evento';
-        const relevador = fila.cells[5]?.innerText || 'Sin relevador';
-        const urgencia = fila.cells[6]?.innerText || 'Media';
+        const evento = fila.cells[5]?.innerText || 'Sin evento';
+        const relevador = fila.cells[6]?.innerText || 'Sin relevador';
+        const urgencia = fila.cells[7]?.innerText || 'Media';
 
         try {
+            // 1. Petición al endpoint de familias
+            let familiasData = [];
+            try {
+                let respFamilias = await fetch(`/api/familias/relevamiento/${idRelevamiento}`);
+                if (!respFamilias.ok) {
+                    respFamilias = await fetch(`/api/familias?relevamiento_id=${idRelevamiento}`);
+                }
+                if (respFamilias.ok) {
+                    familiasData = await respFamilias.json();
+                }
+            } catch (err) {
+                console.warn('Advertencia al consultar familias en la API:', err);
+            }
+
+            // 2. Enviar solicitud al servidor
             const respuesta = await fetch('/api/solicitudes', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     relevamientoId: idRelevamiento,
                     observaciones: observaciones
@@ -175,59 +327,139 @@ export function inicializarFormularioSolicitud() {
 
             const resultado = await respuesta.json();
 
-            // Dentro de tu evento 'click' del botón de envío en solicitudes.js:
-if (respuesta.ok && resultado.success) {
-    alert('¡Solicitud enviada correctamente a Desarrollo Social!');
-    
-    // Definición del diseño del PDF oficial
-    const docDefinition = {
-        content: [
-            { text: 'DEFENSA CIVIL - PROVINCIA DE SANTIAGO DEL ESTERO', style: 'header', alignment: 'center' },
-            { text: 'INFORME DE SOLICITUD DE PROVISIÓN', style: 'subheader', alignment: 'center', margin: [0, 0, 0, 20] },
-            
-            { text: `ID Relevamiento: #${idRelevamiento}`, bold: true },
-            { text: `Fecha de Emisión: ${fecha}` },
-            { text: `Ubicación: ${ubicacion}` },
-            { text: `Tipo de Evento: ${evento}` },
-            { text: `Relevador Asignado: ${relevador}` },
-            { text: `Nivel de Urgencia: ${urgencia}`, margin: [0, 0, 0, 15] },
-            
-            { text: 'Observaciones / Justificación:', bold: true },
-            { text: observaciones || 'Sin observaciones adicionales.', margin: [0, 0, 0, 30] },
-            
-            {
-                columns: [
-                    { text: '___________________________\nFirma Operativo / Defensa Civil', alignment: 'center' },
-                    { text: '___________________________\nRecibe Desarrollo Social', alignment: 'center' }
-                ],
-                margin: [0, 50, 0, 0]
-            }
-        ],
-        styles: {
-            header: { fontSize: 16, bold: true, color: '#0d6efd' },
-            subheader: { fontSize: 12, italics: true, color: '#6c757d' }
-        }
-    };
+            if (respuesta.ok && resultado.success) {
+                alert('¡Solicitud enviada correctamente a Desarrollo Social!');
+                
+                const campoObs = document.querySelector('#seccion-nueva-solicitud textarea');
+                if (campoObs) campoObs.value = '';
 
-    // Generar y descargar el PDF automáticamente
-    pdfMake.createPdf(docDefinition).download(`Solicitud-Relevamiento-${idRelevamiento}.pdf`);
+                // 3. Estructuración de la tabla de familias para el PDF
+                let cuerpoTablaFamilias = [
+                    [
+                        { text: 'DNI Jefe', bold: true, fillColor: '#e9ecef', fontSize: 8 },
+                        { text: 'Jefe de Familia', bold: true, fillColor: '#e9ecef', fontSize: 8 },
+                        { text: 'Int.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Alim.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Abrigos', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Frazadas', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Colchones', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Agua', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Kits Hig.', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' },
+                        { text: 'Ropa', bold: true, fillColor: '#e9ecef', fontSize: 8, alignment: 'center' }
+                    ]
+                ];
 
-    // Armar el texto para WhatsApp avisando que el PDF fue generado
-    const textoWhatsApp = `*SOLICITUD DE PROVISIÓN - DEFENSA CIVIL*\n` +
-        `----------------------------------\n` +
-        `*ID Relevamiento:* #${idRelevamiento}\n` +
-        `*Ubicación:* ${ubicacion}\n` +
-        `*Evento:* ${evento}\n` +
-        `*Urgencia:* ${urgencia}\n` +
-        `*Observaciones:* ${observaciones || 'Ninguna'}\n` +
-        `----------------------------------\n` +
-        `_Se ha generado el documento PDF correspondiente en el sistema._`;
+                if (Array.isArray(familiasData) && familiasData.length > 0) {
+                    familiasData.forEach(fam => {
+                        cuerpoTablaFamilias.push([
+                            { text: String(fam.dni_jefe || fam.dni || 'N/D'), fontSize: 8 },
+                            { text: String(fam.jefe_familia || fam.nombre || 'N/D'), fontSize: 8 },
+                            { text: String(fam.cantidad_integrantes || '1'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.unidades_alimentarias || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.abrigos || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.frazadas || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.colchones || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.bidones_agua || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.kits_higiene || '0'), fontSize: 8, alignment: 'center' },
+                            { text: String(fam.ropa || '0'), fontSize: 8, alignment: 'center' }
+                        ]);
+                    });
 
-    const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`;
-    window.open(urlWhatsApp, '_blank');
+                    // Fila de sumatorias/totales
+                    const tot = calcularTotales(familiasData);
+                    cuerpoTablaFamilias.push([
+                        { text: 'TOTALES ACUMULADOS', bold: true, colSpan: 2, fillColor: '#dee2e6', fontSize: 8 },
+                        {},
+                        { text: String(tot.integrantes), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.unidades_alimentarias), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.abrigos), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.frazadas), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.colchones), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.bidones_agua), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.kits_higiene), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' },
+                        { text: String(tot.ropa), bold: true, fillColor: '#dee2e6', fontSize: 8, alignment: 'center' }
+                    ]);
+                } else {
+                    cuerpoTablaFamilias.push([
+                        { text: 'No se encontraron registros individuales de familias para este relevamiento.', colSpan: 10, alignment: 'center', fontSize: 9, italics: true },
+                        {}, {}, {}, {}, {}, {}, {}, {}, {}
+                    ]);
+                }
 
-    await cargarRelevamientosEnEspera();
-} else {
+                // Documento PDF con Orientación Horizontal (landscape) para máximo espacio disponible
+                const docDefinition = {
+                    pageSize: 'A4',
+                    pageOrientation: 'landscape',
+                    pageMargins: [30, 30, 30, 30],
+                    content: [
+                        { text: 'DEFENSA CIVIL - PROVINCIA DE SANTIAGO DEL ESTERO', style: 'header', alignment: 'center' },
+                        { text: 'INFORME OFICIAL DE SOLICITUD DE PROVISIÓN', style: 'subheader', alignment: 'center', margin: [0, 0, 0, 12] },
+                        
+                        {
+                            table: {
+                                widths: ['15%', '35%', '15%', '35%'],
+                                body: [
+                                    [
+                                        { text: 'ID Relevamiento:', bold: true, fontSize: 9 }, { text: idTexto, fontSize: 9 },
+                                        { text: 'Fecha Emisión:', bold: true, fontSize: 9 }, { text: fecha, fontSize: 9 }
+                                    ],
+                                    [
+                                        { text: 'Ubicación:', bold: true, fontSize: 9 }, { text: ubicacion, fontSize: 9 },
+                                        { text: 'Tipo de Evento:', bold: true, fontSize: 9 }, { text: evento, fontSize: 9 }
+                                    ],
+                                    [
+                                        { text: 'Relevador:', bold: true, fontSize: 9 }, { text: relevador, fontSize: 9 },
+                                        { text: 'Nivel Urgencia:', bold: true, fontSize: 9 }, { text: urgencia, fontSize: 9 }
+                                    ]
+                                ]
+                            },
+                            layout: 'lightHorizontalLines',
+                            margin: [0, 0, 0, 12]
+                        },
+
+                        { text: 'Detalle de Familias Damnificadas y Requerimientos de Insumos:', bold: true, fontSize: 10, margin: [0, 0, 0, 5] },
+                        {
+                            table: {
+                                headerRows: 1,
+                                widths: ['12%', '26%', '7%', '7%', '8%', '8%', '8%', '8%', '8%', '8%'],
+                                body: cuerpoTablaFamilias
+                            },
+                            margin: [0, 0, 0, 15]
+                        },
+                        
+                        { text: 'Observaciones / Justificación:', bold: true, fontSize: 10 },
+                        { text: observaciones || 'Sin observaciones adicionales.', fontSize: 9, margin: [0, 0, 0, 25] },
+                        
+                        {
+                            columns: [
+                                { text: '___________________________\nFirma Operativo / Defensa Civil', alignment: 'center', fontSize: 9 },
+                                { text: '___________________________\nRecibe Desarrollo Social', alignment: 'center', fontSize: 9 }
+                            ],
+                            margin: [0, 15, 0, 0]
+                        }
+                    ],
+                    styles: {
+                        header: { fontSize: 13, bold: true, color: '#0d6efd' },
+                        subheader: { fontSize: 9, italics: true, color: '#6c757d' }
+                    }
+                };
+
+                pdfMake.createPdf(docDefinition).download(`Solicitud-Relevamiento-${idRelevamiento}.pdf`);
+
+                const textoWhatsApp = `*SOLICITUD DE PROVISIÓN - DEF. CIVIL*\n` +
+                    `----------------------------------\n` +
+                    `*ID Relevamiento:* ${idTexto}\n` +
+                    `*Ubicación:* ${ubicacion}\n` +
+                    `*Evento:* ${evento}\n` +
+                    `*Urgencia:* ${urgencia}\n` +
+                    `*Observaciones:* ${observaciones || 'Ninguna'}\n` +
+                    `----------------------------------\n` +
+                    `_Se adjunta documento PDF de solicitud._`;
+
+                window.open(`https://wa.me/?text=${encodeURIComponent(textoWhatsApp)}`, '_blank');
+
+                await cargarRelevamientosEnEspera();
+            } else {
                 alert(resultado.error || 'Error al enviar la solicitud.');
             }
         } catch (error) {
@@ -237,8 +469,110 @@ if (respuesta.ok && resultado.success) {
     });
 }
 
+// Función global para abrir el modal de devolución dinámicamente desde Solicitudes
+window.abrirModalDevolucion = function(idRelevamiento) {
+    // Si ya existía un modal anterior, lo removemos
+    const modalAntiguo = document.getElementById('modalDevolucionRelevamiento');
+    if (modalAntiguo) modalAntiguo.remove();
+
+    // Inyectamos el HTML del modal de devolución con diseño oscuro/Bootstrap
+    const htmlModal = `
+        <div class="modal fade" id="modalDevolucionRelevamiento" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <div class="modal-header border-bottom border-secondary bg-warning text-dark">
+                        <h5 class="modal-title" id="modalDevolucionLabel">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i> Devolver Relevamiento
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <input type="hidden" id="devolucion_id_relevamiento" value="${idRelevamiento}">
+                        <div class="mb-3">
+                            <label for="devolucion_motivo" class="form-label fw-semibold">Motivo de la devolución / Observaciones:</label>
+                            <textarea class="form-control bg-dark text-light border-secondary" id="devolucion_motivo" rows="4" placeholder="Indique qué correcciones o ajustes debe realizar el relevador..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-warning btn-sm text-dark fw-bold px-3" onclick="window.confirmarDevolucionRelevamientoDesdeSolicitudes()">
+                            <i class="bi bi-send me-1"></i> Confirmar Devolución
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', htmlModal);
+    const modalElement = document.getElementById('modalDevolucionRelevamiento');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalElement.remove();
+    });
+};
+
+// Función para procesar el envío de la devolución al backend
+window.confirmarDevolucionRelevamientoDesdeSolicitudes = async function() {
+    const idRelevamiento = document.getElementById('devolucion_id_relevamiento')?.value;
+    const motivo = document.getElementById('devolucion_motivo')?.value.trim();
+
+    if (!motivo) {
+        alert('Por favor, ingrese el motivo de la devolución.');
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch(`/api/relevamientos/${idRelevamiento}/devolver`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ motivo })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            // 1. Cerramos y eliminamos el modal inmediatamente para que no quede fantasma atrás
+            const modalElement = document.getElementById('modalDevolucionRelevamiento');
+            if (modalElement && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+                modalElement.remove();
+            }
+
+            // 2. Eliminamos los fondos oscuros residuales (backdrop) que a veces deja Bootstrap
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+
+            // 3. Mostramos la notificación con el diseño de la app en lugar del alert feo
+            if (typeof mostrarNotificacion === 'function') {
+                mostrarNotificacion(resultado.mensaje || 'Relevamiento devuelto al relevador con éxito.', 'success');
+            } else {
+                alert(resultado.mensaje || 'Relevamiento devuelto al relevador con éxito.');
+            }
+
+            // 4. Recargamos la tabla de solicitudes en espera
+            cargarRelevamientosEnEspera();
+        } else {
+            alert(resultado.mensaje || 'Error al intentar devolver el relevamiento.');
+        }
+    } catch (error) {
+        console.error('Error de red al devolver relevamiento:', error);
+        alert('No se pudo conectar con el servidor.');
+    }
+};
+
 if (typeof window !== 'undefined') {
     window.verListaSolicitudes = verListaSolicitudes;
     window.cargarRelevamientosEnEspera = cargarRelevamientosEnEspera;
     window.verHistorialSolicitudes = verHistorialSolicitudes;
+    window.abrirAuditoriaSolicitud = abrirAuditoriaSolicitud;
 }

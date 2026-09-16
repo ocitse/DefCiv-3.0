@@ -1,4 +1,4 @@
-/**
+/**ui.js 
  * Muestra una notificación visual en la esquina superior derecha de la pantalla
  * @param {string} mensaje - El texto a mostrar
  * @param {string} tipo - 'success' (verde), 'error'/'danger' (rojo) o 'info'/'warning' (amarillo)
@@ -48,23 +48,27 @@ export function mostrarNotificacion(mensaje, tipo = 'success') {
 // 📱 INTERACCIONES GLOBALES DE LA INTERFAZ MÓVIL
 // =========================================================================
 
+// Cierra el menú móvil automáticamente al hacer clic en un enlace de navegación
 document.addEventListener('click', function (event) {
-    const menuMobile = document.getElementById('sidebar-mobile');
-    if (!menuMobile) return; 
+    const enlaceNav = event.target.closest('#sidebar-mobile .nav-link');
+    if (!enlaceNav) return;
 
-    const botonHamburguesa = menuMobile.querySelector('.navbar-toggler');
+    const menuMobile = document.getElementById('sidebar-mobile');
+    if (!menuMobile) return;
+
     const contenidoMenu = menuMobile.querySelector('.navbar-collapse');
+    const botonHamburguesa = menuMobile.querySelector('.navbar-toggler');
 
     if (contenidoMenu && contenidoMenu.classList.contains('show')) {
-        if (!botonHamburguesa.contains(event.target) && !contenidoMenu.contains(event.target)) {
-            if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
-                const collapseInstance = bootstrap.Collapse.getInstance(contenidoMenu);
-                if (collapseInstance) {
-                    collapseInstance.hide();
-                    return;
-                }
+        if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+            const collapseInstance = bootstrap.Collapse.getInstance(contenidoMenu);
+            if (collapseInstance) {
+                collapseInstance.hide();
+                return;
             }
-            contenidoMenu.classList.remove('show');
+        }
+        contenidoMenu.classList.remove('show');
+        if (botonHamburguesa) {
             botonHamburguesa.classList.add('collapsed');
             botonHamburguesa.setAttribute('aria-expanded', 'false');
         }
