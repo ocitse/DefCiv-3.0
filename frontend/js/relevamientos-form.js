@@ -212,14 +212,22 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             });
         }
 
-        // NUEVO: Salvavidas por si el usuario seleccionó un archivo pero olvidó presionar "+ Agregar"
+        // 🌟 SALVAVIDAS DEFINITIVO: Si hay un archivo seleccionado en el input, lo capturamos al vuelo
         const inputArchivo = document.getElementById('inputArchivo');
-        if (inputArchivo && inputArchivo.files.length > 0) {
-            // Verificamos que no lo hayamos agregado ya desde la lista global
-            const yaAgregado = window.archivosTemporalesFamiliaGlobal.some(f => f.name === inputArchivo.files[0].name);
-            if (!yaAgregado) {
-                formData.append('documentos', inputArchivo.files[0]);
+        if (inputArchivo && inputArchivo.files && inputArchivo.files.length > 0) {
+            const archivoSeleccionado = inputArchivo.files[0];
+            // Nos aseguramos de que esté en la lista global para que no se pierda
+            const yaExisteEnGlobal = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivoSeleccionado.name);
+            if (!yaExisteEnGlobal) {
+                window.archivosTemporalesFamiliaGlobal.push(archivoSeleccionado);
             }
+        }
+
+        // Adjuntar archivos desde la lista temporal global (ahora 100% asegurada)
+        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
+            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
+                formData.append('documentos', archivo);
+            });
         }
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
