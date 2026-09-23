@@ -205,9 +205,13 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
+        // Depuración estricta de archivos antes de meterlos al FormData
+        console.log("🔍 CONTENIDO DE ARCHIVOS GLOBALES:", window.archivosTemporalesFamiliaGlobal);
+
         // Adjuntar archivos desde la lista temporal global
         if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
-            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
+            window.archivosTemporalesFamiliaGlobal.forEach((archivo, idx) => {
+                console.log(`📁 Adjuntando archivo [${idx}]:`, archivo.name, archivo instanceof File ? "Es un archivo válido" : "⚠️ CUIDADO: No es un objeto File válido");
                 formData.append('documentos', archivo);
             });
         }
