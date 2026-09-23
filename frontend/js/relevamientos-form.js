@@ -284,6 +284,11 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
+
+            // 🌟 NUEVO: Aseguramos recuperar el ID del relevamiento al editar
+            if (fam.relevamiento_id || fam.id_relevamiento) {
+                window.idRelevamientoActivo = fam.relevamiento_id || fam.id_relevamiento;
+            }
             
             if (document.getElementById('f_dni')) document.getElementById('f_dni').value = fam.dni_jefe || fam.dni || '';
             if (fam.jefe_familia) {
