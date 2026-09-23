@@ -2,12 +2,8 @@
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
-// Inicialización global única para los archivos
-if (typeof window.archivosTemporalesFamiliaGlobal === 'undefined') {
-    window.archivosTemporalesFamiliaGlobal = [];
-}
-
-let archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal; 
+// Portapapeles nativo y seguro de archivos para evitar que se pierdan
+let dtArchivosFamilia = new DataTransfer();
 let listaTemporalMateriales = [];
 
 function renderizarListaVisual(tipo, arreglo) {
@@ -33,12 +29,9 @@ export function renderizarListaArchivosPendientes() {
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
-    // BORRADO NUCLEAR: Elimina cualquier nodo fantasma que traiga el HTML estático
     ul.innerHTML = '';
 
-    const archivos = window.archivosTemporalesFamiliaGlobal || [];
-
-    if (archivos.length === 0) {
+    if (dtArchivosFamilia.files.length === 0) {
         const liVacio = document.createElement('li');
         liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
         liVacio.textContent = "Ningún archivo adjuntado";
@@ -46,7 +39,7 @@ export function renderizarListaArchivosPendientes() {
         return;
     }
 
-    archivos.forEach((file, index) => {
+    Array.from(dtArchivosFamilia.files).forEach((file, index) => {
         const li = document.createElement('li');
         li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
         li.innerHTML = `
@@ -79,10 +72,6 @@ function renderizarDocumentosGuardados(documentos) {
 }
 
 export function agregarArchivoALista() {
-    if (!window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal = [];
-    }
-
     const input = document.getElementById('inputArchivo');
     if (!input || input.files.length === 0) {
         mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
@@ -90,27 +79,31 @@ export function agregarArchivoALista() {
     }
 
     const archivo = input.files[0];
-    const yaExiste = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivo.name);
+    let yaExiste = false;
+    for (let i = 0; i < dtArchivosFamilia.files.length; i++) {
+        if (dtArchivosFamilia.files[i].name === archivo.name) {
+            yaExiste = true;
+            break;
+        }
+    }
 
     if (!yaExiste) {
-        // Guardamos el archivo en la memoria global
-        window.archivosTemporalesFamiliaGlobal.push(archivo);
-        
-        // ¡IMPORTANTE! Actualizamos la interfaz para que dibuje el archivo y borre el texto de "Ninguno"
+        dtArchivosFamilia.items.add(archivo);
         renderizarListaArchivosPendientes();
-        
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
-        input.value = ""; // Limpiamos el input visualmente
+        input.value = ""; 
     } else {
         mostrarNotificacion("Ese archivo ya está en la lista.", "error");
     }
 }
 
 export function eliminarArchivoDeLista(index) {
-    if (window.archivosTemporalesFamiliaGlobal) {
-        window.archivosTemporalesFamiliaGlobal.splice(index, 1);
-        renderizarListaArchivosPendientes();
-    }
+    const nuevoDt = new DataTransfer();
+    Array.from(dtArchivosFamilia.files).forEach((file, i) => {
+        if (i !== index) nuevoDt.items.add(file);
+    });
+    dtArchivosFamilia = nuevoDt;
+    renderizarListaArchivosPendientes();
 }
 
 export function agregarItemLista(tipo) {
@@ -205,54 +198,19 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // Depuración estricta de archivos antes de meterlos al FormData
-        console.log("🔍 CONTENIDO DE ARCHIVOS GLOBALES:", window.archivosTemporalesFamiliaGlobal);
-
-        // Adjuntar archivos desde la lista temporal global
-        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
-            window.archivosTemporalesFamiliaGlobal.forEach((archivo, idx) => {
-                console.log(`📁 Adjuntando archivo [${idx}]:`, archivo.name, archivo instanceof File ? "Es un archivo válido" : "⚠️ CUIDADO: No es un objeto File válido");
-                formData.append('documentos', archivo);
-            });
-        }
-
-        // 🌟 SALVAVIDAS DEFINITIVO: Si hay un archivo seleccionado en el input, lo capturamos al vuelo
-        const inputArchivo = document.getElementById('inputArchivo');
-        if (inputArchivo && inputArchivo.files && inputArchivo.files.length > 0) {
-            const archivoSeleccionado = inputArchivo.files[0];
-            // Nos aseguramos de que esté en la lista global para que no se pierda
-            const yaExisteEnGlobal = window.archivosTemporalesFamiliaGlobal.some(f => f.name === archivoSeleccionado.name);
-            if (!yaExisteEnGlobal) {
-                window.archivosTemporalesFamiliaGlobal.push(archivoSeleccionado);
-            }
-        }
-
-        // Adjuntar archivos desde la lista temporal global (ahora 100% asegurada)
-        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
-            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
-                formData.append('documentos', archivo);
-            });
-        }
+        // Inyectamos los archivos reales del DataTransfer al FormData bajo la clave 'documentos'
+        Array.from(dtArchivosFamilia.files).forEach(archivo => {
+            formData.append('documentos', archivo);
+        });
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
-
-        // Recuperamos el token de seguridad
         const token = localStorage.getItem('token');
 
-        // --- CÁMARA DE SEGURIDAD ---
-        console.log("📦 VERIFICANDO QUÉ HAY EN EL PAQUETE ANTES DE ENVIAR:");
-        for (let [key, value] of formData.entries()) {
-            console.log(key + ':', value instanceof File ? `📄 ARCHIVO ENCONTRADO: ${value.name}` : value);
-        }
-        console.log("Lista global temporal tiene:", window.archivosTemporalesFamiliaGlobal.length, "archivos");
-        // -----------------------------
-
-        // Enviamos el FormData CON el token de autorización
         const respuesta = await fetch(url, {
             method: metodo,
             headers: {
-                'Authorization': `Bearer ${token}` // ¡Faltaba esto!
+                'Authorization': `Bearer ${token}`
             },
             body: formData
         });
@@ -279,8 +237,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
-        window.archivosTemporalesFamiliaGlobal = [];
-        archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal;
+        dtArchivosFamilia = new DataTransfer();
         renderizarListaArchivosPendientes();
 
         const titulo = document.getElementById('titulo-form-familia');
@@ -296,8 +253,7 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
-
-            // 🌟 NUEVO: Aseguramos recuperar el ID del relevamiento al editar
+            
             if (fam.relevamiento_id || fam.id_relevamiento) {
                 window.idRelevamientoActivo = fam.relevamiento_id || fam.id_relevamiento;
             }
@@ -349,13 +305,11 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
-            // --- INICIO CÓDIGO NUEVO: Dibujar los archivos guardados en Cloudinary ---
             if (fam.documentacion && Array.isArray(fam.documentacion)) {
                 renderizarDocumentosGuardados(fam.documentacion);
             } else {
                 renderizarDocumentosGuardados([]);
             }
-            // --- FIN CÓDIGO NUEVO ---
 
         } catch (error) {
             console.error("Error al cargar datos para editar:", error);
@@ -399,8 +353,7 @@ export function cambiarPasoWizard(paso) {
 }
 
 export function mostrarFormularioNuevaFamilia() {
-    window.archivosTemporalesFamiliaGlobal = [];
-    archivosTemporalesFamilia = window.archivosTemporalesFamiliaGlobal;
+    dtArchivosFamilia = new DataTransfer();
     listaTemporalMateriales = [];
     
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
@@ -426,7 +379,6 @@ export function mostrarFormularioNuevaFamilia() {
     });
 }
 
-// Exponer funciones globales necesarias para eventos onclick en HTML
 window.cambiarPasoWizard = cambiarPasoWizard;
 window.agregarArchivoALista = agregarArchivoALista;
 window.eliminarArchivoDeLista = eliminarArchivoDeLista;
