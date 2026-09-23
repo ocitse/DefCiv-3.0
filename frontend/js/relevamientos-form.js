@@ -167,19 +167,34 @@ export async function guardarDatosFamiliaDefinitivo(e) {
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
 
-        // 🌟 EL PASO CRUCIAL QUE FALTABA: Inyectamos los archivos acumulados al input nativo
+        // 1. ANTES DE NADA: Aseguramos que el input nativo del formulario tenga los archivos acumulados en el DataTransfer
         const inputArchivoNativo = document.getElementById('inputArchivo');
         if (inputArchivoNativo && dtArchivosFamilia.files.length > 0) {
             inputArchivoNativo.files = dtArchivosFamilia.files;
         }
 
-        // Construimos el FormData directamente del formulario HTML (el navegador empaqueta textos y archivos juntos)
+        // 2. MAGIA PURA: Creamos el FormData pasando el formulario HTML ENTERO. 
+        // El navegador empaqueta automáticamente todos los inputs, selects Y LOS ARCHIVOS del input file.
         const formData = new FormData(form);
 
-        // Aseguramos que los campos clave viajen correctamente
+        // 3. Ajustes de campos que requieren un formato o mapeo especial
         formData.set('id_relevamiento', window.idRelevamientoActivo);
         formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
         formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
+
+        // Forzamos los checkboxes de daños a valores booleanos limpios por si el navegador envía 'on'
+        ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                // Mapeamos los nombres exactos que espera el backend
+                if (id === 'f_dano_perdida_completa') {
+                    formData.set('danos_estructurales', el.checked);
+                    formData.set('requiere_evacuacion', el.checked);
+                } else {
+                    formData.set(id.replace('f_', ''), el.checked);
+                }
+            }
+        });
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
@@ -190,7 +205,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
-            body: formData
+            body: formData // Aquí viaja el paquete completo con textos y archivos
         });
 
         const resultado = await respuesta.json();
