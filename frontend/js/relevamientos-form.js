@@ -174,8 +174,9 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
         // 🌟 ACÁ ESTÁ EL SECRETO: Inyectamos todos los archivos del array global al FormData
-        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
-            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
+        // 🌟 LECTURA CORRECTA DEL DATATRANSFER QUE SÍ TIENE LOS ARCHIVOS
+        if (dtArchivosFamilia && dtArchivosFamilia.files.length > 0) {
+            Array.from(dtArchivosFamilia.files).forEach(archivo => {
                 formData.append('documentos', archivo);
             });
         }
