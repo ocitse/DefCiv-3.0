@@ -181,21 +181,47 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-        const formData = new FormData(form);
 
-        // Limpiamos y aseguramos los campos que van por fuera
-        formData.set('id_relevamiento', window.idRelevamientoActivo);
-        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
-        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
+        // 🌟 CREAMOS UN FORMDATA 100% VACÍO PARA EVITAR QUE EL HTML OMITA NUESTROS ARCHIVOS
+        const formData = new FormData();
 
-        // 🌟 ACÁ ESTÁ EL SECRETO: Inyectamos todos los archivos del array global al FormData
-        // 🌟 LECTURA CORRECTA DEL DATATRANSFER QUE SÍ TIENE LOS ARCHIVOS
-// 🌟 INYECTAMOS LOS ARCHIVOS DEL DATATRANSFER GLOBAL AL FORMULARIO
-if (window.dtArchivosFamiliaGlobal && window.dtArchivosFamiliaGlobal.files.length > 0) {
-    Array.from(window.dtArchivosFamiliaGlobal.files).forEach(archivo => {
-        formData.append('documentos', archivo);
-    });
-}
+        // Agregamos manualmente todos los campos de texto del formulario
+        formData.append('id_relevamiento', window.idRelevamientoActivo);
+        formData.append('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+        formData.append('dni_jefe', document.getElementById('f_dni').value.trim());
+        formData.append('telefono', document.getElementById('f_telefono').value.trim());
+        formData.append('direccion', document.getElementById('f_direccion').value.trim());
+        formData.append('mayores', parseInt(document.getElementById('f_mayores').value) || 1);
+        formData.append('menores', parseInt(document.getElementById('f_menores').value) || 0);
+        formData.append('cantidad_integrantes', parseInt(document.getElementById('f_total').value) || 1);
+        formData.append('urgencia_familiar', document.getElementById('f_urgencia_familiar').value);
+        
+        // Daños
+        formData.append('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
+        formData.append('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
+        formData.append('dano_pisos', !!document.getElementById('f_dano_pisos')?.checked);
+        formData.append('dano_instalaciones', !!document.getElementById('f_dano_instalaciones')?.checked);
+        formData.append('danos_estructurales', !!document.getElementById('f_dano_perdida_completa')?.checked);
+        formData.append('requiere_evacuacion', !!document.getElementById('f_dano_perdida_completa')?.checked);
+
+        // Necesidades básicas
+        formData.append('unidades_alimentarias', parseInt(document.getElementById('f_need_alimentos')?.value) || 0);
+        formData.append('abrigos', parseInt(document.getElementById('f_need_abrigos')?.value) || 0);
+        formData.append('frazadas', parseInt(document.getElementById('f_need_frazadas')?.value) || 0);
+        formData.append('bidones_agua', parseInt(document.getElementById('f_need_agua')?.value) || 0);
+        formData.append('kits_higiene', parseInt(document.getElementById('f_need_higiene')?.value) || 0);
+        formData.append('ropa', parseInt(document.getElementById('f_need_ropa')?.value) || 0);
+        formData.append('colchones', parseInt(document.getElementById('f_need_colchones')?.value) || 0);
+
+        formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
+        formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
+
+        // 🌟 ADJUNTAMOS CADA ARCHIVO DEL DATATRANSFER GLOBAL EXPLÍCITAMENTE AL FORMDATA
+        if (window.dtArchivosFamiliaGlobal && window.dtArchivosFamiliaGlobal.files.length > 0) {
+            Array.from(window.dtArchivosFamiliaGlobal.files).forEach(archivo => {
+                formData.append('documentos', archivo);
+            });
+        }
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
@@ -213,7 +239,6 @@ if (window.dtArchivosFamiliaGlobal && window.dtArchivosFamiliaGlobal.files.lengt
         if (!respuesta.ok) throw new Error(resultado.mensaje || 'Error al guardar la familia.');
 
         mostrarNotificacion(resultado.mensaje || "Familia guardada exitosamente.");
-        // ... redireccionamiento posterior ...
 
         if (typeof verListaFamilias === 'function') {
             verListaFamilias(window.idRelevamientoActivo);
