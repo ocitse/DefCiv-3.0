@@ -129,8 +129,8 @@ const familia = sequelize.define('familia', {
 }, {
     tableName: 'familias',
     timestamps: true,
-    createdAt: 'created_at', // Coincide con tu captura de Supabase
-    updatedAt: 'updated_at'  // Coincide con tu captura de Supabase
+    createdAt: 'createdAt', // Debe coincidir con cómo se creó en la BD
+    updatedAt: 'updatedAt'  // Debe coincidir con cómo se creó en la BD
 });
 
 // Relaciones
