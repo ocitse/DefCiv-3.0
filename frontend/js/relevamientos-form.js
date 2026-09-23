@@ -166,42 +166,28 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-        const formData = new FormData();
 
-        formData.append('id_relevamiento', window.idRelevamientoActivo);
-        formData.append('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
-        formData.append('dni_jefe', document.getElementById('f_dni').value.trim());
-        formData.append('telefono', document.getElementById('f_telefono').value.trim());
-        formData.append('direccion', document.getElementById('f_direccion').value.trim());
-        formData.append('mayores', parseInt(document.getElementById('f_mayores').value) || 1);
-        formData.append('menores', parseInt(document.getElementById('f_menores').value) || 0);
-        formData.append('cantidad_integrantes', parseInt(document.getElementById('f_total').value) || 1);
-        formData.append('urgencia_familiar', document.getElementById('f_urgencia_familiar').value);
-        
-        // Daños
-        formData.append('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
-        formData.append('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
-        formData.append('dano_pisos', !!document.getElementById('f_dano_pisos')?.checked);
-        formData.append('dano_instalaciones', !!document.getElementById('f_dano_instalaciones')?.checked);
-        formData.append('danos_estructurales', !!document.getElementById('f_dano_perdida_completa')?.checked);
-        formData.append('requiere_evacuacion', !!document.getElementById('f_dano_perdida_completa')?.checked);
+        // 🌟 PASO CLAVE: Asignamos los archivos del DataTransfer al input nativo del formulario
+        const inputArchivoNativo = document.getElementById('inputArchivo');
+        if (inputArchivoNativo && dtArchivosFamilia.files.length > 0) {
+            inputArchivoNativo.files = dtArchivosFamilia.files;
+        }
 
-        // Necesidades
-        formData.append('unidades_alimentarias', parseInt(document.getElementById('f_need_alimentos')?.value) || 0);
-        formData.append('abrigos', parseInt(document.getElementById('f_need_abrigos')?.value) || 0);
-        formData.append('frazadas', parseInt(document.getElementById('f_need_frazadas')?.value) || 0);
-        formData.append('bidones_agua', parseInt(document.getElementById('f_need_agua')?.value) || 0);
-        formData.append('kits_higiene', parseInt(document.getElementById('f_need_higiene')?.value) || 0);
-        formData.append('ropa', parseInt(document.getElementById('f_need_ropa')?.value) || 0);
-        formData.append('colchones', parseInt(document.getElementById('f_need_colchones')?.value) || 0);
+        // Construimos el FormData directamente del formulario HTML (el navegador empaqueta textos y archivos juntos)
+        const formData = new FormData(form);
 
-        formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
-        formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
+        // Aseguramos campos que van por fuera o requieren formateo especial
+        formData.set('id_relevamiento', window.idRelevamientoActivo);
+        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
-        // Inyectamos los archivos reales del DataTransfer al FormData bajo la clave 'documentos'
-        Array.from(dtArchivosFamilia.files).forEach(archivo => {
-            formData.append('documentos', archivo);
-        });
+        // Forzamos explícitamente los booleanos de daños para asegurar su formato correcto
+        formData.set('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
+        formData.set('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
+        formData.set('dano_pisos', !!document.getElementById('f_dano_pisos')?.checked);
+        formData.set('dano_instalaciones', !!document.getElementById('f_dano_instalaciones')?.checked);
+        formData.set('danos_estructurales', !!document.getElementById('f_dano_perdida_completa')?.checked);
+        formData.set('requiere_evacuacion', !!document.getElementById('f_dano_perdida_completa')?.checked);
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
