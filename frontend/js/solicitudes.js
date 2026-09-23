@@ -2,9 +2,21 @@
 const CONTENEDOR_APP = 'content-principal';
 let solicitandoVista = false;
 /**
+ /**
  * Muestra la vista principal de Solicitudes inyectando el HTML
  */
 export async function verListaSolicitudes() {
+    // 🌟 Forzar el cierre del menú hamburguesa móvil si está abierto
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+        if (bsCollapse) {
+            bsCollapse.hide();
+        } else {
+            navbarCollapse.classList.remove('show');
+        }
+    }
+
     const contenedor = document.querySelector('.content-principal');
     if (!contenedor) return;
 
