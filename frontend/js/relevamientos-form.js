@@ -2,8 +2,8 @@
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
-// Portapapeles nativo y seguro de archivos para evitar que se pierdan
-let dtArchivosFamilia = new DataTransfer();
+// Portapapeles global y blindado para que nunca se pierda al cambiar de vista
+window.dtArchivosFamiliaGlobal = new DataTransfer();
 let listaTemporalMateriales = [];
 
 function renderizarListaVisual(tipo, arreglo) {
@@ -31,7 +31,7 @@ export function renderizarListaArchivosPendientes() {
 
     ul.innerHTML = '';
 
-    if (dtArchivosFamilia.files.length === 0) {
+    if (!window.dtArchivosFamiliaGlobal || window.dtArchivosFamiliaGlobal.files.length === 0) {
         const liVacio = document.createElement('li');
         liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
         liVacio.textContent = "Ningún archivo adjuntado";
@@ -39,18 +39,28 @@ export function renderizarListaArchivosPendientes() {
         return;
     }
 
-    Array.from(dtArchivosFamilia.files).forEach((file, index) => {
+    Array.from(window.dtArchivosFamiliaGlobal.files).forEach((file, index) => {
         const li = document.createElement('li');
         li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
         li.innerHTML = `
             <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
-            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="eliminarArchivoDeLista(${index})">
+            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="window.eliminarArchivoDeListaGlobal(${index})">
                 <i class="bi bi-trash-fill"></i>
             </button>
         `;
         ul.appendChild(li);
     });
 }
+
+// Función global auxiliar para el botón de borrar
+window.eliminarArchivoDeListaGlobal = function(index) {
+    const nuevoDt = new DataTransfer();
+    Array.from(window.dtArchivosFamiliaGlobal.files).forEach((file, i) => {
+        if (i !== index) nuevoDt.items.add(file);
+    });
+    window.dtArchivosFamiliaGlobal = nuevoDt;
+    renderizarListaArchivosPendientes();
+};
 
 function renderizarDocumentosGuardados(documentos) {
     const contenedor = document.getElementById('lista-archivos-guardados');
@@ -79,16 +89,21 @@ export function agregarArchivoALista() {
     }
 
     const archivo = input.files[0];
+    
+    if (!window.dtArchivosFamiliaGlobal) {
+        window.dtArchivosFamiliaGlobal = new DataTransfer();
+    }
+
     let yaExiste = false;
-    for (let i = 0; i < dtArchivosFamilia.files.length; i++) {
-        if (dtArchivosFamilia.files[i].name === archivo.name) {
+    for (let i = 0; i < window.dtArchivosFamiliaGlobal.files.length; i++) {
+        if (window.dtArchivosFamiliaGlobal.files[i].name === archivo.name) {
             yaExiste = true;
             break;
         }
     }
 
     if (!yaExiste) {
-        dtArchivosFamilia.items.add(archivo);
+        window.dtArchivosFamiliaGlobal.items.add(archivo);
         renderizarListaArchivosPendientes();
         mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
         input.value = ""; 
@@ -175,11 +190,12 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
         // 🌟 ACÁ ESTÁ EL SECRETO: Inyectamos todos los archivos del array global al FormData
         // 🌟 LECTURA CORRECTA DEL DATATRANSFER QUE SÍ TIENE LOS ARCHIVOS
-        if (dtArchivosFamilia && dtArchivosFamilia.files.length > 0) {
-            Array.from(dtArchivosFamilia.files).forEach(archivo => {
-                formData.append('documentos', archivo);
-            });
-        }
+// 🌟 INYECTAMOS LOS ARCHIVOS DEL DATATRANSFER GLOBAL AL FORMULARIO
+if (window.dtArchivosFamiliaGlobal && window.dtArchivosFamiliaGlobal.files.length > 0) {
+    Array.from(window.dtArchivosFamiliaGlobal.files).forEach(archivo => {
+        formData.append('documentos', archivo);
+    });
+}
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
@@ -213,7 +229,7 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
-        dtArchivosFamilia = new DataTransfer();
+        window.dtArchivosFamiliaGlobal = new DataTransfer();
         renderizarListaArchivosPendientes();
 
         const titulo = document.getElementById('titulo-form-familia');
@@ -329,7 +345,7 @@ export function cambiarPasoWizard(paso) {
 }
 
 export function mostrarFormularioNuevaFamilia() {
-    dtArchivosFamilia = new DataTransfer();
+    window.dtArchivosFamiliaGlobal = new DataTransfer();
     listaTemporalMateriales = [];
     
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
