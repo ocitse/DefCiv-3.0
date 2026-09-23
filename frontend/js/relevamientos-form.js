@@ -166,35 +166,19 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-
-        // 1. ANTES DE NADA: Aseguramos que el input nativo del formulario tenga los archivos acumulados en el DataTransfer
-        const inputArchivoNativo = document.getElementById('inputArchivo');
-        if (inputArchivoNativo && dtArchivosFamilia.files.length > 0) {
-            inputArchivoNativo.files = dtArchivosFamilia.files;
-        }
-
-        // 2. MAGIA PURA: Creamos el FormData pasando el formulario HTML ENTERO. 
-        // El navegador empaqueta automáticamente todos los inputs, selects Y LOS ARCHIVOS del input file.
         const formData = new FormData(form);
 
-        // 3. Ajustes de campos que requieren un formato o mapeo especial
+        // Limpiamos y aseguramos los campos que van por fuera
         formData.set('id_relevamiento', window.idRelevamientoActivo);
         formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
         formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
-        // Forzamos los checkboxes de daños a valores booleanos limpios por si el navegador envía 'on'
-        ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                // Mapeamos los nombres exactos que espera el backend
-                if (id === 'f_dano_perdida_completa') {
-                    formData.set('danos_estructurales', el.checked);
-                    formData.set('requiere_evacuacion', el.checked);
-                } else {
-                    formData.set(id.replace('f_', ''), el.checked);
-                }
-            }
-        });
+        // 🌟 ACÁ ESTÁ EL SECRETO: Inyectamos todos los archivos del array global al FormData
+        if (window.archivosTemporalesFamiliaGlobal && window.archivosTemporalesFamiliaGlobal.length > 0) {
+            window.archivosTemporalesFamiliaGlobal.forEach(archivo => {
+                formData.append('documentos', archivo);
+            });
+        }
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
@@ -205,16 +189,14 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
-            body: formData // Aquí viaja el paquete completo con textos y archivos
+            body: formData
         });
 
         const resultado = await respuesta.json();
+        if (!respuesta.ok) throw new Error(resultado.mensaje || 'Error al guardar la familia.');
 
-        if (!respuesta.ok) {
-            throw new Error(resultado.mensaje || 'Error al guardar la familia en el servidor.');
-        }
-
-        mostrarNotificacion(resultado.mensaje || "Familia guardada exitosamente en la base de datos.");
+        mostrarNotificacion(resultado.mensaje || "Familia guardada exitosamente.");
+        // ... redireccionamiento posterior ...
 
         if (typeof verListaFamilias === 'function') {
             verListaFamilias(window.idRelevamientoActivo);
