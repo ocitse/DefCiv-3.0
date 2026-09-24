@@ -41,32 +41,29 @@ export async function cargarModuloUsuarios() {
         <div class="modal fade" id="modalUsuario" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered text-light">
                 <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
-                    <div class="modal-header bg-dark text-white border-bottom border-secondary">
-                        <h5 class="modal-title" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
+                    <div class="modal-header bg-dark text-white border-bottom border-secondary py-3">
+                        <h5 class="modal-title fw-bold" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
                     </div>
                     <div class="modal-body bg-dark p-4">
-                        <form id="form-usuario">
-                            <div class="alert alert-danger d-none small text-center" id="alert-modal-usuario"></div>
+                        <form id="form-usuario" novalidate>
+                            <div class="alert alert-danger d-none small text-center mb-3" id="alert-modal-usuario"></div>
+                            
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-light">Nombres *</label>
+                                <div class="col-md-6 mb-2">
+                                    <label for="u-nombres" class="form-label fw-bold small text-light">Nombres *</label>
                                     <input type="text" class="form-control bg-dark text-light border-secondary" id="u-nombres" placeholder="Ej: Juan Pedro" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-light">Apellido *</label>
+                                <div class="col-md-6 mb-2">
+                                    <label for="u-apellido" class="form-label fw-bold small text-light">Apellido *</label>
                                     <input type="text" class="form-control bg-dark text-light border-secondary" id="u-apellido" placeholder="Ej: Pérez" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-light">D.N.I. (Será su clave inicial) *</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-card-text"></i></span>
-                                        <!-- Cambiado a type="text" para eliminar las flechitas -->
-                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="u-dni" placeholder="Ej: 38444222" required>
-                                    </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="u-dni" class="form-label fw-bold small text-light">D.N.I. (Clave inicial) *</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-dni" placeholder="Ej: 38444222" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-light">Rol del Usuario *</label>
+                                <div class="col-md-6 mb-2">
+                                    <label for="u-rol" class="form-label fw-bold small text-light">Rol del Usuario *</label>
                                     <select class="form-select bg-dark text-light border-secondary" id="u-rol" required>
                                         <option value="" disabled selected>Seleccione un rol...</option>
                                         <option value="Administrador">Administrador</option>
@@ -75,15 +72,16 @@ export async function cargarModuloUsuarios() {
                                         <option value="Consulta">Consulta</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-light">Email *</label>
+                                <div class="col-md-6 mb-2">
+                                    <label for="u-email" class="form-label fw-bold small text-light">Email *</label>
                                     <input type="email" class="form-control bg-dark text-light border-secondary" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-light">Celular *</label>
+                                <div class="col-md-6 mb-2">
+                                    <label for="u-celular" class="form-label fw-bold small text-light">Celular *</label>
                                     <input type="text" class="form-control bg-dark text-light border-secondary" id="u-celular" placeholder="Ej: 3851234567" required>
                                 </div>
                             </div>
+
                             <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-secondary">
                                 <button type="button" class="btn btn-outline-light btn-sm px-3" data-bs-dismiss="modal" onclick="resetearModalUsuario()">Cancelar</button>
                                 <button type="submit" class="btn btn-success btn-sm fw-bold px-4 shadow-sm" id="btn-guardar-usuario">
