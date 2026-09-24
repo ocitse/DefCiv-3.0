@@ -298,11 +298,27 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
-            // 🔥 CARGA CORRECTA DE LOS ARCHIVOS YA GUARDADOS EN LA NUBE AL EDITAR
-            if (fam.documentacion && Array.isArray(fam.documentacion)) {
-                renderizarDocumentosGuardados(fam.documentacion);
-            } else {
-                renderizarDocumentosGuardados([]);
+            // 🌟 RENDERIZADO DIRECTO Y SEGURO DE LOS ARCHIVOS YA GUARDADOS EN LA NUBE
+            const contenedorDocs = document.getElementById('lista-archivos-guardados');
+            if (contenedorDocs) {
+                const docs = fam.documentacion || (fam.data && fam.data.documentacion) || [];
+                if (docs.length > 0) {
+                    contenedorDocs.innerHTML = `
+                        <div class="mb-2 p-2 border border-success rounded bg-light">
+                            <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
+                            ${docs.map(doc => `
+                                <div class="d-flex justify-content-between align-items-center p-2 mt-1 bg-dark border border-secondary rounded shadow-sm text-light small">
+                                    <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
+                                        <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
+                                    </a>
+                                    <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    contenedorDocs.innerHTML = '';
+                }
             }
 
         } catch (error) {
