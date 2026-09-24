@@ -246,7 +246,7 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
-            console.log("🔍 LO QUE DEVUELVE EL BACKEND AL EDITAR:", fam); // <--- AGREGÁ ESTO
+            console.log("🔍 LO QUE DEVUELVE EL BACKEND AL EDITAR:", fam);
             
             if (fam.relevamiento_id || fam.id_relevamiento) {
                 window.idRelevamientoActivo = fam.relevamiento_id || fam.id_relevamiento;
@@ -299,10 +299,22 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
-            // 🌟 RENDERIZADO DIRECTO Y SEGURO DE LOS ARCHIVOS YA GUARDADOS EN LA NUBE
+            // 🌟 RECUPERACIÓN BLINDADA DE DOCUMENTOS (Busca en cualquier propiedad o clave posible)
             const contenedorDocs = document.getElementById('lista-archivos-guardados');
             if (contenedorDocs) {
-                const docs = fam.documentacion || (fam.data && fam.data.documentacion) || [];
+                let docs = fam.documentacion || fam.Documentacion || fam.documentacions || fam.data?.documentacion || [];
+                
+                // Si el objeto de la familia no los trajo, hacemos una consulta rápida para rescatarlos
+                if (docs.length === 0) {
+                    try {
+                        const resDocs = await fetch(`/api/familias/${idFamilia}`);
+                        const dataFamFull = await resDocs.json();
+                        docs = dataFamFull.documentacion || dataFamFull.Documentacion || dataFamFull.documentacions || [];
+                    } catch (err) {
+                        console.error("No se pudieron re-consultar los documentos:", err);
+                    }
+                }
+
                 if (docs.length > 0) {
                     contenedorDocs.innerHTML = `
                         <div class="mb-2 p-2 border border-success rounded bg-light">
