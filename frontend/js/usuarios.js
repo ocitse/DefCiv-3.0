@@ -44,7 +44,7 @@ export async function cargarModuloUsuarios() {
                     <!-- ENCABEZADO CORREGIDO: Fondo oscuro real, texto blanco y acento visible -->
                     <div class="modal-header bg-dark text-white border-bottom border-secondary py-3">
                         <h5 class="modal-title fw-bold text-white d-flex align-items-center" id="modalUsuarioLabel">
-                            <i class="bi bi-person-plus-fill text-warning fs-4 me-2"></i> Registrar Nuevo Usuario
+                            <i class="bi bi-person-plus-fill text-warning me-2 fs-4"></i> Registrar Nuevo Usuario
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
                     </div>

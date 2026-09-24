@@ -805,37 +805,35 @@ body.rol-relevador #btn-nuevo-relevamiento {
 }
 
 /* ========================================================
-   MODAL DE USUARIOS: CABECERA NÍTIDA Y VISIBLE
+   MODAL DE USUARIOS: ESTILO DEFINITIVO (BLANCO Y AMARILLO)
    ======================================================== */
    #modalUsuario .modal-content {
     background-color: #1a222c !important;
-    border: 1px solid #334155 !important;
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid #4a5568 !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.8) !important;
 }
 
 #modalUsuario .modal-header {
-    background-color: #003d7a !important; /* Azul institucional exacto de la barra superior */
+    background-color: #111822 !important; /* Un tono más oscuro que el cuerpo para dar profundidad */
     color: #ffffff !important;
-    border-bottom: 1px solid #2d3748 !important;
+    border-bottom: 2px solid #3b82f6 !important; /* Línea azul elegante de separación */
     padding: 1.25rem 1.5rem !important;
-    filter: none !important;
 }
 
 #modalUsuario .modal-header .modal-title,
-#modalUsuario .modal-header h5,
-#modalUsuario .modal-header i {
-    color: #ffffff !important; /* Forzamos texto e íconos blancos puros */
-    font-size: 1.1rem !important;
+#modalUsuario .modal-header h5 {
+    color: #ffffff !important; /* Título estrictamente blanco */
+    font-size: 1.15rem !important;
     font-weight: 700 !important;
 }
 
-#modalUsuario .modal-header .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%) !important; /* Cruz de cierre blanca nítida */
-    opacity: 0.9;
+#modalUsuario .modal-header .text-warning {
+    color: #fbbf24 !important; /* Amarillo brillante visible para el icono */
 }
 
-#modalUsuario .modal-header .btn-close:hover {
-    opacity: 1;
+#modalUsuario .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.9;
 }
 
 #modalUsuario .modal-body {
