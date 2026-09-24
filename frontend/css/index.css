@@ -442,30 +442,22 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ========================================================
-   9. 🌙 MODO OSCURO PARA MODAL DE FICHA DE FAMILIA
+   9. MODO OSCURO PARA MODAL DE FICHA DE FAMILIA
    ======================================================== */
 
-/* Contenedor principal de la ventana modal / ficha */
-.modal-content,
-.modal-dialog .card,
-.modal-body {
-    background-color: #1a222c !important;
-    border: 1px solid #2d3748 !important;
-    color: #e2e8f0 !important;
-}
-
-/* Encabezado del modal (Ficha: PULLARELLO...) */
-.modal-header {
-    background-color: #003d7a !important; /* Azul institucional unificado */
+/* Aplicamos el azul institucional SOLO al modal de familia, no de forma global */
+#modalFichaFamilia .modal-header,
+.modal-ficha .modal-header {
+    background-color: #003d7a !important;
     color: #ffffff !important;
     border-bottom: 1px solid #2d3748 !important;
 }
 
-.modal-header .modal-title,
-.modal-header h5,
-.modal-header .btn-close {
+#modalFichaFamilia .modal-header .modal-title,
+#modalFichaFamilia .modal-header h5,
+.modal-ficha .modal-header h5 {
     color: #ffffff !important;
-    filter: invert(1) grayscale(100%) brightness(200%); /* Asegura que la 'X' de cierre se vea blanca */
+    filter: invert(1) grayscale(100%) brightness(200%);
 }
 
 /* Sub-tarjetas internas dentro de la ficha (Datos Demográficos, Estado de Vivienda, Insumos, etc.) */

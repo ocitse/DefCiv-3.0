@@ -42,12 +42,12 @@ export async function cargarModuloUsuarios() {
             <div class="modal-dialog modal-dialog-centered text-light">
                 <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
                     <!-- ENCABEZADO CORREGIDO: Fondo oscuro real, texto blanco y acento visible -->
-                    <div class="modal-header bg-dark text-white border-bottom border-secondary py-3">
-                        <h5 class="modal-title fw-bold text-white d-flex align-items-center" id="modalUsuarioLabel">
-                            <i class="bi bi-person-plus-fill text-warning me-2 fs-4"></i> Registrar Nuevo Usuario
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
-                    </div>
+                    <div class="modal-header py-3 border-bottom border-secondary" style="background-color: #111822;">
+    <h5 class="modal-title fw-bold text-white d-flex align-items-center m-0" id="modalUsuarioLabel">
+        <i class="bi bi-person-plus-fill text-warning me-2 fs-4"></i> Registrar Nuevo Usuario
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
+</div>
                     <div class="modal-body bg-dark p-4">
                         <form id="form-usuario" novalidate>
                             <div class="alert alert-danger d-none small text-center mb-3" id="alert-modal-usuario"></div>
