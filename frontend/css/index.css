@@ -803,3 +803,22 @@ form textarea::placeholder {
 body.rol-relevador #btn-nuevo-relevamiento {
     display: none !important;
 }
+
+/* ========================================================
+   MODAL DE USUARIOS: AISLAMIENTO Y ESTILO OSCURO PURO
+   ======================================================== */
+   #modalUsuario .modal-header {
+    background-color: #1a222c !important; /* Fondo oscuro idéntico al cuerpo del modal */
+    color: #ffffff !important;
+    border-bottom: 1px solid #2d3748 !important;
+    filter: none !important; /* Anulamos filtros extraños */
+}
+
+#modalUsuario .modal-header .modal-title,
+#modalUsuario .modal-header h5 {
+    color: #ffffff !important;
+}
+
+#modalUsuario .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important; /* Asegura que la cruz de cierre se vea blanca y nítida */
+}
