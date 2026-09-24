@@ -34,14 +34,20 @@ function renderizarDocumentosGuardados(documentos) {
         return;
     }
 
-    contenedor.innerHTML = documentos.map(doc => `
-        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark border border-secondary rounded shadow-sm">
-            <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
-                <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
-            </a>
-            <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
+    // Dibujamos de forma clara y con enlace directo para previsualizar los archivos ya subidos a Cloudinary
+    contenedor.innerHTML = `
+        <div class="mb-2 p-2 border border-success rounded bg-light">
+            <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
+            ${documentos.map(doc => `
+                <div class="d-flex justify-content-between align-items-center p-2 mt-1 bg-dark border border-secondary rounded shadow-sm text-light small">
+                    <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
+                        <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
+                    </a>
+                    <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
+                </div>
+            `).join('')}
         </div>
-    `).join('');
+    `;
 }
 
 // ==================== GESTIÓN VISUAL DE ARCHIVOS PENDIENTES ====================
@@ -55,7 +61,6 @@ export function agregarArchivoAListaVisual() {
 
     const archivo = inputVisual.files[0];
 
-    // Evitamos duplicados exactos por nombre
     let yaExiste = false;
     for (let i = 0; i < dtArchivosUI.files.length; i++) {
         if (dtArchivosUI.files[i].name === archivo.name) {
@@ -84,13 +89,11 @@ export function eliminarArchivoDeListaVisual(index) {
 }
 
 function sincronizarInputRealYVisual() {
-    // 1. Actualizamos el input oculto que lee el FormData nativo al enviar
     const inputEnvioReal = document.getElementById('inputEnvioReal');
     if (inputEnvioReal) {
         inputEnvioReal.files = dtArchivosUI.files;
     }
 
-    // 2. Renderizamos la lista visual en pantalla
     const ul = document.getElementById('lista-archivos-pendientes');
     if (!ul) return;
 
@@ -178,14 +181,12 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-        
         const formData = new FormData(form);
 
         formData.set('id_relevamiento', window.idRelevamientoActivo);
         formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
         formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
-        // Mapeo seguro de checkboxes
         ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -297,6 +298,7 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
+            // 🔥 CARGA CORRECTA DE LOS ARCHIVOS YA GUARDADOS EN LA NUBE AL EDITAR
             if (fam.documentacion && Array.isArray(fam.documentacion)) {
                 renderizarDocumentosGuardados(fam.documentacion);
             } else {
@@ -360,6 +362,7 @@ export function mostrarFormularioNuevaFamilia() {
         inicializarCalculoIntegrantes();
         renderizarListaVisual('mat', listaTemporalMateriales);
         sincronizarInputRealYVisual();
+        renderizarDocumentosGuardados([]); // Limpiamos la sección en alta nueva
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
