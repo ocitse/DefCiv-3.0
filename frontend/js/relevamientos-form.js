@@ -246,6 +246,7 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
+            console.log("🔍 LO QUE DEVUELVE EL BACKEND AL EDITAR:", fam); // <--- AGREGÁ ESTO
             
             if (fam.relevamiento_id || fam.id_relevamiento) {
                 window.idRelevamientoActivo = fam.relevamiento_id || fam.id_relevamiento;
