@@ -805,7 +805,7 @@ body.rol-relevador #btn-nuevo-relevamiento {
 }
 
 /* ========================================================
-   MODAL DE USUARIOS: CABECERA Y CUERPO DEFINITIVOS
+   MODAL DE USUARIOS: CABECERA NÍTIDA Y VISIBLE
    ======================================================== */
    #modalUsuario .modal-content {
     background-color: #1a222c !important;
@@ -814,23 +814,24 @@ body.rol-relevador #btn-nuevo-relevamiento {
 }
 
 #modalUsuario .modal-header {
-    background-color: #0f172a !important; /* Fondo más profundo para el header */
+    background-color: #003d7a !important; /* Azul institucional exacto de la barra superior */
     color: #ffffff !important;
-    border-bottom: 2px solid #003d7a !important; /* Línea divisoria azul institucional bien marcada */
+    border-bottom: 1px solid #2d3748 !important;
     padding: 1.25rem 1.5rem !important;
     filter: none !important;
 }
 
 #modalUsuario .modal-header .modal-title,
-#modalUsuario .modal-header h5 {
-    color: #ffffff !important;
+#modalUsuario .modal-header h5,
+#modalUsuario .modal-header i {
+    color: #ffffff !important; /* Forzamos texto e íconos blancos puros */
     font-size: 1.1rem !important;
     font-weight: 700 !important;
 }
 
 #modalUsuario .modal-header .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%) !important;
-    opacity: 0.8;
+    filter: invert(1) grayscale(100%) brightness(200%) !important; /* Cruz de cierre blanca nítida */
+    opacity: 0.9;
 }
 
 #modalUsuario .modal-header .btn-close:hover {
