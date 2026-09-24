@@ -1,8 +1,6 @@
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
-// Portapapeles global y unificado
-window.dtArchivosFamiliaGlobal = new DataTransfer();
 let listaTemporalMateriales = [];
 
 function renderizarListaVisual(tipo, arreglo) {
@@ -24,42 +22,6 @@ function renderizarListaVisual(tipo, arreglo) {
     `).join('');
 }
 
-export function renderizarListaArchivosPendientes() {
-    const ul = document.getElementById('lista-archivos-pendientes');
-    if (!ul) return;
-
-    ul.innerHTML = '';
-
-    if (!window.dtArchivosFamiliaGlobal || window.dtArchivosFamiliaGlobal.files.length === 0) {
-        const liVacio = document.createElement('li');
-        liVacio.className = "list-group-item text-muted text-center py-2 bg-transparent border-0 small";
-        liVacio.textContent = "Ningún archivo adjuntado";
-        ul.appendChild(liVacio);
-        return;
-    }
-
-    Array.from(window.dtArchivosFamiliaGlobal.files).forEach((file, index) => {
-        const li = document.createElement('li');
-        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
-        li.innerHTML = `
-            <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
-            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="window.eliminarArchivoDeListaGlobal(${index})">
-                <i class="bi bi-trash-fill"></i>
-            </button>
-        `;
-        ul.appendChild(li);
-    });
-}
-
-window.eliminarArchivoDeListaGlobal = function(index) {
-    const nuevoDt = new DataTransfer();
-    Array.from(window.dtArchivosFamiliaGlobal.files).forEach((file, i) => {
-        if (i !== index) nuevoDt.items.add(file);
-    });
-    window.dtArchivosFamiliaGlobal = nuevoDt;
-    renderizarListaArchivosPendientes();
-};
-
 function renderizarDocumentosGuardados(documentos) {
     const contenedor = document.getElementById('lista-archivos-guardados');
     if (!contenedor) return;
@@ -77,42 +39,6 @@ function renderizarDocumentosGuardados(documentos) {
             <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
         </div>
     `).join('');
-}
-
-export function agregarArchivoALista() {
-    const input = document.getElementById('inputArchivo');
-    if (!input || input.files.length === 0) {
-        mostrarNotificacion("Por favor, seleccione un archivo válido para adjuntar.", "error");
-        return;
-    }
-
-    const archivo = input.files[0];
-    
-    if (!window.dtArchivosFamiliaGlobal) {
-        window.dtArchivosFamiliaGlobal = new DataTransfer();
-    }
-
-    let yaExiste = false;
-    for (let i = 0; i < window.dtArchivosFamiliaGlobal.files.length; i++) {
-        if (window.dtArchivosFamiliaGlobal.files[i].name === archivo.name) {
-            yaExiste = true;
-            break;
-        }
-    }
-
-    if (!yaExiste) {
-        window.dtArchivosFamiliaGlobal.items.add(archivo);
-        renderizarListaArchivosPendientes();
-        mostrarNotificacion(`Archivo "${archivo.name}" listo para enviar.`, "success");
-        input.value = ""; 
-    } else {
-        mostrarNotificacion("Ese archivo ya está en la lista.", "error");
-    }
-}
-
-// Mantenemos compatibilidad por si se llama desde otro lado
-export function eliminarArchivoDeLista(index) {
-    window.eliminarArchivoDeListaGlobal(index);
 }
 
 export function agregarItemLista(tipo) {
@@ -175,49 +101,27 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-        const formData = new FormData();
-
-        formData.append('id_relevamiento', window.idRelevamientoActivo);
-        formData.append('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
-        formData.append('dni_jefe', document.getElementById('f_dni').value.trim());
-        formData.append('telefono', document.getElementById('f_telefono').value.trim());
-        formData.append('direccion', document.getElementById('f_direccion').value.trim());
-        formData.append('mayores', parseInt(document.getElementById('f_mayores').value) || 1);
-        formData.append('menores', parseInt(document.getElementById('f_menores').value) || 0);
-        formData.append('cantidad_integrantes', parseInt(document.getElementById('f_total').value) || 1);
-        formData.append('urgencia_familiar', document.getElementById('f_urgencia_familiar').value);
         
-        formData.append('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
-        formData.append('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
-        formData.append('dano_pisos', !!document.getElementById('f_dano_pisos')?.checked);
-        formData.append('dano_instalaciones', !!document.getElementById('f_dano_instalaciones')?.checked);
-        formData.append('danos_estructurales', !!document.getElementById('f_dano_perdida_completa')?.checked);
-        formData.append('requiere_evacuacion', !!document.getElementById('f_dano_perdida_completa')?.checked);
+        // Creamos el FormData directamente del formulario HTML. 
+        // Al tener el input type="file" con el atributo name="documentos", el navegador adjunta el archivo nativamente.
+        const formData = new FormData(form);
 
-        formData.append('unidades_alimentarias', parseInt(document.getElementById('f_need_alimentos')?.value) || 0);
-        formData.append('abrigos', parseInt(document.getElementById('f_need_abrigos')?.value) || 0);
-        formData.append('frazadas', parseInt(document.getElementById('f_need_frazadas')?.value) || 0);
-        formData.append('bidones_agua', parseInt(document.getElementById('f_need_agua')?.value) || 0);
-        formData.append('kits_higiene', parseInt(document.getElementById('f_need_higiene')?.value) || 0);
-        formData.append('ropa', parseInt(document.getElementById('f_need_ropa')?.value) || 0);
-        formData.append('colchones', parseInt(document.getElementById('f_need_colchones')?.value) || 0);
+        formData.set('id_relevamiento', window.idRelevamientoActivo);
+        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
-        formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
-        formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
-
-        // 🌟 CAPTURA BLINDADA: Adjuntamos tanto los del DataTransfer global como los que hayan quedado en el input nativo
-        const inputNativo = document.getElementById('inputArchivo');
-        if (inputNativo && inputNativo.files.length > 0) {
-            Array.from(inputNativo.files).forEach(archivo => {
-                formData.append('documentos', archivo);
-            });
-        }
-
-        if (window.dtArchivosFamiliaGlobal && window.dtArchivosFamiliaGlobal.files.length > 0) {
-            Array.from(window.dtArchivosFamiliaGlobal.files).forEach(archivo => {
-                formData.append('documentos', archivo);
-            });
-        }
+        // Mapeo seguro de checkboxes
+        ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (id === 'f_dano_perdida_completa') {
+                    formData.set('danos_estructurales', el.checked);
+                    formData.set('requiere_evacuacion', el.checked);
+                } else {
+                    formData.set(id.replace('f_', ''), el.checked);
+                }
+            }
+        });
 
         const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
         const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
@@ -250,9 +154,6 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
-        window.dtArchivosFamiliaGlobal = new DataTransfer();
-        renderizarListaArchivosPendientes();
-
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
@@ -366,7 +267,6 @@ export function cambiarPasoWizard(paso) {
 }
 
 export function mostrarFormularioNuevaFamilia() {
-    window.dtArchivosFamiliaGlobal = new DataTransfer();
     listaTemporalMateriales = [];
     
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
@@ -380,7 +280,6 @@ export function mostrarFormularioNuevaFamilia() {
 
         inicializarCalculoIntegrantes();
         renderizarListaVisual('mat', listaTemporalMateriales);
-        renderizarListaArchivosPendientes();
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
@@ -393,8 +292,6 @@ export function mostrarFormularioNuevaFamilia() {
 }
 
 window.cambiarPasoWizard = cambiarPasoWizard;
-window.agregarArchivoALista = agregarArchivoALista;
-window.eliminarArchivoDeLista = eliminarArchivoDeLista;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;

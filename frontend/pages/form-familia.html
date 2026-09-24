@@ -166,23 +166,18 @@
             <ul class="list-group small border rounded p-1 bg-white" id="lista-dinamica-mat" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
         </div>
 
-        <!-- Columna Derecha: NUEVO - Adjuntar Archivos / Cámara -->
-        <div class="col-md-6">
-            <label class="form-label fw-semibold">Documentación Adjuntada</label>
-            
-            <!-- NUEVO: Aquí se dibujarán los archivos que ya vienen de la BD -->
-            <div id="lista-archivos-guardados" class="mb-2"></div>
+        <!-- Columna Derecha: Adjuntar Archivos / Cámara -->
+<div class="col-md-12">
+    <label class="form-label fw-semibold">Documentación Adjuntada o Evidencia</label>
+    
+    <!-- Archivos ya guardados en la nube -->
+    <div id="lista-archivos-guardados" class="mb-2"></div>
 
-            <div class="input-group mb-2">
-                <input type="file" id="inputArchivo" name="documentos" class="form-control form-control-sm" accept="image/*,application/pdf" capture="environment">
-                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="agregarArchivoALista()">
-                    <i class="bi bi-paperclip"></i> Agregar
-                </button>
-            </div>
-            <!-- Aquí siguen los archivos temporales (pendientes de guardar) -->
-            <ul class="list-group small border rounded p-1 bg-white" id="lista-archivos-pendientes" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
-        </div>
+    <div class="mb-3">
+        <input type="file" id="inputArchivo" name="documentos" class="form-control" accept="image/*,application/pdf" capture="environment">
+        <div class="form-text">Puede seleccionar un archivo PDF o capturar una foto directamente con la cámara del dispositivo.</div>
     </div>
+</div>
 
     <div class="mb-4">
         <label for="f_observaciones" class="form-label fw-semibold">Observaciones o Datos Críticos de Campo</label>
