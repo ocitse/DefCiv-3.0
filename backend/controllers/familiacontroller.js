@@ -147,10 +147,12 @@ export const obtenerFamilias = async (req, res) => {
 export const obtenerFamiliaPorId = async (req, res) => {
     try {
         const { id } = req.params;
+        
+        // 1. Buscamos la familia con sus relaciones básicas seguras
         const familia = await Familia.findByPk(id, {
-            include: [{ model: Relevamiento },
-                      { model: necesidadFamilia, as: 'necesidades' },
-                      { model: Documentacion, as: 'documentacion' }    
+            include: [
+                { model: Relevamiento },
+                { model: necesidadFamilia, as: 'necesidades' }
             ]
         });
 
@@ -158,7 +160,18 @@ export const obtenerFamiliaPorId = async (req, res) => {
             return res.status(404).json({ mensaje: 'No se encontró la familia especificada.' });
         }
 
-        res.json(familia);
+        // 2. Buscamos la documentación de forma directa e independiente asegurando cero fallos
+        const listaDocumentos = await Documentacion.findAll({
+            where: { id_familia: id }
+        });
+
+        // 3. Convertimos la instancia de Sequelize a objeto plano y le inyectamos la documentación explícitamente
+        const familiaPlana = familia.toJSON();
+        familiaPlana.documentacion = listaDocumentos;
+
+        // 4. Respondemos con el JSON completo que ahora SÍ contendrá los archivos
+        res.json(familiaPlana);
+        
     } catch (error) {
         console.error('Error al obtener la familia:', error);
         res.status(500).json({ mensaje: 'Error en el servidor al buscar la familia.' });
