@@ -1,8 +1,7 @@
-// frontend/js/relevamientos-form.js
 import { mostrarNotificacion } from './ui.js';
 import { cargarVistaDinamica } from './utils.js';
 
-// Portapapeles global y blindado para que nunca se pierda al cambiar de vista
+// Portapapeles global y unificado
 window.dtArchivosFamiliaGlobal = new DataTransfer();
 let listaTemporalMateriales = [];
 
@@ -52,7 +51,6 @@ export function renderizarListaArchivosPendientes() {
     });
 }
 
-// Función global auxiliar para el botón de borrar
 window.eliminarArchivoDeListaGlobal = function(index) {
     const nuevoDt = new DataTransfer();
     Array.from(window.dtArchivosFamiliaGlobal.files).forEach((file, i) => {
@@ -112,13 +110,9 @@ export function agregarArchivoALista() {
     }
 }
 
+// Mantenemos compatibilidad por si se llama desde otro lado
 export function eliminarArchivoDeLista(index) {
-    const nuevoDt = new DataTransfer();
-    Array.from(dtArchivosFamilia.files).forEach((file, i) => {
-        if (i !== index) nuevoDt.items.add(file);
-    });
-    dtArchivosFamilia = nuevoDt;
-    renderizarListaArchivosPendientes();
+    window.eliminarArchivoDeListaGlobal(index);
 }
 
 export function agregarItemLista(tipo) {
@@ -181,11 +175,8 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-
-        // 🌟 CREAMOS UN FORMDATA 100% VACÍO PARA EVITAR QUE EL HTML OMITA NUESTROS ARCHIVOS
         const formData = new FormData();
 
-        // Agregamos manualmente todos los campos de texto del formulario
         formData.append('id_relevamiento', window.idRelevamientoActivo);
         formData.append('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
         formData.append('dni_jefe', document.getElementById('f_dni').value.trim());
@@ -196,7 +187,6 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('cantidad_integrantes', parseInt(document.getElementById('f_total').value) || 1);
         formData.append('urgencia_familiar', document.getElementById('f_urgencia_familiar').value);
         
-        // Daños
         formData.append('dano_techo', !!document.getElementById('f_dano_techo')?.checked);
         formData.append('dano_paredes', !!document.getElementById('f_dano_paredes')?.checked);
         formData.append('dano_pisos', !!document.getElementById('f_dano_pisos')?.checked);
@@ -204,7 +194,6 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('danos_estructurales', !!document.getElementById('f_dano_perdida_completa')?.checked);
         formData.append('requiere_evacuacion', !!document.getElementById('f_dano_perdida_completa')?.checked);
 
-        // Necesidades básicas
         formData.append('unidades_alimentarias', parseInt(document.getElementById('f_need_alimentos')?.value) || 0);
         formData.append('abrigos', parseInt(document.getElementById('f_need_abrigos')?.value) || 0);
         formData.append('frazadas', parseInt(document.getElementById('f_need_frazadas')?.value) || 0);
@@ -216,7 +205,14 @@ export async function guardarDatosFamiliaDefinitivo(e) {
         formData.append('necesidades', JSON.stringify(listaTemporalMateriales));
         formData.append('observaciones', document.getElementById('f_observaciones').value.trim());
 
-        // 🌟 ADJUNTAMOS CADA ARCHIVO DEL DATATRANSFER GLOBAL EXPLÍCITAMENTE AL FORMDATA
+        // 🌟 CAPTURA BLINDADA: Adjuntamos tanto los del DataTransfer global como los que hayan quedado en el input nativo
+        const inputNativo = document.getElementById('inputArchivo');
+        if (inputNativo && inputNativo.files.length > 0) {
+            Array.from(inputNativo.files).forEach(archivo => {
+                formData.append('documentos', archivo);
+            });
+        }
+
         if (window.dtArchivosFamiliaGlobal && window.dtArchivosFamiliaGlobal.files.length > 0) {
             Array.from(window.dtArchivosFamiliaGlobal.files).forEach(archivo => {
                 formData.append('documentos', archivo);
