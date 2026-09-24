@@ -3,6 +3,9 @@ import { cargarVistaDinamica } from './utils.js';
 
 let listaTemporalMateriales = [];
 
+// Portapapeles auxiliar exclusivo para la interfaz visual de archivos pendientes
+let dtArchivosUI = new DataTransfer();
+
 function renderizarListaVisual(tipo, arreglo) {
     const ul = document.getElementById(`lista-dinamica-${tipo}`);
     if (!ul) return;
@@ -40,6 +43,78 @@ function renderizarDocumentosGuardados(documentos) {
         </div>
     `).join('');
 }
+
+// ==================== GESTIÓN VISUAL DE ARCHIVOS PENDIENTES ====================
+
+export function agregarArchivoAListaVisual() {
+    const inputVisual = document.getElementById('inputArchivo');
+    if (!inputVisual || inputVisual.files.length === 0) {
+        mostrarNotificacion("Por favor, seleccione un archivo o capture una foto.", "error");
+        return;
+    }
+
+    const archivo = inputVisual.files[0];
+
+    // Evitamos duplicados exactos por nombre
+    let yaExiste = false;
+    for (let i = 0; i < dtArchivosUI.files.length; i++) {
+        if (dtArchivosUI.files[i].name === archivo.name) {
+            yaExiste = true;
+            break;
+        }
+    }
+
+    if (!yaExiste) {
+        dtArchivosUI.items.add(archivo);
+        sincronizarInputRealYVisual();
+        mostrarNotificacion(`Archivo "${archivo.name}" agregado a la lista.`, "success");
+        inputVisual.value = ""; 
+    } else {
+        mostrarNotificacion("Este archivo ya se encuentra en la lista.", "error");
+    }
+}
+
+export function eliminarArchivoDeListaVisual(index) {
+    const nuevoDt = new DataTransfer();
+    Array.from(dtArchivosUI.files).forEach((file, i) => {
+        if (i !== index) nuevoDt.items.add(file);
+    });
+    dtArchivosUI = nuevoDt;
+    sincronizarInputRealYVisual();
+}
+
+function sincronizarInputRealYVisual() {
+    // 1. Actualizamos el input oculto que lee el FormData nativo al enviar
+    const inputEnvioReal = document.getElementById('inputEnvioReal');
+    if (inputEnvioReal) {
+        inputEnvioReal.files = dtArchivosUI.files;
+    }
+
+    // 2. Renderizamos la lista visual en pantalla
+    const ul = document.getElementById('lista-archivos-pendientes');
+    if (!ul) return;
+
+    ul.innerHTML = '';
+
+    if (dtArchivosUI.files.length === 0) {
+        ul.innerHTML = `<li class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>`;
+        return;
+    }
+
+    Array.from(dtArchivosUI.files).forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = "list-group-item p-1 d-flex justify-content-between align-items-center bg-dark border border-secondary rounded mb-1 text-light small";
+        li.innerHTML = `
+            <span class="text-truncate" style="max-width: 80%;">📎 ${file.name}</span>
+            <button type="button" class="btn btn-sm btn-link text-danger p-0 me-1" onclick="window.eliminarArchivoDeListaVisual(${index})">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+        `;
+        ul.appendChild(li);
+    });
+}
+
+// ==================== MATERIALES E INTEGRANTES ====================
 
 export function agregarItemLista(tipo) {
     const inputItem = document.getElementById(`input-item-${tipo}`);
@@ -89,6 +164,8 @@ export function inicializarCalculoIntegrantes() {
     calcular();
 }
 
+// ==================== GUARDADO DEFINITIVO ====================
+
 export async function guardarDatosFamiliaDefinitivo(e) {
     if (e) e.preventDefault();
 
@@ -102,8 +179,6 @@ export async function guardarDatosFamiliaDefinitivo(e) {
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
         
-        // Creamos el FormData directamente del formulario HTML. 
-        // Al tener el input type="file" con el atributo name="documentos", el navegador adjunta el archivo nativamente.
         const formData = new FormData(form);
 
         formData.set('id_relevamiento', window.idRelevamientoActivo);
@@ -154,6 +229,9 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
+        dtArchivosUI = new DataTransfer();
+        sincronizarInputRealYVisual();
+
         const titulo = document.getElementById('titulo-form-familia');
         if (titulo) titulo.innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i> Editar Datos de la Familia`;
 
@@ -268,6 +346,7 @@ export function cambiarPasoWizard(paso) {
 
 export function mostrarFormularioNuevaFamilia() {
     listaTemporalMateriales = [];
+    dtArchivosUI = new DataTransfer();
     
     cargarVistaDinamica('./frontend/pages/form-familia.html', () => {
         const titulo = document.getElementById('titulo-form-familia');
@@ -280,6 +359,7 @@ export function mostrarFormularioNuevaFamilia() {
 
         inicializarCalculoIntegrantes();
         renderizarListaVisual('mat', listaTemporalMateriales);
+        sincronizarInputRealYVisual();
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
@@ -291,9 +371,10 @@ export function mostrarFormularioNuevaFamilia() {
     });
 }
 
+// Exposición global obligatoria para los eventos onclick inline del HTML
 window.cambiarPasoWizard = cambiarPasoWizard;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
-window.agregarArchivoAListaVisual = agregarArchivoAListaVisual;   // <--- Agrega esta línea
-window.eliminarArchivoDeListaVisual = eliminarArchivoDeListaVisual; // <--- Y esta otra
+window.agregarArchivoAListaVisual = agregarArchivoAListaVisual;
+window.eliminarArchivoDeListaVisual = eliminarArchivoDeListaVisual;
