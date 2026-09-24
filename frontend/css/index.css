@@ -805,20 +805,15 @@ body.rol-relevador #btn-nuevo-relevamiento {
 }
 
 /* ========================================================
-   MODAL DE USUARIOS: AISLAMIENTO Y ESTILO OSCURO PURO
+   MEJORA DEFINITIVA PARA LA CABECERA DEL MODAL DE USUARIOS
    ======================================================== */
    #modalUsuario .modal-header {
-    background-color: #1a222c !important; /* Fondo oscuro idéntico al cuerpo del modal */
-    color: #ffffff !important;
-    border-bottom: 1px solid #2d3748 !important;
-    filter: none !important; /* Anulamos filtros extraños */
+    background-color: #0f172a !important; /* Un tono más oscuro o contrastante que el cuerpo (#1a222c) */
+    border-bottom: 2px solid #003d7a !important; /* Línea de separación institucional azul */
+    padding: 1.25rem 1.5rem !important;
 }
 
-#modalUsuario .modal-header .modal-title,
-#modalUsuario .modal-header h5 {
-    color: #ffffff !important;
-}
-
-#modalUsuario .modal-header .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%) !important; /* Asegura que la cruz de cierre se vea blanca y nítida */
+#modalUsuario .modal-title {
+    font-size: 1.1rem !important;
+    letter-spacing: 0.3px;
 }
