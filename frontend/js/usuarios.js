@@ -41,8 +41,11 @@ export async function cargarModuloUsuarios() {
         <div class="modal fade" id="modalUsuario" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered text-light">
                 <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <!-- ENCABEZADO CORREGIDO: Fondo oscuro real, texto blanco y acento visible -->
                     <div class="modal-header bg-dark text-white border-bottom border-secondary py-3">
-                        <h5 class="modal-title fw-bold" id="modalUsuarioLabel"><i class="bi bi-person-plus-fill text-warning me-2"></i> Registrar Nuevo Usuario</h5>
+                        <h5 class="modal-title fw-bold text-white d-flex align-items-center" id="modalUsuarioLabel">
+                            <i class="bi bi-person-plus-fill text-warning fs-4 me-2"></i> Registrar Nuevo Usuario
+                        </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="resetearModalUsuario()"></button>
                     </div>
                     <div class="modal-body bg-dark p-4">
@@ -73,8 +76,9 @@ export async function cargarModuloUsuarios() {
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-2">
+                                    <!-- CAMBIADO A type="text" PARA EVITAR EL FILTRO GRIS NATIVO DEL NAVEGADOR -->
                                     <label for="u-email" class="form-label fw-bold small text-light">Email *</label>
-                                    <input type="email" class="form-control bg-dark text-light border-secondary" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="u-email" placeholder="Ej: juan@defensacivil.com" required>
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="u-celular" class="form-label fw-bold small text-light">Celular *</label>
