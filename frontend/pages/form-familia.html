@@ -166,17 +166,28 @@
             <ul class="list-group small border rounded p-1 bg-white" id="lista-dinamica-mat" style="min-height: 90px; max-height: 150px; overflow-y: auto;"></ul>
         </div>
 
-        <!-- Columna Derecha: Adjuntar Archivos / Cámara -->
+        <!-- Columna Derecha: Documentación Adjuntada -->
 <div class="col-md-12">
     <label class="form-label fw-semibold">Documentación Adjuntada o Evidencia</label>
     
-    <!-- Archivos ya guardados en la nube -->
+    <!-- Archivos ya guardados en la nube (si estás editando) -->
     <div id="lista-archivos-guardados" class="mb-2"></div>
 
-    <div class="mb-3">
-        <input type="file" id="inputArchivo" name="documentos" class="form-control" accept="image/*,application/pdf" capture="environment">
-        <div class="form-text">Puede seleccionar un archivo PDF o capturar una foto directamente con la cámara del dispositivo.</div>
+    <!-- Input file oculto o limpio con el botón de agregar -->
+    <div class="input-group mb-2">
+        <input type="file" id="inputArchivo" class="form-control form-control-sm" accept="image/*,application/pdf" capture="environment">
+        <button class="btn btn-outline-primary btn-sm" type="button" onclick="agregarArchivoAListaVisual()">
+            <i class="bi bi-plus-lg"></i> Agregar a la lista
+        </button>
     </div>
+    
+    <!-- Lista visual interactiva de archivos pendientes de subida -->
+    <ul class="list-group small border rounded p-1 bg-white" id="lista-archivos-pendientes" style="min-height: 90px; max-height: 150px; overflow-y: auto;">
+        <li class="list-group-item text-muted text-center py-2 bg-transparent border-0 small">Ningún archivo adjuntado</li>
+    </ul>
+    
+    <!-- Input REAL y OCULTO que viaja al FormData con TODOS los archivos acumulados -->
+    <input type="file" id="inputEnvioReal" name="documentos" class="d-none" multiple>
 </div>
 
     <div class="mb-4">
