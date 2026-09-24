@@ -295,3 +295,5 @@ window.cambiarPasoWizard = cambiarPasoWizard;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
 window.mostrarFormularioNuevaFamilia = mostrarFormularioNuevaFamilia;
+window.agregarArchivoAListaVisual = agregarArchivoAListaVisual;   // <--- Agrega esta línea
+window.eliminarArchivoDeListaVisual = eliminarArchivoDeListaVisual; // <--- Y esta otra
