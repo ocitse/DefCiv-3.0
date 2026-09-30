@@ -312,7 +312,7 @@ export const eliminarDocumento = async (req, res) => {
         console.log("🗑️ Servidor intentando borrar documento con ID:", idDocumento);
 
         // Intentamos buscar el documento por clave primaria o por cualquier variante de columna ID
-        let documento = await Documentacion.findByPk(idDocumento);
+        const documento = await Documentacion.findByPk(idDocumento);
         
         if (!documento) {
             documento = await Documentacion.findOne({
