@@ -236,6 +236,14 @@ formData.set('cantidad_integrantes', document.getElementById('f_total')?.value |
 formData.set('urgencia_familiar', document.getElementById('f_urgencia_familiar')?.value || '');
 formData.set('observaciones', document.getElementById('f_observaciones')?.value || '');
 formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
+// Asistencia inmediata y suministros
+formData.set('alimentos', document.getElementById('f_need_alimentos')?.value || '0');
+formData.set('abrigos', document.getElementById('f_need_abrigos')?.value || '0');
+formData.set('frazadas', document.getElementById('f_need_frazadas')?.value || '0');
+formData.set('agua', document.getElementById('f_need_agua')?.value || '0');
+formData.set('kits_higiene', document.getElementById('f_need_higiene')?.value || '0');
+formData.set('ropa', document.getElementById('f_need_ropa')?.value || '0');
+formData.set('colchones', document.getElementById('f_need_colchones')?.value || '0');
 
         ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
             const el = document.getElementById(id);
