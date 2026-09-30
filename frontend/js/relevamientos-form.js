@@ -38,17 +38,14 @@ function renderizarDocumentosGuardados(documentos, idFamiliaActual) {
         <div class="mb-2 p-2 border border-success rounded bg-light">
             <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
             ${documentos.map(doc => {
-                // Rescatamos el ID sin importar cómo se llame en la base de datos (id_documento, id, id_documentacion)
-                const idDocReal = doc.id_documento || doc.id || doc.id_documentacion;
-if (!idDocReal) {
-    console.warn("⚠️ Archivo sin ID detectado:", doc);
-    return; // Si no tiene ID, no dibujamos el botón para evitar romper la URL
-}
-                const nombreArchivo = doc.nombre_archivo || 'Archivo adjunto';
+                // Rescatamos el ID probando todas las opciones posibles de la base de datos
+                const idDocReal = doc.id_documento || doc.id || doc.id_documentacion || '';
+                const nombreArchivo = doc.nombre_archivo || doc.nombre || 'Archivo adjunto';
+                const rutaArchivo = doc.ruta_archivo || doc.url || '#';
 
                 return `
                     <div class="d-flex justify-content-between align-items-center p-2 mt-1 bg-dark border border-secondary rounded shadow-sm text-light small">
-                        <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium me-2" style="max-width: 65%;" title="${nombreArchivo}">
+                        <a href="${rutaArchivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium me-2" style="max-width: 65%;" title="${nombreArchivo}">
                             <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${nombreArchivo}
                         </a>
                         <div class="d-flex align-items-center gap-2">
@@ -63,7 +60,6 @@ if (!idDocReal) {
         </div>
     `;
 }
-
 // ==================== GESTIÓN VISUAL DE ARCHIVOS PENDIENTES ====================
 
 export function agregarArchivoAListaVisual() {
