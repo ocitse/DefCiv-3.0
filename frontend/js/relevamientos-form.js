@@ -25,7 +25,7 @@ function renderizarListaVisual(tipo, arreglo) {
     `).join('');
 }
 
-function renderizarDocumentosGuardados(documentos) {
+function renderizarDocumentosGuardados(documentos, idFamiliaActual) {
     const contenedor = document.getElementById('lista-archivos-guardados');
     if (!contenedor) return;
 
@@ -34,16 +34,20 @@ function renderizarDocumentosGuardados(documentos) {
         return;
     }
 
-    // Dibujamos de forma clara y con enlace directo para previsualizar los archivos ya subidos a Cloudinary
     contenedor.innerHTML = `
         <div class="mb-2 p-2 border border-success rounded bg-light">
             <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
             ${documentos.map(doc => `
                 <div class="d-flex justify-content-between align-items-center p-2 mt-1 bg-dark border border-secondary rounded shadow-sm text-light small">
-                    <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium" style="max-width: 80%;" title="${doc.nombre_archivo}">
+                    <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium me-2" style="max-width: 70%;" title="${doc.nombre_archivo}">
                         <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
                     </a>
-                    <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarArchivoAdjunto('${doc.id_documento}', '${doc.nombre_archivo}', '${idFamiliaActual}')" title="Eliminar archivo permanentemente">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -303,6 +307,7 @@ export async function editarDatosFamilia(idFamilia) {
             const contenedorDocs = document.getElementById('lista-archivos-guardados');
             if (contenedorDocs) {
                 let docs = fam.documentacion || fam.Documentacion || fam.documentacions || fam.data?.documentacion || [];
+                renderizarDocumentosGuardados(docs, idFamilia);
                 
                 // Si el objeto de la familia no los trajo, hacemos una consulta rápida para rescatarlos
                 if (docs.length === 0) {
@@ -402,7 +407,48 @@ export function mostrarFormularioNuevaFamilia() {
         }
     });
 }
+// Función global para manejar el borrado seguro con confirmación explícita
+window.eliminarArchivoAdjunto = async function(idDocumento, nombreArchivo, idFamilia) {
+    // 🛑 Mega aviso de seguridad contra errores humanos
+    const seguro = confirm(
+        `⚠ ADVERTENCIA DE SEGURIDAD ⚠️\n\n` +
+        `Está a punto de eliminar permanentemente el archivo:\n"${nombreArchivo}"\n\n` +
+        `Esta acción no se puede deshacer y el documento dejará de estar disponible en el sistema.\n\n` +
+        `¿Desea confirmar la eliminación de este archivo?`
+    );
 
+    if (!seguro) return; // Si cancela, no hacemos nada
+
+    try {
+        const token = localStorage.getItem('token');
+        const respuesta = await fetch(`/api/familias/documentos/${idDocumento}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            alert('El archivo ha sido eliminado correctamente.');
+            // Recargamos los datos de la familia para refrescar la lista de adjuntos al instante
+            if (typeof editarDatosFamilia === 'function' && idFamilia) {
+                editarDatosFamilia(idFamilia);
+            } else {
+                location.reload();
+            }
+        } else {
+            alert(resultado.mensaje || 'No se pudo eliminar el archivo.');
+        }
+    } catch (error) {
+        console.error('Error de red al eliminar el documento:', error);
+        alert('Error de conexión con el servidor al intentar borrar el archivo.');
+    }
+};
+
+// Asegúrate de exponerla si usas módulos estrictos
+window.eliminarArchivoAdjunto = window.eliminarArchivoAdjunto;
 // Exposición global obligatoria para los eventos onclick inline del HTML
 window.cambiarPasoWizard = cambiarPasoWizard;
 window.agregarItemLista = agregarItemLista;

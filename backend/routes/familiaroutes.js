@@ -7,7 +7,8 @@ import {
     obtenerFamiliaPorId, 
     actualizarFamilia, 
     eliminarFamilia,
-    uploadDocumentos 
+    uploadDocumentos,
+    eliminarDocumento
 } from '../controllers/familiacontroller.js';
 
 const router = express.Router();
@@ -18,5 +19,5 @@ router.get('/relevamiento/:id', obtenerFamilias);         // <-- ¡NUEVA RUTA EX
 router.get('/:id', obtenerFamiliaPorId);                  // GET /api/familias/:id (Ficha)
 router.put('/:id', verificarToken, uploadDocumentos, actualizarFamilia);  // PUT con archivos (para edición)
 router.delete('/:id', eliminarFamilia);                   // DELETE /api/familias/:id
-
+router.delete('/documentos/:idDocumento', verificarToken, eliminarDocumento); // Ruta para borrar adjunto
 export default router;

@@ -305,3 +305,22 @@ if (req.files && req.files.length > 0) {
         res.status(500).json({ mensaje: 'Error en el servidor al actualizar la familia.' });
     }
 };
+// ELIMINAR UN DOCUMENTO ADJUNTO POR SU ID
+export const eliminarDocumento = async (req, res) => {
+    try {
+        const { idDocumento } = req.params;
+
+        const documento = await Documentacion.findByPk(idDocumento);
+        if (!documento) {
+            return res.status(404).json({ mensaje: 'El archivo adjunto que intenta eliminar no existe.' });
+        }
+
+        // Eliminamos el registro de la base de datos
+        await documento.destroy();
+
+        return res.json({ mensaje: 'Archivo eliminado correctamente.' });
+    } catch (error) {
+        console.error('Error al eliminar el documento:', error);
+        return res.status(500).json({ mensaje: 'Error en el servidor al eliminar el archivo.' });
+    }
+};
