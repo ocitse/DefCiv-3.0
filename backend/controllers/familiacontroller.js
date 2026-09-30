@@ -309,34 +309,22 @@ if (req.files && req.files.length > 0) {
 export const eliminarDocumento = async (req, res) => {
     try {
         const { idDocumento } = req.params;
-        console.log("🗑️ Servidor intentando borrar documento con ID:", idDocumento);
+        console.log("🗑️ Intentando eliminar documento con ID:", idDocumento);
 
-        // Intentamos buscar el documento por clave primaria o por cualquier variante de columna ID
-        let documento = await Documentacion.findByPk(idDocumento);
+        // Buscamos el documento en la base de datos
+        const documento = await Documentacion.findByPk(idDocumento);
         
-        if (!documento) {
-            documento = await Documentacion.findOne({
-                where: {
-                    [Op.or]: [
-                        { id: idDocumento },
-                        { id_documento: idDocumento },
-                        { id_documentacion: idDocumento }
-                    ]
-                }
-            });
-        }
-
         if (!documento) {
             return res.status(404).json({ mensaje: 'El archivo adjunto no existe en la base de datos.' });
         }
 
-        // Si usas Cloudinary y quieres borrar también el archivo físico de la nube, puedes hacerlo aquí,
-        // o simplemente destruir el registro en la base de datos:
+        // Eliminamos el registro
         await documento.destroy();
 
         return res.json({ mensaje: 'Archivo eliminado correctamente.' });
     } catch (error) {
-        console.error('❌ Error crítico en backend al eliminar documento:', error);
-        return res.status(500).json({ mensaje: 'Error en el servidor al intentar borrar el archivo: ' + error.message });
+        console.error('❌ ERROR REAL EN BACKEND AL BORRAR DOCUMENTO:', error);
+        // Devolvemos el mensaje exacto del error en JSON para que el frontend no rompa
+        return res.status(500).json({ mensaje: 'Error del servidor: ' + error.message });
     }
 };
