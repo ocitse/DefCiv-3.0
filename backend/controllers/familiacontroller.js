@@ -129,15 +129,31 @@ export const obtenerFamilias = async (req, res) => {
             whereClause.id_relevamiento = idRelevamiento;
         }
 
+        // 1. Buscamos las familias del relevamiento con sus necesidades
         const listaFamilias = await Familia.findAll({
             where: whereClause,
             include: [
-                { model: necesidadFamilia, as: 'necesidades' },
-                { model: Documentacion, as: 'documentacion' }
+                { model: necesidadFamilia, as: 'necesidades' }
             ]
         });
         
-        return res.json(listaFamilias);
+        // 2. Iteramos cada familia para buscar su documentación de forma independiente y directa
+        const familiasConDocumentos = await Promise.all(
+            listaFamilias.map(async (fam) => {
+                const familiaPlana = fam.toJSON();
+                
+                // Buscamos los archivos asociados a esta familia específica en la tabla documentacion_familias
+                const listaDocumentos = await Documentacion.findAll({
+                    where: { id_familia: familiaPlana.id_familia }
+                });
+
+                // Inyectamos la documentación explícitamente para que el frontend la reciba siempre
+                familiaPlana.documentacion = listaDocumentos || [];
+                return familiaPlana;
+            })
+        );
+
+        return res.json(familiasConDocumentos);
     } catch (error) {
         console.error('Error al obtener familias:', error);
         return res.status(500).json({ mensaje: 'Error en el servidor al obtener las familias.', error: error.message });
