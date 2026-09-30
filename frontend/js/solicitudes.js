@@ -164,65 +164,95 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
         document.getElementById('audit-total-familias').innerText = Array.isArray(familiasData) ? familiasData.length : 0;
 
         const tbodyAudit = document.querySelector('#tabla-audit-familias tbody');
-if (tbodyAudit) {
-    if (!Array.isArray(familiasData) || familiasData.length === 0) {
-        tbodyAudit.innerHTML = `<tr><td colspan="12" class="text-center text-muted py-3">No hay registros de familias para este relevamiento.</td></tr>`;
-    } else {
-        tbodyAudit.innerHTML = familiasData.map(fam => {
-            // Procesamos los materiales de construcción (necesidades)
-            let listadoMateriales = '<span class="text-muted small">Sin materiales</span>';
-            if (fam.necesidades && Array.isArray(fam.necesidades) && fam.necesidades.length > 0) {
-                listadoMateriales = fam.necesidades.map(n => 
-                    `<span class="badge bg-dark text-light me-1 mb-1">${n.tipo_material}: <strong>${n.cantidad}</strong></span>`
-                ).join('');
+        if (tbodyAudit) {
+            if (!Array.isArray(familiasData) || familiasData.length === 0) {
+                tbodyAudit.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay registros de familias para este relevamiento.</td></tr>`;
+            } else {
+                tbodyAudit.innerHTML = familiasData.map((fam, idx) => {
+                    const collapseId = `detalle-familia-${idx}`;
+
+                    // Procesamos los materiales de construcción
+                    let listadoMateriales = '<span class="text-muted small">Sin materiales</span>';
+                    if (fam.necesidades && Array.isArray(fam.necesidades) && fam.necesidades.length > 0) {
+                        listadoMateriales = fam.necesidades.map(n => 
+                            `<span class="badge bg-secondary text-light me-1 mb-1">${n.tipo_material}: <strong>${n.cantidad}</strong></span>`
+                        ).join('');
+                    }
+
+                    // Procesamos la documentación adjunta de Cloudinary
+                    let listadoDocs = '<span class="text-muted small">Sin adjuntos</span>';
+                    if (fam.documentacion && Array.isArray(fam.documentacion) && fam.documentacion.length > 0) {
+                        listadoDocs = fam.documentacion.map((doc, docIdx) => 
+                            `<a href="${doc.ruta_archivo}" target="_blank" class="btn btn-sm btn-outline-info py-0 px-2 me-1 mb-1" title="${doc.nombre_archivo || 'Ver archivo'}">
+                                <i class="bi bi-file-earmark-arrow-up"></i> Archivo #${docIdx + 1}
+                            </a>`
+                        ).join('');
+                    }
+
+                    // Sumatoria rápida de insumos para el resumen de la fila principal
+                    const totalInsumosRapido = (Number(fam.unidades_alimentarias) || 0) + 
+                                               (Number(fam.abrigos) || 0) + 
+                                               (Number(fam.frazadas) || 0) + 
+                                               (Number(fam.colchones) || 0) + 
+                                               (Number(fam.bidones_agua) || 0) + 
+                                               (Number(fam.kits_higiene) || 0) + 
+                                               (Number(fam.ropa) || 0);
+
+                    return `
+                        <!-- Fila Principal (Resumen colapsable) -->
+                        <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}" title="Haga clic para ver detalle e insumos" style="cursor: pointer;">
+                            <td class="text-center fw-bold text-warning"><i class="bi bi-chevron-down small me-1"></i> #${idx + 1}</td>
+                            <td class="small">${fam.dni_jefe || fam.dni || 'N/D'}</td>
+                            <td class="small fw-bold text-white">${fam.jefe_familia || fam.nombre || 'N/D'}</td>
+                            <td class="text-center small">${fam.cantidad_integrantes || '1'}</td>
+                            <td class="text-center"><span class="badge bg-primary">${totalInsumosRapido} ítems</span></td>
+                            <td class="text-center">
+                                ${fam.documentacion && fam.documentacion.length > 0 ? '<i class="bi bi-paperclip text-info" title="Tiene archivos adjuntos"></i>' : '<span class="text-muted">-</span>'}
+                            </td>
+                        </tr>
+                        <!-- Fila Desplegable (Acordeón con el detalle completo y adjuntos) -->
+                        <tr>
+                            <td colspan="6" class="p-0 border-0">
+                                <div class="collapse bg-dark p-3 border-bottom border-secondary" id="${collapseId}">
+                                    <div class="row g-3 small text-light">
+                                        <div class="col-12">
+                                            <h6 class="text-warning fw-bold border-bottom pb-1 mb-2"><i class="bi bi-box-seam me-1"></i> Desglose de Insumos Solicitados</h6>
+                                        </div>
+                                        <div class="col-md-3"><strong>Alimentos:</strong> ${fam.unidades_alimentarias || '0'}</div>
+                                        <div class="col-md-3"><strong>Abrigos:</strong> ${fam.abrigos || '0'}</div>
+                                        <div class="col-md-3"><strong>Frazadas:</strong> ${fam.frazadas || '0'}</div>
+                                        <div class="col-md-3"><strong>Colchones:</strong> ${fam.colchones || '0'}</div>
+                                        <div class="col-md-3"><strong>Bidones Agua:</strong> ${fam.bidones_agua || '0'}</div>
+                                        <div class="col-md-3"><strong>Kits Higiene:</strong> ${fam.kits_higiene || '0'}</div>
+                                        <div class="col-md-3"><strong>Ropa:</strong> ${fam.ropa || '0'}</div>
+                                        
+                                        <div class="col-12 mt-2">
+                                            <strong>Materiales de Construcción:</strong> ${listadoMateriales}
+                                        </div>
+                                        <div class="col-12 mt-1">
+                                            <strong>Documentación / Evidencia (Cloudinary):</strong> ${listadoDocs}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Fila de totales acumulados al final de la tabla resumida
+                const tot = calcularTotales(familiasData);
+                const totalGeneralInsumos = tot.unidades_alimentarias + tot.abrigos + tot.frazadas + tot.colchones + tot.bidones_agua + tot.kits_higiene + tot.ropa;
+                
+                tbodyAudit.innerHTML += `
+                    <tr class="table-secondary fw-bold">
+                        <td colspan="3" class="text-end">TOTALES ACUMULADOS:</td>
+                        <td class="text-center">${tot.integrantes} pers.</td>
+                        <td class="text-center">${totalGeneralInsumos} ítems</td>
+                        <td class="text-center">-</td>
+                    </tr>
+                `;
             }
-
-            // Procesamos la documentación adjunta (fotos, pdfs de Cloudinary)
-            let listadoDocs = '<span class="text-muted small">Sin adjuntos</span>';
-            if (fam.documentacion && Array.isArray(fam.documentacion) && fam.documentacion.length > 0) {
-                listadoDocs = fam.documentacion.map((doc, idx) => 
-                    `<a href="${doc.ruta_archivo}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-1 me-1 mb-1" title="${doc.nombre_archivo || 'Ver archivo'}">
-                        <i class="bi bi-file-earmark-text"></i> #${idx + 1}
-                    </a>`
-                ).join('');
-            }
-
-            return `
-                <tr>
-                    <td class="small">${fam.dni_jefe || fam.dni || 'N/D'}</td>
-                    <td class="small fw-bold">${fam.jefe_familia || fam.nombre || 'N/D'}</td>
-                    <td class="text-center small">${fam.cantidad_integrantes || '1'}</td>
-                    <td class="text-center small">${fam.unidades_alimentarias || '0'}</td>
-                    <td class="text-center small">${fam.abrigos || '0'}</td>
-                    <td class="text-center small">${fam.frazadas || '0'}</td>
-                    <td class="text-center small">${fam.colchones || '0'}</td>
-                    <td class="text-center small">${fam.bidones_agua || '0'}</td>
-                    <td class="text-center small">${fam.kits_higiene || '0'}</td>
-                    <td class="text-center small">${fam.ropa || '0'}</td>
-                    <td>${listadoMateriales}</td>
-                    <td class="text-center">${listadoDocs}</td>
-                </tr>
-            `;
-        }).join('');
-
-        // Fila de totales en el modal (12 columnas)
-        const tot = calcularTotales(familiasData);
-        tbodyAudit.innerHTML += `
-            <tr class="table-secondary fw-bold">
-                <td colspan="2" class="text-end">TOTALES ACUMULADOS:</td>
-                <td class="text-center">${tot.integrantes}</td>
-                <td class="text-center">${tot.unidades_alimentarias}</td>
-                <td class="text-center">${tot.abrigos}</td>
-                <td class="text-center">${tot.frazadas}</td>
-                <td class="text-center">${tot.colchones}</td>
-                <td class="text-center">${tot.bidones_agua}</td>
-                <td class="text-center">${tot.kits_higiene}</td>
-                <td class="text-center">${tot.ropa}</td>
-                <td colspan="2" class="text-muted small text-center">Ver detalle de materiales por familia</td>
-            </tr>
-        `;
-    }
-}
+        }
 
         // 3. Mostramos el modal usando Bootstrap
         const modalEl = document.getElementById('modalAuditoriaSolicitud');
