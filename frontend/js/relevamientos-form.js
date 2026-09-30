@@ -37,19 +37,25 @@ function renderizarDocumentosGuardados(documentos, idFamiliaActual) {
     contenedor.innerHTML = `
         <div class="mb-2 p-2 border border-success rounded bg-light">
             <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
-            ${documentos.map(doc => `
-                <div class="d-flex justify-content-between align-items-center p-2 mt-1 bg-dark border border-secondary rounded shadow-sm text-light small">
-                    <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium me-2" style="max-width: 70%;" title="${doc.nombre_archivo}">
-                        <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${doc.nombre_archivo}
-                    </a>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarArchivoAdjunto('${doc.id_documento}', '${doc.nombre_archivo}', '${idFamiliaActual}')" title="Eliminar archivo permanentemente">
-                            <i class="bi bi-trash"></i>
-                        </button>
+            ${documentos.map(doc => {
+                // Rescatamos el ID sin importar cómo se llame en la base de datos (id_documento, id, id_documentacion)
+                const idDocReal = doc.id_documento || doc.id || doc.id_documentacion || '';
+                const nombreArchivo = doc.nombre_archivo || 'Archivo adjunto';
+
+                return `
+                    <div class="d-flex justify-content-between align-items-center p-2 mt-1 bg-dark border border-secondary rounded shadow-sm text-light small">
+                        <a href="${doc.ruta_archivo}" target="_blank" class="text-decoration-none text-info text-truncate fw-medium me-2" style="max-width: 65%;" title="${nombreArchivo}">
+                            <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> ${nombreArchivo}
+                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge text-bg-success" style="font-size: 0.7em;">En Nube</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarArchivoAdjunto('${idDocReal}', '${nombreArchivo}', '${idFamiliaActual}')" title="Eliminar archivo permanentemente">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `).join('')}
+                `;
+            }).join('')}
         </div>
     `;
 }
