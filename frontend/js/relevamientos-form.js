@@ -222,11 +222,20 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-        const formData = new FormData(form);
+const formData = new FormData(form);
 
-        formData.set('id_relevamiento', window.idRelevamientoActivo);
-        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
-        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
+// Aseguramos que viajen todos los datos críticos explícitamente
+formData.set('id_relevamiento', window.idRelevamientoActivo);
+formData.set('dni_jefe', document.getElementById('f_dni')?.value.trim() || '');
+formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+formData.set('telefono', document.getElementById('f_telefono')?.value.trim() || '');
+formData.set('direccion', document.getElementById('f_direccion')?.value.trim() || '');
+formData.set('mayores', document.getElementById('f_mayores')?.value || '0');
+formData.set('menores', document.getElementById('f_menores')?.value || '0');
+formData.set('cantidad_integrantes', document.getElementById('f_total')?.value || '1');
+formData.set('urgencia_familiar', document.getElementById('f_urgencia_familiar')?.value || '');
+formData.set('observaciones', document.getElementById('f_observaciones')?.value || '');
+formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
         ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
             const el = document.getElementById(id);
