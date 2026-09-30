@@ -180,7 +180,94 @@ export function inicializarCalculoIntegrantes() {
 
 // ==================== GUARDADO DEFINITIVO ====================
 
-guardarDatosFamiliaDefinitivo
+export async function guardarDatosFamiliaDefinitivo(e) {
+    if (e) e.preventDefault();
+
+    const form = e.target;
+
+    // 🔍 DIAGNÓSTICO EN CONSOLA: Revisamos uno por uno qué campo está fallando
+    const todosLosCampos = form.querySelectorAll('input, select, textarea');
+    todosLosCampos.forEach(el => {
+        if (!el.checkValidity()) {
+            console.warn("❌ CAMPO INVÁLIDO DETECTADO:", {
+                id: el.id,
+                name: el.name,
+                valor: el.value,
+                mensajeError: el.validationMessage,
+                elemento: el
+            });
+        }
+    });
+
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        
+        const primerInvalido = form.querySelector(':invalid');
+        if (primerInvalido) {
+            console.error("🚨 BLOQUEADO POR EL CAMPO:", primerInvalido.id || primerInvalido.name);
+            
+            const pasoContenedor = primerInvalido.closest('.wizard-step');
+            if (pasoContenedor) {
+                const idPaso = pasoContenedor.id.replace('step-', '');
+                if (typeof cambiarPasoWizard === 'function') {
+                    cambiarPasoWizard(parseInt(idPaso));
+                }
+            }
+            primerInvalido.focus();
+        }
+
+        mostrarNotificacion("Faltan campos obligatorios. Abre la consola (F12) para ver cuál es el campo exacto.", "error");
+        return;
+    }
+
+    try {
+        const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
+        const formData = new FormData(form);
+
+        formData.set('id_relevamiento', window.idRelevamientoActivo);
+        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
+
+        ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (id === 'f_dano_perdida_completa') {
+                    formData.set('danos_estructurales', el.checked);
+                    formData.set('requiere_evacuacion', el.checked);
+                } else {
+                    formData.set(id.replace('f_', ''), el.checked);
+                }
+            }
+        });
+
+        const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
+        const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
+        const token = localStorage.getItem('token');
+
+        const respuesta = await fetch(url, {
+            method: metodo,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const resultado = await respuesta.json();
+        if (!respuesta.ok) throw new Error(resultado.mensaje || 'Error al guardar la familia.');
+
+        mostrarNotificacion(resultado.mensaje || "Familia guardada exitosamente.");
+
+        if (typeof verListaFamilias === 'function') {
+            verListaFamilias(window.idRelevamientoActivo);
+        } else if (typeof ingresarARelevamiento === 'function') {
+            ingresarARelevamiento(window.idRelevamientoActivo);
+        }
+
+    } catch (error) {
+        console.error("Error al guardar familia:", error);
+        mostrarNotificacion(error.message, "error");
+    }
+}
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
