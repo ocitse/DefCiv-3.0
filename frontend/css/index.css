@@ -832,3 +832,90 @@ body.rol-relevador #btn-nuevo-relevamiento {
     background-color: #1a222c !important;
     padding: 1.5rem !important;
 }
+/* ========================================================
+   MODAL DE AUDITORÍA DE RELEVAMIENTO Y FAMILIAS (Definitivo)
+   ======================================================== */
+   #modalAuditoriaSolicitud .modal-content {
+    background-color: #1a222c !important;
+    border: 1px solid #4a5568 !important;
+    color: #f8fafc !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.8) !important;
+}
+
+#modalAuditoriaSolicitud .modal-header {
+    background-color: #111822 !important;
+    border-bottom: 2px solid #3b82f6 !important;
+    color: #ffffff !important;
+    padding: 1.25rem 1.5rem !important;
+}
+
+#modalAuditoriaSolicitud .modal-title {
+    color: #ffffff !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+}
+
+#modalAuditoriaSolicitud .modal-title .text-warning {
+    color: #fbbf24 !important;
+}
+
+#modalAuditoriaSolicitud .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.9;
+}
+
+#modalAuditoriaSolicitud .modal-body {
+    background-color: #1a222c !important;
+    padding: 1.5rem !important;
+}
+
+/* Textos de metadatos superiores del relevamiento en la auditoría */
+#modalAuditoriaSolicitud .modal-body small,
+#modalAuditoriaSolicitud .modal-body span,
+#modalAuditoriaSolicitud .modal-body div {
+    color: #cbd5e1 !important;
+}
+
+/* Tabla interna de familias e insumos dentro de la auditoría */
+#modalAuditoriaSolicitud .table-responsive {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 6px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+#modalAuditoriaSolicitud table {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    margin-bottom: 0 !important;
+    font-size: 0.8rem !important;
+}
+
+#modalAuditoriaSolicitud table th {
+    background-color: #0f172a !important;
+    color: #93c5fd !important;
+    border-color: #334155 !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.5rem !important;
+    white-space: nowrap;
+}
+
+#modalAuditoriaSolicitud table td {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+    vertical-align: middle !important;
+    padding: 0.45rem 0.5rem !important;
+}
+
+/* Fila de totales acumulados dentro de la tabla */
+#modalAuditoriaSolicitud table tr.table-secondary td {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}
