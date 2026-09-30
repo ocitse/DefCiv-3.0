@@ -39,7 +39,11 @@ function renderizarDocumentosGuardados(documentos, idFamiliaActual) {
             <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
             ${documentos.map(doc => {
                 // Rescatamos el ID sin importar cómo se llame en la base de datos (id_documento, id, id_documentacion)
-                const idDocReal = doc.id_documento || doc.id || doc.id_documentacion || '';
+                const idDocReal = doc.id_documento || doc.id || doc.id_documentacion;
+if (!idDocReal) {
+    console.warn("⚠️ Archivo sin ID detectado:", doc);
+    return; // Si no tiene ID, no dibujamos el botón para evitar romper la URL
+}
                 const nombreArchivo = doc.nombre_archivo || 'Archivo adjunto';
 
                 return `
@@ -439,7 +443,7 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
         const idDocReal = this.getAttribute('data-id-doc');
         const idFamReal = this.getAttribute('data-id-fam');
 
-        console.log("🚀 Enviando petición DELETE para el documento ID:", idDocReal);
+        console.log("👉 ID DEL DOCUMENTO CAPTURADO EN EL DOM:", idDocReal); // <-- ¡Mira esto en la consola F12!
 
         try {
             const token = localStorage.getItem('token');
