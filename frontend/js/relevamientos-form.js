@@ -402,7 +402,7 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
     const modalAntiguo = document.getElementById('modalConfirmarBorradoDoc');
     if (modalAntiguo) modalAntiguo.remove();
 
-    // Inyectamos el HTML del modal con diseño oscuro institucional / Bootstrap
+    // Inyectamos el HTML inyectando los IDs directamente en los atributos data-* del botón
     const htmlModal = `
         <div class="modal fade" id="modalConfirmarBorradoDoc" tabindex="-1" aria-labelledby="modalBorradoLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -420,7 +420,7 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
                     </div>
                     <div class="modal-footer border-top border-secondary">
                         <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-danger btn-sm fw-bold px-3" id="btn-ejecutar-borrado-doc">
+                        <button type="button" class="btn btn-danger btn-sm fw-bold px-3" id="btn-ejecutar-borrado-doc" data-id-doc="${idDocumento}" data-id-fam="${idFamilia}">
                             <i class="bi bi-trash me-1"></i> Sí, Eliminar Permanentemente
                         </button>
                     </div>
@@ -434,25 +434,30 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
 
-    // Evento del botón de confirmación dentro del modal
+    // Evento del botón de confirmación leyendo los datos desde el DOM de forma segura
     document.getElementById('btn-ejecutar-borrado-doc').onclick = async function() {
+        const idDocReal = this.getAttribute('data-id-doc');
+        const idFamReal = this.getAttribute('data-id-fam');
+
+        console.log("🚀 Enviando petición DELETE para el documento ID:", idDocReal);
+
         try {
             const token = localStorage.getItem('token');
-            const respuesta = await fetch(`/api/familias/documentos/${idDocumento}`, {
+            const respuesta = await fetch(`/api/familias/documentos/${idDocReal}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
-            const resultado = await respuesta.json();
-
-            // Cerramos el modal limpiamente
+            // Limpiamos el modal antes de procesar la respuesta
             modal.hide();
             modalElement.remove();
             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
             document.body.classList.remove('modal-open');
             document.body.style.overflow = '';
+
+            const resultado = await respuesta.json();
 
             if (respuesta.ok) {
                 if (typeof mostrarNotificacion === 'function') {
@@ -461,9 +466,8 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
                     alert('El archivo ha sido eliminado correctamente.');
                 }
 
-                // Refrescamos la lista de documentos de la familia al instante
-                if (typeof editarDatosFamilia === 'function' && idFamilia) {
-                    editarDatosFamilia(idFamilia);
+                if (typeof editarDatosFamilia === 'function' && idFamReal && idFamReal !== 'undefined') {
+                    editarDatosFamilia(idFamReal);
                 } else {
                     location.reload();
                 }
