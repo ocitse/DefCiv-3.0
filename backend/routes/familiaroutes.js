@@ -18,7 +18,7 @@ router.get('/', obtenerFamilias);
 router.get('/relevamiento/:id', obtenerFamilias);
 
 // 🌟 PONER ESTA RUTA ANTES DE LOS `/:id` GENÉRICOS
-router.delete('/documentos/:idDocumento', verificarToken, eliminarDocumento); 
+router.delete('/documentos/:idDocumento', eliminarDocumento); 
 
 router.get('/:id', obtenerFamiliaPorId);
 router.put('/:id', verificarToken, uploadDocumentos, actualizarFamilia);
