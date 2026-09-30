@@ -180,64 +180,7 @@ export function inicializarCalculoIntegrantes() {
 
 // ==================== GUARDADO DEFINITIVO ====================
 
-export async function guardarDatosFamiliaDefinitivo(e) {
-    if (e) e.preventDefault();
-
-    const form = e.target;
-    if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        mostrarNotificacion("Por favor, complete los datos obligatorios de la familia.", "error");
-        return;
-    }
-
-    try {
-        const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-        const formData = new FormData(form);
-
-        formData.set('id_relevamiento', window.idRelevamientoActivo);
-        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
-        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
-
-        ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                if (id === 'f_dano_perdida_completa') {
-                    formData.set('danos_estructurales', el.checked);
-                    formData.set('requiere_evacuacion', el.checked);
-                } else {
-                    formData.set(id.replace('f_', ''), el.checked);
-                }
-            }
-        });
-
-        const url = idFamiliaEdicion ? `/api/familias/${idFamiliaEdicion}` : '/api/familias';
-        const metodo = idFamiliaEdicion ? 'PUT' : 'POST';
-        const token = localStorage.getItem('token');
-
-        const respuesta = await fetch(url, {
-            method: metodo,
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-
-        const resultado = await respuesta.json();
-        if (!respuesta.ok) throw new Error(resultado.mensaje || 'Error al guardar la familia.');
-
-        mostrarNotificacion(resultado.mensaje || "Familia guardada exitosamente.");
-
-        if (typeof verListaFamilias === 'function') {
-            verListaFamilias(window.idRelevamientoActivo);
-        } else if (typeof ingresarARelevamiento === 'function') {
-            ingresarARelevamiento(window.idRelevamientoActivo);
-        }
-
-    } catch (error) {
-        console.error("Error al guardar familia:", error);
-        mostrarNotificacion(error.message, "error");
-    }
-}
+guardarDatosFamiliaDefinitivo
 
 export async function editarDatosFamilia(idFamilia) {
     cargarVistaDinamica('./frontend/pages/form-familia.html', async () => {
