@@ -396,44 +396,92 @@ export function mostrarFormularioNuevaFamilia() {
         }
     });
 }
-// Función global para manejar el borrado seguro con confirmación explícita
-window.eliminarArchivoAdjunto = async function(idDocumento, nombreArchivo, idFamilia) {
-    // 🛑 Mega aviso de seguridad contra errores humanos
-    const seguro = confirm(
-        `⚠ ADVERTENCIA DE SEGURIDAD ⚠️\n\n` +
-        `Está a punto de eliminar permanentemente el archivo:\n"${nombreArchivo}"\n\n` +
-        `Esta acción no se puede deshacer y el documento dejará de estar disponible en el sistema.\n\n` +
-        `¿Desea confirmar la eliminación de este archivo?`
-    );
+// Función global para manejar el borrado seguro con Modal estético de la plataforma
+window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) {
+    // Si ya existía un modal anterior, lo removemos
+    const modalAntiguo = document.getElementById('modalConfirmarBorradoDoc');
+    if (modalAntiguo) modalAntiguo.remove();
 
-    if (!seguro) return; // Si cancela, no hacemos nada
+    // Inyectamos el HTML del modal con diseño oscuro institucional / Bootstrap
+    const htmlModal = `
+        <div class="modal fade" id="modalConfirmarBorradoDoc" tabindex="-1" aria-labelledby="modalBorradoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-light border border-secondary shadow-lg">
+                    <div class="modal-header border-bottom border-secondary bg-danger text-white">
+                        <h5 class="modal-title" id="modalBorradoLabel">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Advertencia de Seguridad
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <p class="mb-2">Está a punto de eliminar permanentemente el archivo:</p>
+                        <p class="fw-bold text-warning text-truncate">"${nombreArchivo}"</p>
+                        <p class="small text-muted mb-0">Esta acción no se puede deshacer y el documento dejará de estar disponible en el sistema.</p>
+                    </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger btn-sm fw-bold px-3" id="btn-ejecutar-borrado-doc">
+                            <i class="bi bi-trash me-1"></i> Sí, Eliminar Permanentemente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 
-    try {
-        const token = localStorage.getItem('token');
-        const respuesta = await fetch(`/api/familias/documentos/${idDocumento}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+    document.body.insertAdjacentHTML('beforeend', htmlModal);
+    const modalElement = document.getElementById('modalConfirmarBorradoDoc');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
 
-        const resultado = await respuesta.json();
+    // Evento del botón de confirmación dentro del modal
+    document.getElementById('btn-ejecutar-borrado-doc').onclick = async function() {
+        try {
+            const token = localStorage.getItem('token');
+            const respuesta = await fetch(`/api/familias/documentos/${idDocumento}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
-        if (respuesta.ok) {
-            alert('El archivo ha sido eliminado correctamente.');
-            // Recargamos los datos de la familia para refrescar la lista de adjuntos al instante
-            if (typeof editarDatosFamilia === 'function' && idFamilia) {
-                editarDatosFamilia(idFamilia);
+            const resultado = await respuesta.json();
+
+            // Cerramos el modal limpiamente
+            modal.hide();
+            modalElement.remove();
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+
+            if (respuesta.ok) {
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion('El archivo ha sido eliminado correctamente.', 'success');
+                } else {
+                    alert('El archivo ha sido eliminado correctamente.');
+                }
+
+                // Refrescamos la lista de documentos de la familia al instante
+                if (typeof editarDatosFamilia === 'function' && idFamilia) {
+                    editarDatosFamilia(idFamilia);
+                } else {
+                    location.reload();
+                }
             } else {
-                location.reload();
+                alert(resultado.mensaje || 'No se pudo eliminar el archivo.');
             }
-        } else {
-            alert(resultado.mensaje || 'No se pudo eliminar el archivo.');
+        } catch (error) {
+            console.error('Error de red al eliminar el documento:', error);
+            modal.hide();
+            modalElement.remove();
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            alert('Error de conexión con el servidor al intentar borrar el archivo.');
         }
-    } catch (error) {
-        console.error('Error de red al eliminar el documento:', error);
-        alert('Error de conexión con el servidor al intentar borrar el archivo.');
-    }
+    };
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalElement.remove();
+    });
 };
 
 // Asegúrate de exponerla si usas módulos estrictos
