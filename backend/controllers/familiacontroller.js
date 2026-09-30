@@ -305,14 +305,30 @@ if (req.files && req.files.length > 0) {
         res.status(500).json({ mensaje: 'Error en el servidor al actualizar la familia.' });
     }
 };
-// ELIMINAR UN DOCUMENTO ADJUNTO POR SU ID
+// ELIMINAR UN DOCUMENTO ADJUNTO POR SU ID (BLINDADO)
 export const eliminarDocumento = async (req, res) => {
     try {
         const { idDocumento } = req.params;
+        console.log("🗑️ Solicitud recibida para eliminar documento ID:", idDocumento);
 
-        const documento = await Documentacion.findByPk(idDocumento);
+        // Buscamos el documento probando las claves primarias más comunes en Sequelize
+        let documento = await Documentacion.findByPk(idDocumento);
+        
         if (!documento) {
-            return res.status(404).json({ mensaje: 'El archivo adjunto que intenta eliminar no existe.' });
+            // Intento alternativo por si la clave primaria tiene otro nombre en la BD
+            documento = await Documentacion.findOne({
+                where: {
+                    [Op.or]: [
+                        { id: idDocumento },
+                        { id_documento: idDocumento },
+                        { id_documentacion: idDocumento }
+                    ]
+                }
+            });
+        }
+
+        if (!documento) {
+            return res.status(404).json({ mensaje: 'El archivo adjunto no existe o ya fue eliminado.' });
         }
 
         // Eliminamos el registro de la base de datos
@@ -320,7 +336,7 @@ export const eliminarDocumento = async (req, res) => {
 
         return res.json({ mensaje: 'Archivo eliminado correctamente.' });
     } catch (error) {
-        console.error('Error al eliminar el documento:', error);
-        return res.status(500).json({ mensaje: 'Error en el servidor al eliminar el archivo.' });
+        console.error('❌ Error crítico al eliminar el documento en el servidor:', error);
+        return res.status(500).json({ mensaje: 'Error en el servidor al eliminar el archivo: ' + error.message });
     }
 };
