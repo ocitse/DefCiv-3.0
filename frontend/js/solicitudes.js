@@ -184,7 +184,7 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                     if (fam.documentacion && Array.isArray(fam.documentacion) && fam.documentacion.length > 0) {
                         listadoDocs = fam.documentacion.map((doc, docIdx) => 
                             `<a href="${doc.ruta_archivo}" target="_blank" class="btn btn-sm btn-outline-info py-0 px-2 me-1 mb-1" title="${doc.nombre_archivo || 'Ver archivo'}">
-                                <i class="bi bi-file-earmark-arrow-up"></i> Archivo #${docIdx + 1}
+                                <i class="bi bi-file-earmark-arrow-up"></i> ${doc.nombre_archivo || `Archivo #${docIdx + 1}`}
                             </a>`
                         ).join('');
                     }
@@ -214,22 +214,26 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                         <tr>
                             <td colspan="6" class="p-0 border-0">
                                 <div class="collapse bg-dark p-3 border-bottom border-secondary" id="${collapseId}">
-                                    <div class="row g-3 small text-light">
-                                        <div class="col-12">
-                                            <h6 class="text-warning fw-bold border-bottom pb-1 mb-2"><i class="bi bi-box-seam me-1"></i> Desglose de Insumos Solicitados</h6>
-                                        </div>
-                                        <div class="col-md-3"><strong>Alimentos:</strong> ${fam.unidades_alimentarias || '0'}</div>
-                                        <div class="col-md-3"><strong>Abrigos:</strong> ${fam.abrigos || '0'}</div>
-                                        <div class="col-md-3"><strong>Frazadas:</strong> ${fam.frazadas || '0'}</div>
-                                        <div class="col-md-3"><strong>Colchones:</strong> ${fam.colchones || '0'}</div>
-                                        <div class="col-md-3"><strong>Bidones Agua:</strong> ${fam.bidones_agua || '0'}</div>
-                                        <div class="col-md-3"><strong>Kits Higiene:</strong> ${fam.kits_higiene || '0'}</div>
-                                        <div class="col-md-3"><strong>Ropa:</strong> ${fam.ropa || '0'}</div>
+                                    <div class="small text-light">
+                                        <h6 class="text-warning fw-bold border-bottom pb-1 mb-2">
+                                            <i class="bi bi-box-seam me-1"></i> Desglose de Insumos Solicitados
+                                        </h6>
                                         
-                                        <div class="col-12 mt-2">
+                                        <!-- Grilla compacta de insumos -->
+                                        <div class="row row-cols-2 row-cols-md-4 g-2 mb-3">
+                                            <div class="col"><strong>Alimentos:</strong> <span class="text-info">${fam.unidades_alimentarias || '0'}</span></div>
+                                            <div class="col"><strong>Abrigos:</strong> <span class="text-info">${fam.abrigos || '0'}</span></div>
+                                            <div class="col"><strong>Frazadas:</strong> <span class="text-info">${fam.frazadas || '0'}</span></div>
+                                            <div class="col"><strong>Colchones:</strong> <span class="text-info">${fam.colchones || '0'}</span></div>
+                                            <div class="col"><strong>Bidones Agua:</strong> <span class="text-info">${fam.bidones_agua || '0'}</span></div>
+                                            <div class="col"><strong>Kits Higiene:</strong> <span class="text-info">${fam.kits_higiene || '0'}</span></div>
+                                            <div class="col"><strong>Ropa:</strong> <span class="text-info">${fam.ropa || '0'}</span></div>
+                                        </div>
+
+                                        <div class="mb-2">
                                             <strong>Materiales de Construcción:</strong> ${listadoMateriales}
                                         </div>
-                                        <div class="col-12 mt-1">
+                                        <div>
                                             <strong>Documentación / Evidencia (Cloudinary):</strong> ${listadoDocs}
                                         </div>
                                     </div>
