@@ -215,6 +215,8 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                             <td colspan="6" class="p-0 border-0">
                                 <div class="collapse bg-dark p-3 border-bottom border-secondary" id="${collapseId}">
                                     <div class="small text-light">
+                                        
+                                        <!-- Título de Insumos -->
                                         <h6 class="text-warning fw-bold border-bottom pb-1 mb-2">
                                             <i class="bi bi-box-seam me-1"></i> Desglose de Insumos Solicitados
                                         </h6>
@@ -230,12 +232,18 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                                             <div class="col"><strong>Ropa:</strong> <span class="text-info">${fam.ropa || '0'}</span></div>
                                         </div>
 
-                                        <div class="mb-2">
-                                            <strong>Materiales de Construcción:</strong> ${listadoMateriales}
+                                        <!-- Sección de Materiales de Construcción -->
+                                        <div class="mb-3 pt-2 border-top border-secondary">
+                                            <strong class="text-muted d-block mb-1"><i class="bi bi-bricks me-1"></i> Materiales de Construcción:</strong>
+                                            <div>${listadoMateriales}</div>
                                         </div>
-                                        <div>
-                                            <strong>Documentación / Evidencia (Cloudinary):</strong> ${listadoDocs}
+
+                                        <!-- Sección de Documentación / Evidencia -->
+                                        <div class="pt-2 border-top border-secondary">
+                                            <strong class="text-muted d-block mb-1"><i class="bi bi-paperclip me-1"></i> Documentación / Evidencia (Cloudinary):</strong>
+                                            <div class="d-flex flex-wrap gap-1 mt-1">${listadoDocs}</div>
                                         </div>
+
                                     </div>
                                 </div>
                             </td>
