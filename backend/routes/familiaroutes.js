@@ -1,6 +1,6 @@
 // backend/routes/familiaroutes.js
 import express from 'express';
-import { verificarToken } from '../middleware/authMiddleware.js'; // <- AGREGAR ESTA LÍNEA
+import { verificarToken } from '../middleware/authMiddleware.js';
 import { 
     crearFamilia, 
     obtenerFamilias, 
@@ -13,11 +13,15 @@ import {
 
 const router = express.Router();
 
-router.post('/',verificarToken, uploadDocumentos, crearFamilia);          // POST con archivos
-router.get('/', obtenerFamilias);                         // GET /api/familias (soporta ?relevamiento_id=X si se programa en el controller)
-router.get('/relevamiento/:id', obtenerFamilias);         // <-- ¡NUEVA RUTA EXPLÍCITA! GET /api/familias/relevamiento/:id
-router.get('/:id', obtenerFamiliaPorId);                  // GET /api/familias/:id (Ficha)
-router.put('/:id', verificarToken, uploadDocumentos, actualizarFamilia);  // PUT con archivos (para edición)
-router.delete('/:id', eliminarFamilia);                   // DELETE /api/familias/:id
-router.delete('/documentos/:idDocumento', verificarToken, eliminarDocumento); // Ruta para borrar adjunto
+router.post('/', verificarToken, uploadDocumentos, crearFamilia);
+router.get('/', obtenerFamilias);
+router.get('/relevamiento/:id', obtenerFamilias);
+
+// 🌟 PONER ESTA RUTA ANTES DE LOS `/:id` GENÉRICOS
+router.delete('/documentos/:idDocumento', verificarToken, eliminarDocumento); 
+
+router.get('/:id', obtenerFamiliaPorId);
+router.put('/:id', verificarToken, uploadDocumentos, actualizarFamilia);
+router.delete('/:id', eliminarFamilia);
+
 export default router;
