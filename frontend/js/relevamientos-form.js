@@ -39,7 +39,8 @@ function renderizarDocumentosGuardados(documentos, idFamiliaActual) {
             <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
             ${documentos.map(doc => {
                 // Rescatamos el ID probando todas las opciones posibles de la base de datos
-                const idDocReal = doc.id || doc.id_documento || doc.id_documentacion || '';
+                // Probamos todas las variantes posibles, incluyendo si el id está dentro de otra propiedad o si debemos usar el índice
+const idDocReal = doc.id || doc.id_documento || doc.id_documentacion || doc.id_archivo || '';
                 const nombreArchivo = doc.nombre_archivo || doc.nombre || 'Archivo adjunto';
                 const rutaArchivo = doc.ruta_archivo || doc.url || '#';
 

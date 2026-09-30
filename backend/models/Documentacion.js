@@ -2,10 +2,11 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
 const documentacion = sequelize.define('documentacion', {
-    id_documento: {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
+        field: 'id' // Mapea exactamente con la columna 'id' real de Supabase
     },
     id_familia: {
         type: DataTypes.INTEGER,
