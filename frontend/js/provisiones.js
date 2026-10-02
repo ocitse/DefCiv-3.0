@@ -131,16 +131,25 @@ function renderizarFilasProvisiones(provisiones) {
             </button>
         ` : `<span class="text-muted small">Cerrado</span>`;
 
-        // Referencia contextual clara de la solicitud origen
-        const refSolicitud = p.solicitud_id ? `Solicitud #${p.solicitud_id}` : 'Ref. General';
-        const infoUbicacion = p.destino ? p.destino : 'Destino general';
+        // 🌟 MODIFICACIÓN 1: Usamos el código real del relevamiento que trajo el LEFT JOIN
+        const codigoRel = p.codigo_relevamiento ? `Rel: ${p.codigo_relevamiento}` : (p.solicitud_id ? `Solicitud #${p.solicitud_id}` : 'Ref. General');
+        
+        // 🌟 MODIFICACIÓN 2: Armamos una ubicación limpia con departamento, localidad y barrio reales
+        let infoUbicacion = 'Destino general';
+        if (p.departamento || p.localidad) {
+            const deptoLoc = [p.departamento, p.localidad].filter(Boolean).join(' / ');
+            const barrioTxt = p.barrio ? ` - B° ${p.barrio}` : '';
+            infoUbicacion = `${deptoLoc}${barrioTxt}`;
+        } else if (p.destino) {
+            infoUbicacion = p.destino;
+        }
 
         return `
             <!-- 1. VISTA DE ESCRITORIO -->
             <tr class="text-dark d-none d-md-table-row">
                 <td class="ps-3"><strong>#${p.id}</strong></td>
                 <td>
-                    <span class="fw-semibold text-primary">${refSolicitud}</span><br>
+                    <span class="fw-semibold text-primary">${codigoRel}</span><br>
                     <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${infoUbicacion}</small>
                 </td>
                 <td>${p.detalle || 'Sin detalle de insumos'}</td>
@@ -156,10 +165,11 @@ function renderizarFilasProvisiones(provisiones) {
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
                             <div class="fw-bold text-primary">Provisión #${p.id}</div>
-                            <div class="small text-muted">${refSolicitud}</div>
+                            <div class="small text-muted">${codigoRel}</div>
                         </div>
                         <div><span class="badge ${badgeClass}">${p.estado}</span></div>
                     </div>
+                    <div class="small mb-1 text-dark"><strong>Ubicación:</strong> ${infoUbicacion}</div>
                     <div class="small mb-1 text-dark"><strong>Detalle / Insumos:</strong> ${p.detalle || 'Sin detalle'}</div>
                     <div class="small mb-1 text-dark"><strong>Destino:</strong> ${p.destino || 'N/A'}</div>
                     <div class="small mb-2 text-muted"><strong>Observaciones:</strong> ${p.observaciones || 'Sin observaciones'}</div>
