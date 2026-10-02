@@ -1,6 +1,6 @@
 import express from 'express';
 // 🌟 Importamos la función mejorada desde el controlador
-import { obtenerProvisiones, cerrarProvision } from '../controllers/provisionesController.js';
+import { obtenerProvisiones, cerrarProvision } from '../controllers/provisioncontroller.js';
 import { QueryTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
