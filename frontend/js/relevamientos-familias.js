@@ -144,7 +144,7 @@ export async function verFichaNecesidades(idFamilia) {
         
         if (listaMateriales.length > 0) {
             htmlMateriales = `
-                <ul class="list-group list-group-flush small">
+                <ul class="list-group list-group-flush small" style="max-height: 140px; overflow-y: auto;">
                     ${listaMateriales.map(m => `
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-white px-0 py-1">
                             <span><i class="bi bi-box-seam me-1 text-secondary"></i> ${m.tipo_material || 'Material'}</span>
@@ -154,7 +154,32 @@ export async function verFichaNecesidades(idFamilia) {
                 </ul>
             `;
         } else {
-            htmlMateriales = `<p class="text-muted small m-0 fst-italic">No se registraron materiales de construcción solicitados.</p>`;
+            htmlMateriales = `<p class="text-muted small m-0 fst-italic">No se registraron materiales solicitados.</p>`;
+        }
+
+        // 🌟 PROCESAMIENTO DE DOCUMENTOS ADJUNTOS PARA LA FICHA
+        let documentos = fam.documentacion || fam.Documentacion || fam.documentacions || fam.data?.documentacion || [];
+        let htmlDocumentos = '';
+
+        if (documentos.length > 0) {
+            htmlDocumentos = `
+                <ul class="list-group list-group-flush small" style="max-height: 140px; overflow-y: auto;">
+                    ${documentos.map(doc => {
+                        const nombreArchivo = doc.nombre_archivo || doc.nombre || 'Documento adjunto';
+                        const rutaArchivo = doc.ruta_archivo || doc.url || '#';
+                        return `
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-white px-0 py-1">
+                                <a href="${rutaArchivo}" target="_blank" class="text-decoration-none text-truncate me-2" style="max-width: 75%;" title="${nombreArchivo}">
+                                    <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> ${nombreArchivo}
+                                </a>
+                                <span class="badge bg-success bg-opacity-75" style="font-size: 0.65em;">Adjunto</span>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+            `;
+        } else {
+            htmlDocumentos = `<p class="text-muted small m-0 fst-italic">No hay documentación adjunta.</p>`;
         }
 
         const asistencia = [
@@ -171,7 +196,7 @@ export async function verFichaNecesidades(idFamilia) {
         if (asistencia.length > 0) {
             htmlAsistencia = `
                 <div class="d-flex flex-wrap gap-2 mt-2">
-                    ${asistencia.map(a => `<span class="badge bg-success bg-opacity-75 text-white">${a.label}: ${a.val}</span>`).join('')}
+                    ${asistencia.map(a => `<span class="badge bg-success bg-opacity-75 text-white">${a.label}:${a.val}</span>`).join('')}
                 </div>
             `;
         } else {
@@ -237,14 +262,23 @@ export async function verFichaNecesidades(idFamilia) {
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- 🌟 DISTRIBUCIÓN PARTIDA A LA MITAD: Materiales a la izquierda y Documentación a la derecha -->
                             <div class="row g-3 mb-3">
-                                <div class="col-md-12">
-                                    <div class="p-3 bg-white rounded border shadow-sm">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
                                         <h6 class="text-primary fw-bold border-bottom pb-2 mb-2"><i class="bi bi-tools me-1"></i> Materiales de Construcción</h6>
                                         ${htmlMateriales}
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
+                                        <h6 class="text-secondary fw-bold border-bottom pb-2 mb-2"><i class="bi bi-paperclip me-1"></i> Documentación Adjunta</h6>
+                                        ${htmlDocumentos}
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="p-3 bg-warning bg-opacity-10 rounded border border-warning-subtle">
                                 <h6 class="fw-bold text-dark mb-1"><i class="bi bi-chat-left-text-fill me-1"></i> Observaciones</h6>
                                 <p class="m-0 small text-dark">${fam.observaciones || 'Sin observaciones registradas.'}</p>
