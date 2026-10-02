@@ -5,13 +5,22 @@ import sequelize from '../config/database.js';
 export const obtenerProvisiones = async (req, res) => {
     try {
         const provisiones = await sequelize.query(
-            'SELECT * FROM provisiones ORDER BY id DESC',
+            `SELECT 
+                p.*, 
+                r.codigo_relevamiento, 
+                r.departamento, 
+                r.localidad, 
+                r.barrio, 
+                r.tipo_evento 
+             FROM provisiones p
+             LEFT JOIN relevamientos r ON p.solicitud_id = r.id
+             ORDER BY p.id DESC`,
             { type: QueryTypes.SELECT }
         );
         res.json({ success: true, data: provisiones });
     } catch (error) {
-        console.warn('⚠️ La tabla provisiones no existe o está vacía, devolviendo vacío.');
-        res.json({ success: true, data: [] });
+        console.warn('⚠️ Error al obtener provisiones:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener las provisiones' });
     }
 };
 
