@@ -38,9 +38,7 @@ function renderizarDocumentosGuardados(documentos, idFamiliaActual) {
         <div class="mb-2 p-2 border border-success rounded bg-light">
             <span class="text-success small fw-bold d-block mb-1"><i class="bi bi-cloud-check-fill"></i> Archivos ya guardados en la nube:</span>
             ${documentos.map(doc => {
-                // Rescatamos el ID probando todas las opciones posibles de la base de datos
-                // Probamos todas las variantes posibles, incluyendo si el id está dentro de otra propiedad o si debemos usar el índice
-const idDocReal = doc.id || doc.id_documento || doc.id_documentacion || doc.id_archivo || '';
+                const idDocReal = doc.id || doc.id_documento || doc.id_documentacion || doc.id_archivo || '';
                 const nombreArchivo = doc.nombre_archivo || doc.nombre || 'Archivo adjunto';
                 const rutaArchivo = doc.ruta_archivo || doc.url || '#';
 
@@ -61,6 +59,7 @@ const idDocReal = doc.id || doc.id_documento || doc.id_documentacion || doc.id_a
         </div>
     `;
 }
+
 // ==================== GESTIÓN VISUAL DE ARCHIVOS PENDIENTES ====================
 
 export function agregarArchivoAListaVisual() {
@@ -185,27 +184,11 @@ export async function guardarDatosFamiliaDefinitivo(e) {
 
     const form = e.target;
 
-    // 🔍 DIAGNÓSTICO EN CONSOLA: Revisamos uno por uno qué campo está fallando
-    const todosLosCampos = form.querySelectorAll('input, select, textarea');
-    todosLosCampos.forEach(el => {
-        if (!el.checkValidity()) {
-            console.warn("❌ CAMPO INVÁLIDO DETECTADO:", {
-                id: el.id,
-                name: el.name,
-                valor: el.value,
-                mensajeError: el.validationMessage,
-                elemento: el
-            });
-        }
-    });
-
     if (!form.checkValidity()) {
         form.classList.add('was-validated');
         
         const primerInvalido = form.querySelector(':invalid');
         if (primerInvalido) {
-            console.error("🚨 BLOQUEADO POR EL CAMPO:", primerInvalido.id || primerInvalido.name);
-            
             const pasoContenedor = primerInvalido.closest('.wizard-step');
             if (pasoContenedor) {
                 const idPaso = pasoContenedor.id.replace('step-', '');
@@ -216,35 +199,37 @@ export async function guardarDatosFamiliaDefinitivo(e) {
             primerInvalido.focus();
         }
 
-        mostrarNotificacion("Faltan campos obligatorios. Abre la consola (F12) para ver cuál es el campo exacto.", "error");
+        mostrarNotificacion("Faltan campos obligatorios para registrar la familia.", "error");
         return;
     }
 
     try {
         const idFamiliaEdicion = document.getElementById('f_id_edicion')?.value;
-const formData = new FormData(form);
+        const formData = new FormData(form);
 
-// Aseguramos que viajen todos los datos críticos explícitamente
-formData.set('id_relevamiento', window.idRelevamientoActivo);
-formData.set('dni_jefe', document.getElementById('f_dni')?.value.trim() || '');
-formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
-formData.set('telefono', document.getElementById('f_telefono')?.value.trim() || '');
-formData.set('direccion', document.getElementById('f_direccion')?.value.trim() || '');
-formData.set('mayores', document.getElementById('f_mayores')?.value || '0');
-formData.set('menores', document.getElementById('f_menores')?.value || '0');
-formData.set('cantidad_integrantes', document.getElementById('f_total')?.value || '1');
-formData.set('urgencia_familiar', document.getElementById('f_urgencia_familiar')?.value || '');
-formData.set('observaciones', document.getElementById('f_observaciones')?.value || '');
-formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
-// Asistencia inmediata y suministros
-formData.set('alimentos', document.getElementById('f_need_alimentos')?.value || '0');
-formData.set('abrigos', document.getElementById('f_need_abrigos')?.value || '0');
-formData.set('frazadas', document.getElementById('f_need_frazadas')?.value || '0');
-formData.set('agua', document.getElementById('f_need_agua')?.value || '0');
-formData.set('kits_higiene', document.getElementById('f_need_higiene')?.value || '0');
-formData.set('ropa', document.getElementById('f_need_ropa')?.value || '0');
-formData.set('colchones', document.getElementById('f_need_colchones')?.value || '0');
+        // Mapeo blindado y completo de todos los campos hacia el servidor
+        formData.set('id_relevamiento', window.idRelevamientoActivo);
+        formData.set('jefe_familia', `${document.getElementById('f_apellido').value.trim()}, ${document.getElementById('f_nombre').value.trim()}`);
+        formData.set('dni_jefe', document.getElementById('f_dni')?.value.trim() || '');
+        formData.set('telefono', document.getElementById('f_telefono')?.value.trim() || '');
+        formData.set('direccion', document.getElementById('f_direccion')?.value.trim() || '');
+        formData.set('mayores', document.getElementById('f_mayores')?.value || '1');
+        formData.set('menores', document.getElementById('f_menores')?.value || '0');
+        formData.set('cantidad_integrantes', document.getElementById('f_total')?.value || '1');
+        formData.set('urgencia_familiar', document.getElementById('f_urgencia_familiar')?.value || '');
+        formData.set('observaciones', document.getElementById('f_observaciones')?.value || '');
+        formData.set('necesidades', JSON.stringify(listaTemporalMateriales));
 
+        // Asistencia inmediata vinculada a los IDs reales del HTML
+        formData.set('unidades_alimentarias', document.getElementById('f_need_alimentos')?.value || '0');
+        formData.set('abrigos', document.getElementById('f_need_abrigos')?.value || '0');
+        formData.set('frazadas', document.getElementById('f_need_frazadas')?.value || '0');
+        formData.set('bidones_agua', document.getElementById('f_need_agua')?.value || '0');
+        formData.set('kits_higiene', document.getElementById('f_need_higiene')?.value || '0');
+        formData.set('ropa', document.getElementById('f_need_ropa')?.value || '0');
+        formData.set('colchones', document.getElementById('f_need_colchones')?.value || '0');
+
+        // Daños en la vivienda
         ['f_dano_techo', 'f_dano_paredes', 'f_dano_pisos', 'f_dano_instalaciones', 'f_dano_perdida_completa'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -304,7 +289,6 @@ export async function editarDatosFamilia(idFamilia) {
             if (!respuesta.ok) throw new Error("No se pudo obtener la información de la familia.");
             
             const fam = await respuesta.json();
-            console.log("🔍 LO QUE DEVUELVE EL BACKEND AL EDITAR:", fam);
             
             if (fam.relevamiento_id || fam.id_relevamiento) {
                 window.idRelevamientoActivo = fam.relevamiento_id || fam.id_relevamiento;
@@ -332,6 +316,7 @@ export async function editarDatosFamilia(idFamilia) {
             if (document.getElementById('f_dano_instalaciones')) document.getElementById('f_dano_instalaciones').checked = Boolean(fam.dano_instalaciones || fam.instalaciones_afectadas);
             if (document.getElementById('f_dano_perdida_completa')) document.getElementById('f_dano_perdida_completa').checked = Boolean(fam.danos_estructurales || fam.requiere_evacuacion);
 
+            // Carga correcta de asistencia inmediata al editar
             if (document.getElementById('f_need_alimentos')) document.getElementById('f_need_alimentos').value = fam.unidades_alimentarias || fam.alimentos || 0;
             if (document.getElementById('f_need_abrigos')) document.getElementById('f_need_abrigos').value = fam.abrigos || 0;
             if (document.getElementById('f_need_frazadas')) document.getElementById('f_need_frazadas').value = fam.frazadas || 0;
@@ -357,12 +342,10 @@ export async function editarDatosFamilia(idFamilia) {
 
             if (document.getElementById('f_observaciones')) document.getElementById('f_observaciones').value = fam.observaciones || '';
 
-            // 🌟 RECUPERACIÓN BLINDADA DE DOCUMENTOS (Busca en cualquier propiedad o clave posible)
             const contenedorDocs = document.getElementById('lista-archivos-guardados');
             if (contenedorDocs) {
                 let docs = fam.documentacion || fam.Documentacion || fam.documentacions || fam.data?.documentacion || [];
                 
-                // Si el objeto de la familia no los trajo, hacemos una consulta rápida para rescatarlos
                 if (docs.length === 0) {
                     try {
                         const resDocs = await fetch(`/api/familias/${idFamilia}`);
@@ -373,7 +356,6 @@ export async function editarDatosFamilia(idFamilia) {
                     }
                 }
 
-                // Llamamos a la única función oficial que dibuja los documentos CON su botón de eliminar
                 renderizarDocumentosGuardados(docs, idFamilia);
             }
         } catch (error) {
@@ -433,7 +415,7 @@ export function mostrarFormularioNuevaFamilia() {
         inicializarCalculoIntegrantes();
         renderizarListaVisual('mat', listaTemporalMateriales);
         sincronizarInputRealYVisual();
-        renderizarDocumentosGuardados([]); // Limpiamos la sección en alta nueva
+        renderizarDocumentosGuardados([]);
 
         const form = document.getElementById('form-nueva-familia');
         if (form) {
@@ -444,13 +426,11 @@ export function mostrarFormularioNuevaFamilia() {
         }
     });
 }
-// Función global para manejar el borrado seguro con Modal estético de la plataforma
+
 window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) {
-    // Si ya existía un modal anterior, lo removemos
     const modalAntiguo = document.getElementById('modalConfirmarBorradoDoc');
     if (modalAntiguo) modalAntiguo.remove();
 
-    // Inyectamos el HTML inyectando los IDs directamente en los atributos data-* del botón
     const htmlModal = `
         <div class="modal fade" id="modalConfirmarBorradoDoc" tabindex="-1" aria-labelledby="modalBorradoLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -482,12 +462,9 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
 
-    // Evento del botón de confirmación leyendo los datos desde el DOM de forma segura
     document.getElementById('btn-ejecutar-borrado-doc').onclick = async function() {
         const idDocReal = this.getAttribute('data-id-doc');
         const idFamReal = this.getAttribute('data-id-fam');
-
-        console.log("👉 ID DEL DOCUMENTO CAPTURADO EN EL DOM:", idDocReal); // <-- ¡Mira esto en la consola F12!
 
         try {
             const token = localStorage.getItem('token');
@@ -498,7 +475,6 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
                 }
             });
 
-            // Limpiamos el modal antes de procesar la respuesta
             modal.hide();
             modalElement.remove();
             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
@@ -536,9 +512,7 @@ window.eliminarArchivoAdjunto = function(idDocumento, nombreArchivo, idFamilia) 
     });
 };
 
-// Asegúrate de exponerla si usas módulos estrictos
 window.eliminarArchivoAdjunto = window.eliminarArchivoAdjunto;
-// Exposición global obligatoria para los eventos onclick inline del HTML
 window.cambiarPasoWizard = cambiarPasoWizard;
 window.agregarItemLista = agregarItemLista;
 window.eliminarItemLista = eliminarItemLista;
