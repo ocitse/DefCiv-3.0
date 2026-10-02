@@ -131,47 +131,43 @@ function renderizarFilasProvisiones(provisiones) {
             </button>
         ` : `<span class="text-muted small">Cerrado</span>`;
 
-        // 🌟 MODIFICACIÓN 1: Usamos el código real del relevamiento que trajo el LEFT JOIN
-        const codigoRel = p.codigo_relevamiento ? `Rel: ${p.codigo_relevamiento}` : (p.solicitud_id ? `Solicitud #${p.solicitud_id}` : 'Ref. General');
+        // Formateamos fecha y código idéntico al estándar de Relevamientos
+        const fechaProv = p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/D';
+        const codigoRel = p.codigo_relevamiento ? p.codigo_relevamiento : `Provisión #${p.id}`;
         
-        // 🌟 MODIFICACIÓN 2: Armamos una ubicación limpia con departamento, localidad y barrio reales
-        let infoUbicacion = 'Destino general';
-        if (p.departamento || p.localidad) {
-            const deptoLoc = [p.departamento, p.localidad].filter(Boolean).join(' / ');
-            const barrioTxt = p.barrio ? ` - B° ${p.barrio}` : '';
-            infoUbicacion = `${deptoLoc}${barrioTxt}`;
-        } else if (p.destino) {
-            infoUbicacion = p.destino;
-        }
+        // Estructura de ubicación idéntica (Departamento / Localidad arriba, Barrio abajo con icono)
+        const deptoLocalidad = (p.departamento || p.localidad) ? `<strong>${p.departamento || ''}</strong> / ${p.localidad || ''}` : (p.destino || 'Destino general');
+        const barrioTexto = p.barrio ? `<small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${p.barrio}</small>` : '';
 
         return `
-            <!-- 1. VISTA DE ESCRITORIO -->
+            <!-- 1. VISTA DE ESCRITORIO (Espejo de Relevamientos) -->
             <tr class="text-dark d-none d-md-table-row">
-                <td class="ps-3"><strong>#${p.id}</strong></td>
+                <td class="ps-3">
+                    <strong>${codigoRel}</strong><br>
+                    <small class="text-muted" style="font-size: 0.8em;">${fechaProv}</small>
+                </td>
                 <td>
-                    <span class="fw-semibold text-primary">${codigoRel}</span><br>
-                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${infoUbicacion}</small>
+                    ${deptoLocalidad}<br>
+                    ${barrioTexto}
                 </td>
                 <td>${p.detalle || 'Sin detalle de insumos'}</td>
-                <td>${p.destino || 'N/A'}</td>
                 <td><span class="badge ${badgeClass}">${p.estado}</span></td>
                 <td>${p.observaciones || 'Sin observaciones'}</td>
                 <td class="text-center pe-3">${botonAccion}</td>
             </tr>
 
-            <!-- 2. VISTA MÓVIL (Tarjeta adaptable al 100%) -->
+            <!-- 2. VISTA MÓVIL (Tarjeta adaptable) -->
             <tr class="d-block d-md-none mb-3 border rounded shadow-sm p-3 bg-white">
                 <td class="text-start border-0 p-0">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <div class="fw-bold text-primary">Provisión #${p.id}</div>
-                            <div class="small text-muted">${codigoRel}</div>
+                            <div class="fw-bold text-primary">${codigoRel}</div>
+                            <div class="small text-muted">${fechaProv}</div>
                         </div>
                         <div><span class="badge ${badgeClass}">${p.estado}</span></div>
                     </div>
-                    <div class="small mb-1 text-dark"><strong>Ubicación:</strong> ${infoUbicacion}</div>
+                    <div class="small mb-1 text-dark"><strong>Ubicación:</strong> ${deptoLocalidad} ${p.barrio ? `(B° ${p.barrio})` : ''}</div>
                     <div class="small mb-1 text-dark"><strong>Detalle / Insumos:</strong> ${p.detalle || 'Sin detalle'}</div>
-                    <div class="small mb-1 text-dark"><strong>Destino:</strong> ${p.destino || 'N/A'}</div>
                     <div class="small mb-2 text-muted"><strong>Observaciones:</strong> ${p.observaciones || 'Sin observaciones'}</div>
                     <div class="dropdown-divider"></div>
                     <div class="mt-2 text-center w-100">
