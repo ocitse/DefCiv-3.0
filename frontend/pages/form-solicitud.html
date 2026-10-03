@@ -1,59 +1,79 @@
 <div class="card shadow-sm p-4 animate__animated animate__fadeIn">
-    <h4 class="fw-bold text-dark mb-4">
-        <i class="bi bi-file-earmark-arrow-up-fill text-warning me-2"></i> Generar Solicitud de Provisiones
-    </h4>
+    <!-- Cabecera limpia y destacada -->
+    <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+        <h4 class="fw-bold text-dark mb-0">
+            <i class="bi bi-file-earmark-arrow-up-fill text-warning me-2"></i> Generar Solicitud de Provisiones
+        </h4>
+    </div>
     
     <form id="form-nueva-solicitud" novalidate>
+        <!-- Selección de origen y zona -->
         <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <label for="s_relevamiento_origen" class="form-label fw-semibold">Seleccionar Relevamiento de Origen *</label>
-                <select id="s_relevamiento_origen" class="form-select" required>
+                <label for="s_relevamiento_origen" class="form-label fw-bold text-dark">Seleccionar Relevamiento de Origen *</label>
+                <select id="s_relevamiento_origen" class="form-select form-select-lg shadow-sm" required>
                     <option value="" selected disabled>Seleccione un relevamiento censado...</option>
-                    </select>
-                <div class="form-text">Solo aparecen relevamientos que contienen familias censadas.</div>
+                </select>
+                <div class="form-text text-muted mt-1 small">Nota: Solo se listan aquellos relevamientos que cuentan con familias censadas y pendientes de asistencia.</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label fw-semibold">Zona de Cobertura Detectada</label>
-                <input type="text" id="s_zona_espejo" class="form-control" readonly style="background-color: #e9ecef;" placeholder="Seleccione un origen arriba">
+                <label class="form-label fw-bold text-dark">Zona de Cobertura Detectada</label>
+                <input type="text" id="s_zona_espejo" class="form-control form-control-lg shadow-sm" readonly style="background-color: #e9ecef;" placeholder="Se completará al seleccionar el origen">
             </div>
         </div>
 
-        <div class="p-3 border rounded bg-light mb-4">
-            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-calculator-fill text-secondary me-2"></i> Consolidado de Insumos Requeridos por el Territorio</h6>
-            <div class="row g-2 text-center">
-                <div class="col-md-2 bg-white p-2 border rounded shadow-sm mx-auto">
-                    <small class="text-muted d-block fw-semibold">Alimentos</small>
-                    <span class="fs-4 fw-bold text-primary" id="sum-alimentos">0</span>
+        <!-- Consolidado de Insumos Requeridos -->
+        <div class="p-4 border rounded bg-light mb-4 shadow-sm">
+            <h5 class="fw-bold text-dark mb-3">
+                <i class="bi bi-calculator-fill text-secondary me-2"></i> Consolidado de Insumos Requeridos por el Territorio
+            </h5>
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-2">
+                    <div class="bg-white p-3 border rounded shadow-sm h-100">
+                        <span class="text-muted d-block fw-semibold small mb-1">Alimentos</span>
+                        <span class="fs-3 fw-bold text-primary" id="sum-alimentos">0</span>
+                    </div>
                 </div>
-                <div class="col-md-2 bg-white p-2 border rounded shadow-sm mx-auto">
-                    <small class="text-muted d-block fw-semibold">Abrigos</small>
-                    <span class="fs-4 fw-bold text-primary" id="sum-abrigos">0</span>
+                <div class="col-6 col-md-2">
+                    <div class="bg-white p-3 border rounded shadow-sm h-100">
+                        <span class="text-muted d-block fw-semibold small mb-1">Abrigos</span>
+                        <span class="fs-3 fw-bold text-primary" id="sum-abrigos">0</span>
+                    </div>
                 </div>
-                <div class="col-md-2 bg-white p-2 border rounded shadow-sm mx-auto">
-                    <small class="text-muted d-block fw-semibold">Frazadas</small>
-                    <span class="fs-4 fw-bold text-primary" id="sum-frazadas">0</span>
+                <div class="col-6 col-md-2">
+                    <div class="bg-white p-3 border rounded shadow-sm h-100">
+                        <span class="text-muted d-block fw-semibold small mb-1">Frazadas</span>
+                        <span class="fs-3 fw-bold text-primary" id="sum-frazadas">0</span>
+                    </div>
                 </div>
-                <div class="col-md-2 bg-white p-2 border rounded shadow-sm mx-auto">
-                    <small class="text-muted d-block fw-semibold">Bidones Agua</small>
-                    <span class="fs-4 fw-bold text-primary" id="sum-agua">0</span>
+                <div class="col-6 col-md-2">
+                    <div class="bg-white p-3 border rounded shadow-sm h-100">
+                        <span class="text-muted d-block fw-semibold small mb-1">Bidones Agua</span>
+                        <span class="fs-3 fw-bold text-primary" id="sum-agua">0</span>
+                    </div>
                 </div>
-                <div class="col-md-2 bg-white p-2 border rounded shadow-sm mx-auto">
-                    <small class="text-muted d-block fw-semibold">K. Higiene</small>
-                    <span class="fs-4 fw-bold text-primary" id="sum-higiene">0</span>
+                <div class="col-6 col-md-2">
+                    <div class="bg-white p-3 border rounded shadow-sm h-100">
+                        <span class="text-muted d-block fw-semibold small mb-1">K. Higiene</span>
+                        <span class="fs-3 fw-bold text-primary" id="sum-higiene">0</span>
+                    </div>
                 </div>
-                <div class="col-md-2 bg-white p-2 border rounded shadow-sm mx-auto">
-                    <small class="text-muted d-block fw-semibold">Colchones</small>
-                    <span class="fs-4 fw-bold text-primary" id="sum-colchones">0</span>
+                <div class="col-6 col-md-2">
+                    <div class="bg-white p-3 border rounded shadow-sm h-100">
+                        <span class="text-muted d-block fw-semibold small mb-1">Colchones</span>
+                        <span class="fs-3 fw-bold text-primary" id="sum-colchones">0</span>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Botones de Acción -->
         <div class="d-flex justify-content-end gap-2 border-top pt-3">
-            <button type="button" class="btn btn-secondary" onclick="verListaSolicitudes()">
-                <i class="bi bi-x-circle"></i> Cancelar
+            <button type="button" class="btn btn-secondary px-4 fw-semibold" onclick="verListaSolicitudes()">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
             </button>
-            <button type="submit" class="btn btn-warning text-dark fw-bold">
-                <i class="bi bi-send-check-fill"></i> Emitir Solicitud Oficial
+            <button type="submit" class="btn btn-warning text-dark px-4 fw-bold shadow-sm">
+                <i class="bi bi-send-check-fill me-1"></i> Emitir Solicitud Oficial
             </button>
         </div>
     </form>
