@@ -44,37 +44,41 @@ export async function verListaSolicitudes() {
 }
 
 function inicializarSolapasSolicitudes() {
-    const tabNueva = document.getElementById('tab-nueva-solicitud');
     const tabHistorial = document.getElementById('tab-ver-historial');
     const secNueva = document.getElementById('seccion-nueva-solicitud');
     const secHistorial = document.getElementById('seccion-historial');
     
-    if (!tabNueva || !tabHistorial) return;
+    if (!tabHistorial) return;
 
-    const nuevoTabNueva = tabNueva.cloneNode(true);
+    // Evitamos duplicación de eventos clonando el nodo
     const nuevoTabHistorial = tabHistorial.cloneNode(true);
-    tabNueva.parentNode.replaceChild(nuevoTabNueva, tabNueva);
     tabHistorial.parentNode.replaceChild(nuevoTabHistorial, tabHistorial);
 
-    nuevoTabNueva.addEventListener('click', (e) => {
-        e.preventDefault();
-        nuevoTabNueva.classList.add('btn-primary', 'active');
-        nuevoTabNueva.classList.remove('btn-outline-primary', 'btn-outline-secondary');
-        nuevoTabHistorial.classList.add('btn-outline-secondary');
-        nuevoTabHistorial.classList.remove('btn-primary', 'active');
-        if (secNueva) secNueva.classList.remove('d-none');
-        if (secHistorial) secHistorial.classList.add('d-none');
-    });
+    let viendoHistorial = false;
 
     nuevoTabHistorial.addEventListener('click', (e) => {
         e.preventDefault();
-        nuevoTabHistorial.classList.add('btn-primary', 'active');
-        nuevoTabHistorial.classList.remove('btn-outline-secondary');
-        nuevoTabNueva.classList.add('btn-outline-secondary');
-        nuevoTabNueva.classList.remove('btn-primary', 'active');
-        if (secHistorial) secHistorial.classList.remove('d-none');
-        if (secNueva) secNueva.classList.add('d-none');
-        verHistorialSolicitudes();
+        viendoHistorial = !viendoHistorial;
+
+        if (viendoHistorial) {
+            // Mostramos historial y ocultamos pendientes
+            if (secHistorial) secHistorial.classList.remove('d-none');
+            if (secNueva) secNueva.classList.add('d-none');
+            
+            nuevoTabHistorial.innerHTML = `<i class="bi bi-list-check me-1"></i> Ver Pendientes`;
+            nuevoTabHistorial.classList.remove('btn-outline-secondary');
+            nuevoTabHistorial.classList.add('btn-warning', 'text-dark', 'fw-bold');
+            
+            verHistorialSolicitudes();
+        } else {
+            // Volvemos al listado pendiente
+            if (secNueva) secNueva.classList.remove('d-none');
+            if (secHistorial) secHistorial.classList.add('d-none');
+            
+            nuevoTabHistorial.innerHTML = `<i class="bi bi-clock-history me-1"></i> Ver Historial`;
+            nuevoTabHistorial.classList.remove('btn-warning', 'text-dark', 'fw-bold');
+            nuevoTabHistorial.classList.add('btn-outline-secondary');
+        }
     });
 }
 
