@@ -295,16 +295,32 @@ export async function verHistorialSolicitudes() {
             return;
         }
 
-        tbody.innerHTML = data.map(item => `
-            <tr>
-                <td>#${item.id_relevamiento}</td>
-                <td>${item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Sin fecha'}</td>
-                <td>${item.departamento} - ${item.localidad}</td>
-                <td>${item.tipo_evento}</td>
-                <td>${item.relevador_asignado}</td>
-                <td><span class="badge bg-info text-dark">${item.estado}</span></td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = data.map(item => {
+            const idRel = item.id || item.id_relevamiento;
+            const codigo = item.codigo_relevamiento || `#${idRel}`;
+            const fecha = item.updated_at || item.createdAt || item.created_at ? new Date(item.updated_at || item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha';
+            const ubicacion = `<strong>${item.departamento || ''}</strong> / ${item.localidad || ''}`;
+            const barrio = item.barrio ? `<br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${item.barrio}</small>` : '';
+            const evento = item.tipo_evento || 'N/D';
+            const relevador = item.relevador_apellido ? `${item.relevador_apellido}, ${item.relevador_nombre}` : (item.relevador_asignado || 'Sin asignar');
+            
+            // Estado visual con badge acorde
+            let badgeEstado = 'bg-info text-dark';
+            const est = (item.estado || '').toLowerCase();
+            if (est.includes('aprobado') || est.includes('enviado')) badgeEstado = 'bg-success text-white';
+            else if (est.includes('rechazado')) badgeEstado = 'bg-danger text-white';
+
+            return `
+                <tr>
+                    <td class="align-middle"><strong>${codigo}</strong></td>
+                    <td class="align-middle d-none d-md-table-cell"><small class="text-muted">${fecha}</small></td>
+                    <td class="align-middle">${ubicacion} ${barrio}</td>
+                    <td class="align-middle d-none d-md-table-cell">${evento}</td>
+                    <td class="align-middle"><small>${relevador}</small></td>
+                    <td class="align-middle"><span class="badge ${badgeEstado}">${item.estado || 'Emitida'}</span></td>
+                </tr>
+            `;
+        }).join('');
     } catch (error) {
         console.error("Error al cargar historial:", error);
         tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-3">Error al cargar el historial de solicitudes</td></tr>`;
