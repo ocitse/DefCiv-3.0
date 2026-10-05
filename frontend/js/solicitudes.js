@@ -334,7 +334,6 @@ export async function verHistorialSolicitudes() {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error al cargar el historial de solicitudes</td></tr>`;
     }
 }
-
 /**
  * Calcula la sumatoria de personas e insumos
  */
