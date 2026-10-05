@@ -123,32 +123,32 @@ export const crearFamilia = async (req, res) => {
 // backend/controllers/familiacontroller.js
 export const obtenerFamilias = async (req, res) => {
     try {
-        const idRelevamiento = req.params.id || req.query.id_relevamiento;
+        const idParam = req.params.id || req.query.id_relevamiento || req.query.id;
         
         const whereClause = {};
-        if (idRelevamiento) {
-            whereClause.id_relevamiento = idRelevamiento;
+        if (idParam) {
+            // Buscamos de forma flexible por id exacto o por id_relevamiento para que nunca falle
+            whereClause[Op.or] = [
+                { id_relevamiento: idParam },
+                { id: isNaN(idParam) ? null : Number(idParam) }
+            ];
         }
 
-        // 1. Buscamos las familias del relevamiento con sus necesidades
+        // 1. Buscamos las familias con sus necesidades
         const listaFamilias = await Familia.findAll({
-            where: whereClause,
+            where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
             include: [
                 { model: necesidadFamilia, as: 'necesidades' }
             ]
         });
         
-        // 2. Iteramos cada familia para buscar su documentación de forma independiente y directa
+        // 2. Iteramos cada familia para buscar su documentación adjunta
         const familiasConDocumentos = await Promise.all(
             listaFamilias.map(async (fam) => {
                 const familiaPlana = fam.toJSON();
-                
-                // Buscamos los archivos asociados a esta familia específica en la tabla documentacion_familias
                 const listaDocumentos = await Documentacion.findAll({
                     where: { id_familia: familiaPlana.id_familia }
                 });
-
-                // Inyectamos la documentación explícitamente para que el frontend la reciba siempre
                 familiaPlana.documentacion = listaDocumentos || [];
                 return familiaPlana;
             })
