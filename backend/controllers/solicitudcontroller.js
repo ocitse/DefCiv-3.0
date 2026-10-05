@@ -54,7 +54,6 @@ export const enviarSolicitud = async (req, res) => {
             return res.status(400).json({ success: false, error: "Falta el ID del relevamiento." });
         }
 
-        // Intentamos actualizar usando id_relevamiento o id genérico
         await Relevamiento.update(
             { 
                 estado: 'En Proceso', 
@@ -93,14 +92,46 @@ export const enviarSolicitud = async (req, res) => {
     }
 };
 
-// 3. Obtener el historial de solicitudes enviadas
+// 3. Obtener el historial de solicitudes enviadas (Corregido con Op.or y mapeo de usuarios)
 export const obtenerHistorialSolicitudes = async (req, res) => {
     try {
         const historial = await Relevamiento.findAll({
-            where: { estado: ['En Proceso', 'Finalizado', 'En Espera'] },
-            order: [['updated_at', 'DESC']]
+            where: { 
+                estado: { 
+                    [Op.or]: ['En Proceso', 'en proceso', 'Enviado', 'enviado', 'Finalizado', 'finalizado'] 
+                } 
+            },
+            order: [['updatedAt', 'DESC']]
         });
-        res.json(historial);
+
+        const listaUsuarios = await Usuario.findAll().catch(() => []);
+        const mapaNombres = {};
+
+        listaUsuarios.forEach(usr => {
+            if (usr) {
+                const usrJSON = usr.toJSON ? usr.toJSON() : usr;
+                const idUsr = usrJSON.id_usuario || usrJSON.id;
+
+                if (idUsr) {
+                    const nombreProp = usrJSON.nombres || usrJSON.nombre || '';
+                    const apellidoProp = usrJSON.apellido || '';
+                    const nombreCompleto = `${apellidoProp}, ${nombreProp}`;
+                    
+                    mapaNombres[String(idUsr)] = nombreCompleto;
+                    mapaNombres[nombreCompleto] = nombreCompleto;
+                }
+            }
+        });
+
+        const resultadosHistorial = historial.map(item => {
+            const itemJSON = item.toJSON ? item.toJSON() : item;
+            const asignado = String(itemJSON.relevador_asignado || '').trim();
+            
+            itemJSON.relevador_asignado = mapaNombres[asignado] || (asignado !== '' ? asignado : 'Sin asignar');
+            return itemJSON;
+        });
+
+        res.json(resultadosHistorial);
     } catch (error) {
         console.error("Error al obtener el historial:", error);
         res.status(500).json({ error: "Error al obtener el historial de solicitudes" });

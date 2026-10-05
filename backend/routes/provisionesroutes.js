@@ -1,15 +1,14 @@
 import express from 'express';
-// 🌟 Importamos la función mejorada desde el controlador
 import { obtenerProvisiones, cerrarProvision } from '../controllers/provisioncontroller.js';
 import { QueryTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
 const router = express.Router();
 
-// GET /api/provisiones - Listar todas las provisiones (Llamando al controlador con el LEFT JOIN)
+// GET /api/provisiones - Listar todas las provisiones con LEFT JOIN
 router.get('/', obtenerProvisiones);
 
-// POST /api/provisiones - Crear una provisión a partir de una solicitud aprobada
+// POST /api/provisiones - Registrar provisión
 router.post('/', async (req, res) => {
     const { solicitud_id, detalle, destino } = req.body;
     try {
@@ -24,7 +23,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT /api/provisiones/:id/cerrar - Registrar el retorno y cerrar el circuito (Llamando al controlador)
+// PUT /api/provisiones/:id/cerrar - Cerrar circuito
 router.put('/:id/cerrar', cerrarProvision);
 
 export default router;

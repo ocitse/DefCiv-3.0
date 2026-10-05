@@ -69,7 +69,6 @@ app.use('/api/relevamientos', relevamientoroutes);
 app.use('/api/familias', familiaroutes);
 app.use('/api/auth', authroutes);
 app.use('/api/usuarios', usuarioroutes);
-
 app.use('/api/solicitudes', solicitudroutes);
 app.use('/api/provisiones', provisionesroutes);
 
