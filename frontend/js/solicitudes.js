@@ -144,12 +144,17 @@ export async function cargarRelevamientosEnEspera() {
  */
 export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamento, localidad, evento, relevador, urgencia) {
     try {
-        // 1. Rellenamos la cabecera de inmediato con los datos que ya viajan en la fila
-        document.getElementById('audit-codigo').innerText = codigo || `#${idRelevamiento}`;
-        document.getElementById('audit-ubicacion').innerText = `${departamento} / ${localidad}`;
-        document.getElementById('audit-evento').innerText = evento || 'N/D';
-        document.getElementById('audit-relevador').innerText = relevador || 'N/D';
-        document.getElementById('audit-urgencia').innerText = urgencia || 'Media';
+        // 1. Rellenamos la cabecera de forma segura verificando que el elemento exista
+        const setSafeText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        };
+
+        setSafeText('audit-codigo', codigo || `#${idRelevamiento}`);
+        setSafeText('audit-ubicacion', `${departamento || ''} / ${localidad || ''}`);
+        setSafeText('audit-evento', evento || 'N/D');
+        setSafeText('audit-relevador', relevador || 'N/D');
+        setSafeText('audit-urgencia', urgencia || 'Media');
 
         // 2. Consultamos las familias asociadas a este relevamiento
         let familiasData = [];
@@ -165,7 +170,7 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
             console.warn('Error al obtener familias para auditoría:', err);
         }
 
-        document.getElementById('audit-total-familias').innerText = Array.isArray(familiasData) ? familiasData.length : 0;
+        setSafeText('audit-total-familias', Array.isArray(familiasData) ? familiasData.length : 0);
 
         const tbodyAudit = document.querySelector('#tabla-audit-familias tbody');
         if (tbodyAudit) {
@@ -175,7 +180,6 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                 tbodyAudit.innerHTML = familiasData.map((fam, idx) => {
                     const collapseId = `detalle-familia-${idx}`;
 
-                    // Procesamos los materiales de construcción
                     let listadoMateriales = '<span class="text-muted small">Sin materiales</span>';
                     if (fam.necesidades && Array.isArray(fam.necesidades) && fam.necesidades.length > 0) {
                         listadoMateriales = fam.necesidades.map(n => 
@@ -183,7 +187,6 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                         ).join('');
                     }
 
-                    // Procesamos la documentación adjunta de Cloudinary
                     let listadoDocs = '<span class="text-muted small">Sin adjuntos</span>';
                     if (fam.documentacion && Array.isArray(fam.documentacion) && fam.documentacion.length > 0) {
                         listadoDocs = fam.documentacion.map((doc, docIdx) => 
@@ -193,17 +196,15 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                         ).join('');
                     }
 
-                    // Sumatoria rápida de insumos para el resumen de la fila principal
                     const totalInsumosRapido = (Number(fam.unidades_alimentarias) || 0) + 
-                                               (Number(fam.abrigos) || 0) + 
-                                               (Number(fam.frazadas) || 0) + 
-                                               (Number(fam.colchones) || 0) + 
-                                               (Number(fam.bidones_agua) || 0) + 
-                                               (Number(fam.kits_higiene) || 0) + 
-                                               (Number(fam.ropa) || 0);
+                                             (Number(fam.abrigos) || 0) + 
+                                             (Number(fam.frazadas) || 0) + 
+                                             (Number(fam.colchones) || 0) + 
+                                             (Number(fam.bidones_agua) || 0) + 
+                                             (Number(fam.kits_higiene) || 0) + 
+                                             (Number(fam.ropa) || 0);
 
                     return `
-                        <!-- Fila Principal (Resumen colapsable) -->
                         <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}" title="Haga clic para ver detalle e insumos" style="cursor: pointer;">
                             <td class="text-center fw-bold text-warning"><i class="bi bi-chevron-down small me-1"></i> #${idx + 1}</td>
                             <td class="small">${fam.dni_jefe || fam.dni || 'N/D'}</td>
@@ -214,18 +215,13 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                                 ${fam.documentacion && fam.documentacion.length > 0 ? '<i class="bi bi-paperclip text-info" title="Tiene archivos adjuntos"></i>' : '<span class="text-muted">-</span>'}
                             </td>
                         </tr>
-                        <!-- Fila Desplegable (Acordeón con el detalle completo y adjuntos) -->
                         <tr>
                             <td colspan="6" class="p-0 border-0">
                                 <div class="collapse bg-dark p-3 border-bottom border-secondary" id="${collapseId}">
                                     <div class="small text-light">
-                                        
-                                        <!-- Título de Insumos -->
                                         <h6 class="text-warning fw-bold border-bottom pb-1 mb-2">
                                             <i class="bi bi-box-seam me-1"></i> Desglose de Insumos Solicitados
                                         </h6>
-                                        
-                                        <!-- Grilla compacta de insumos -->
                                         <div class="row row-cols-2 row-cols-md-4 g-2 mb-3">
                                             <div class="col"><strong>Alimentos:</strong> <span class="text-info">${fam.unidades_alimentarias || '0'}</span></div>
                                             <div class="col"><strong>Abrigos:</strong> <span class="text-info">${fam.abrigos || '0'}</span></div>
@@ -235,19 +231,14 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                                             <div class="col"><strong>Kits Higiene:</strong> <span class="text-info">${fam.kits_higiene || '0'}</span></div>
                                             <div class="col"><strong>Ropa:</strong> <span class="text-info">${fam.ropa || '0'}</span></div>
                                         </div>
-
-                                        <!-- Sección de Materiales de Construcción -->
                                         <div class="mb-3 pt-2 border-top border-secondary">
                                             <strong class="text-muted d-block mb-1"><i class="bi bi-bricks me-1"></i> Materiales de Construcción:</strong>
                                             <div>${listadoMateriales}</div>
                                         </div>
-
-                                        <!-- Sección de Documentación / Evidencia -->
                                         <div class="pt-2 border-top border-secondary">
                                             <strong class="text-muted d-block mb-1"><i class="bi bi-paperclip me-1"></i> Documentación / Evidencia (Cloudinary):</strong>
                                             <div class="d-flex flex-wrap gap-1 mt-1">${listadoDocs}</div>
                                         </div>
-
                                     </div>
                                 </div>
                             </td>
@@ -255,7 +246,6 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
                     `;
                 }).join('');
 
-                // Fila de totales acumulados al final de la tabla resumida
                 const tot = calcularTotales(familiasData);
                 const totalGeneralInsumos = tot.unidades_alimentarias + tot.abrigos + tot.frazadas + tot.colchones + tot.bidones_agua + tot.kits_higiene + tot.ropa;
                 
@@ -270,7 +260,6 @@ export async function abrirAuditoriaSolicitud(idRelevamiento, codigo, departamen
             }
         }
 
-        // 3. Mostramos el modal usando Bootstrap
         const modalEl = document.getElementById('modalAuditoriaSolicitud');
         if (modalEl && window.bootstrap) {
             const modal = new bootstrap.Modal(modalEl);
