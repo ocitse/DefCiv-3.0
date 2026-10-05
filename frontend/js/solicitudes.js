@@ -290,29 +290,27 @@ export async function verHistorialSolicitudes() {
         const respuesta = await fetch('/api/solicitudes/historial');
         const data = await respuesta.json();
         
-        // 🔍 Inspeccionamos qué trae exactamente el backend
-        console.log("Datos recibidos del historial:", data);
-        
         if (!data || data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay solicitudes enviadas registradas</td></tr>`;
             return;
         }
 
         tbody.innerHTML = data.map(item => {
-            const idRel = item.id || item.id_relevamiento || item.relevamientoId;
+            // Usamos exactamente los campos que el backend ya te enviaba con éxito
+            const idRel = item.id_relevamiento || item.id;
             const codigo = item.codigo_relevamiento || `#${idRel}`;
-            const fecha = item.updated_at || item.createdAt || item.created_at ? new Date(item.updated_at || item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha';
+            const fecha = item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Sin fecha';
             const ubicacion = `<strong>${item.departamento || ''}</strong> / ${item.localidad || ''}`;
             const barrio = item.barrio ? `<br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${item.barrio}</small>` : '';
             const evento = item.tipo_evento || 'N/D';
-            const relevador = item.relevador_apellido ? `${item.relevador_apellido}, ${item.relevador_nombre}` : (item.relevador_asignado || 'Sin asignar');
+            const relevador = item.relevador_asignado || 'Sin asignar';
             const prioridad = item.prioridad || item.urgencia_general || 'Media';
             
             const badgePrioridad = `<span class="badge ${prioridad === 'Alta' ? 'bg-danger' : prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-success'}">${prioridad}</span>`;
             
             let badgeEstado = 'bg-info text-dark';
             const est = (item.estado || '').toLowerCase();
-            if (est.includes('aprobado') || est.includes('enviado')) badgeEstado = 'bg-success text-white';
+            if (est.includes('aprobado') || est.includes('enviado') || est.includes('en proceso')) badgeEstado = 'bg-success text-white';
             else if (est.includes('rechazado')) badgeEstado = 'bg-danger text-white';
 
             return `
