@@ -291,20 +291,23 @@ export async function verHistorialSolicitudes() {
         const data = await respuesta.json();
         
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay solicitudes enviadas registradas</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay solicitudes enviadas registradas</td></tr>`;
             return;
         }
 
         tbody.innerHTML = data.map(item => {
-            const idRel = item.id || item.id_relevamiento;
+            // Capturamos correctamente el ID del relevamiento para que no viaje como undefined
+            const idRel = item.relevamientoId || item.id_relevamiento || item.id;
             const codigo = item.codigo_relevamiento || `#${idRel}`;
             const fecha = item.updated_at || item.createdAt || item.created_at ? new Date(item.updated_at || item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha';
             const ubicacion = `<strong>${item.departamento || ''}</strong> / ${item.localidad || ''}`;
             const barrio = item.barrio ? `<br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${item.barrio}</small>` : '';
             const evento = item.tipo_evento || 'N/D';
             const relevador = item.relevador_apellido ? `${item.relevador_apellido}, ${item.relevador_nombre}` : (item.relevador_asignado || 'Sin asignar');
+            const prioridad = item.prioridad || item.urgencia_general || 'Media';
             
-            // Estado visual con badge acorde
+            const badgePrioridad = `<span class="badge ${prioridad === 'Alta' ? 'bg-danger' : prioridad === 'Media' ? 'bg-warning text-dark' : 'bg-success'}">${prioridad}</span>`;
+            
             let badgeEstado = 'bg-info text-dark';
             const est = (item.estado || '').toLowerCase();
             if (est.includes('aprobado') || est.includes('enviado')) badgeEstado = 'bg-success text-white';
@@ -315,15 +318,21 @@ export async function verHistorialSolicitudes() {
                     <td class="align-middle"><strong>${codigo}</strong></td>
                     <td class="align-middle d-none d-md-table-cell"><small class="text-muted">${fecha}</small></td>
                     <td class="align-middle">${ubicacion} ${barrio}</td>
+                    <td class="align-middle"><span class="badge ${badgeEstado}">${item.estado || 'Emitida'}</span></td>
                     <td class="align-middle d-none d-md-table-cell">${evento}</td>
                     <td class="align-middle"><small>${relevador}</small></td>
-                    <td class="align-middle"><span class="badge ${badgeEstado}">${item.estado || 'Emitida'}</span></td>
+                    <td class="align-middle">${badgePrioridad}</td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}', '${codigo}', '${item.departamento || ''}', '${item.localidad || ''}', '${evento}', '${relevador}', '${prioridad}')" title="Ver detalle en profundidad">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
         }).join('');
     } catch (error) {
         console.error("Error al cargar historial:", error);
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-3">Error al cargar el historial de solicitudes</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error al cargar el historial de solicitudes</td></tr>`;
     }
 }
 
