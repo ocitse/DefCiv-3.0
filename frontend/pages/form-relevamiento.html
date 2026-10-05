@@ -1,68 +1,68 @@
-<div class="card shadow-sm p-4 animate__animated animate__fadeIn">
-    <h4 class="fw-bold text-dark mb-4" id="titulo-form-relevamiento">
-        <i class="bi bi-file-earmark-plus-fill text-primary me-2"></i> Nuevo Relevamiento
-    </h4>
-    
-    <form id="form-nuevo-relevamiento" novalidate>
-        <input type="hidden" id="r_id_edicion">
+<div class="container-fluid py-4 animate__animated animate__fadeIn" id="seccion-principal-provisiones">
+    <!-- Cabecera Limpia (Idéntica a Solicitudes) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-secondary">
+        <h2 class="text-white fw-bold mb-0">
+            <i class="bi bi-box-seam text-warning me-2"></i> Gestión de Provisiones y Retornos
+        </h2>
+        <div class="text-muted small">
+            Control y seguimiento de insumos, recursos y retornos en tránsito vinculados a relevamientos.
+        </div>
+    </div>
 
-        <div class="row g-3 mb-3">
-            <div class="col-md-4">
-                <label for="r_departamento" class="form-label fw-semibold">Departamento *</label>
-                <select id="r_departamento" class="form-select" required>
-                    <option value="" selected disabled>Seleccione Departamento...</option>
-                    </select>
+    <!-- Tarjeta Principal Unificada -->
+    <div class="card bg-dark text-light border-secondary shadow-sm p-4 mb-4">
+        
+        <!-- Barra Superior de Controles (Buscador alineado y selector de paginación) -->
+        <div class="row align-items-center g-3 mb-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-dark text-muted border-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control bg-dark text-light border-secondary shadow-sm" id="buscador-provisiones" placeholder="Buscar por código, destino o estado...">
+                </div>
             </div>
-            <div class="col-md-4">
-                <label for="r_localidad" class="form-label fw-semibold">Localidad *</label>
-                <select id="r_localidad" class="form-select" required>
-                    <option value="" selected disabled>Seleccione Localidad...</option>
+            
+            <div class="col-md-6 col-lg-8 d-flex justify-content-md-end align-items-center gap-2">
+                <span class="text-muted small">Mostrar:</span>
+                <select class="form-select form-select-sm bg-dark text-light border-secondary w-auto shadow-sm" id="limite-paginacion-provisiones">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
                 </select>
-            </div>
-            <div class="col-md-4">
-                <label for="r_barrio" class="form-label fw-semibold">Barrio *</label>
-                <input type="text" id="r_barrio" class="form-control" placeholder="Ej: B° Sarmiento" required>
             </div>
         </div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <label for="r_tipo_evento" class="form-label fw-semibold">Tipo de Evento *</label>
-                <select id="r_tipo_evento" class="form-select" required>
-                    <option value="" selected disabled>Seleccione Evento...</option>
-                    <option value="Inundación">Inundación</option>
-                    <option value="Incendio Forestal">Incendio Forestal</option>
-                    <option value="Vientos Fuertes / Tornado">Vientos Fuertes / Tornado</option>
-                    <option value="Derrumbe">Derrumbe</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label for="r_solicitante" class="form-label fw-semibold">Solicitante (Origen del Aviso)</label>
-                <input type="text" id="r_solicitante" class="form-control" placeholder="Ej: Bomberos Voluntarios, Vecino...">
-            </div>
-            <div class="col-md-2">
-                <label for="r_prioridad" class="form-label fw-semibold">Prioridad General</label>
-                <select id="r_prioridad" class="form-select">
-                    <option value="Baja"selected>Baja</option>
-                    <option value="Media">Media</option>
-                    <option value="Alta">Alta</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label for="r_relevador" class="form-label fw-semibold">Relevador Asignado *</label>
-                <select id="r_relevador" class="form-select" required>
-                    <option value="" selected disabled>Asignar a...</option>
-                    </select>
-            </div>
+        <!-- Tabla de Provisiones -->
+        <div class="table-responsive mb-3">
+            <table class="table table-dark table-hover align-middle mb-0 border border-secondary" id="tabla-provisiones">
+                <thead class="table-secondary text-dark fw-bold small">
+                    <tr>
+                        <th>ID / Ref.</th>
+                        <th>Relevamiento / Ubicación</th>
+                        <th>Detalle / Insumos</th>
+                        <th>Destino</th>
+                        <th>Estado</th>
+                        <th>Observaciones</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Se inyecta dinámicamente vía JavaScript -->
+                </tbody>
+            </table>
         </div>
 
-        <div class="d-flex justify-content-end gap-2 border-top pt-3">
-            <button type="button" class="btn btn-secondary" onclick="verListaRelevamientos()">
-                <i class="bi bi-x-circle"></i> Cancelar
-            </button>
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-save"></i> Guardar e Inicializar
-            </button>
+        <!-- Pie de Tabla / Paginación -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pt-3 border-top border-secondary small text-muted">
+            <div id="info-paginacion-provisiones" class="mb-2 mb-md-0">
+                Mostrando registros disponibles
+            </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Paginación de provisiones">
+                <button type="button" class="btn btn-outline-secondary text-light" id="btn-pagina-anterior">Anterior</button>
+                <button type="button" class="btn btn-secondary text-dark fw-bold" disabled id="btn-pagina-actual">Pág. 1 de 1</button>
+                <button type="button" class="btn btn-outline-secondary text-light" id="btn-pagina-siguiente">Siguiente</button>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
