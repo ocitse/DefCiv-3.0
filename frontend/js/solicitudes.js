@@ -122,9 +122,9 @@ export async function cargarRelevamientosEnEspera() {
                     <td class="align-middle">${badgePrioridad}</td>
                     <td class="text-center align-middle">
                         <div class="d-flex justify-content-center align-items-center gap-1">
-                            <button class="btn btn-sm btn-outline-info" onclick="window.abrirAuditoriaSolicitud('${idRel}', '${codigo}', '${item.departamento || ''}', '${item.localidad || ''}', '${evento}', '${relevador}', '${prioridad}')" title="Auditar Familias e Insumos">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                            <button class="btn btn-sm btn-outline-info btn-auditar" data-id="${idRel}" data-codigo="${codigo}" data-depto="${item.departamento || ''}" data-localidad="${item.localidad || ''}" data-evento="${evento}" data-relevador="${relevador}" data-urgencia="${prioridad}" title="Auditar Familias e Insumos">
+    <i class="bi bi-eye"></i>
+</button>
                             <button class="btn btn-sm btn-outline-secondary" onclick="window.abrirModalDevolucion('${idRel}')" title="Devolver al relevador con observaciones">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </button>
@@ -646,3 +646,20 @@ if (typeof window !== 'undefined') {
     window.verHistorialSolicitudes = verHistorialSolicitudes;
     window.abrirAuditoriaSolicitud = abrirAuditoriaSolicitud;
 }
+
+// Delegador global de eventos para el botón del "ojito"
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-auditar');
+    if (btn) {
+        e.preventDefault();
+        abrirAuditoriaSolicitud(
+            btn.dataset.id,
+            btn.dataset.codigo,
+            btn.dataset.depto,
+            btn.dataset.localidad,
+            btn.dataset.evento,
+            btn.dataset.relevador,
+            btn.dataset.urgencia
+        );
+    }
+});
