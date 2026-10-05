@@ -2,6 +2,7 @@
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { Op } from 'sequelize'; // 🌟 ¡Faltaba importar Op aquí!
 import Familia from '../models/familia.js';
 import Relevamiento from '../models/relevamiento.js';
 import necesidadFamilia from '../models/necesidadFamilia.js';
@@ -311,8 +312,8 @@ export const eliminarDocumento = async (req, res) => {
         const { idDocumento } = req.params;
         console.log("🗑️ Servidor intentando borrar documento con ID:", idDocumento);
 
-        // Intentamos buscar el documento por clave primaria o por cualquier variante de columna ID
-        const documento = await Documentacion.findByPk(idDocumento);
+        // Usamos 'let' en lugar de 'const' para permitir la reasignación si falla la primera busqueda
+        let documento = await Documentacion.findByPk(idDocumento);
         
         if (!documento) {
             documento = await Documentacion.findOne({
@@ -330,8 +331,6 @@ export const eliminarDocumento = async (req, res) => {
             return res.status(404).json({ mensaje: 'El archivo adjunto no existe en la base de datos.' });
         }
 
-        // Si usas Cloudinary y quieres borrar también el archivo físico de la nube, puedes hacerlo aquí,
-        // o simplemente destruir el registro en la base de datos:
         await documento.destroy();
 
         return res.json({ mensaje: 'Archivo eliminado correctamente.' });

@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post('/', verificarToken, uploadDocumentos, crearFamilia);
 router.get('/', obtenerFamilias);
-router.get('/relevamiento/:id', obtenerFamilias);
+router.get('/relevamiento/:id', obtenerFamiliasPorRelevamiento);
 
 // 🌟 PONER ESTA RUTA ANTES DE LOS `/:id` GENÉRICOS
 router.delete('/documentos/:idDocumento', eliminarDocumento); 
