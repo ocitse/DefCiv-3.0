@@ -290,14 +290,16 @@ export async function verHistorialSolicitudes() {
         const respuesta = await fetch('/api/solicitudes/historial');
         const data = await respuesta.json();
         
+        // 🔍 Inspeccionamos qué trae exactamente el backend
+        console.log("Datos recibidos del historial:", data);
+        
         if (!data || data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay solicitudes enviadas registradas</td></tr>`;
             return;
         }
 
         tbody.innerHTML = data.map(item => {
-            // Capturamos correctamente el ID del relevamiento para que no viaje como undefined
-            const idRel = item.relevamientoId || item.id_relevamiento || item.id;
+            const idRel = item.id || item.id_relevamiento || item.relevamientoId;
             const codigo = item.codigo_relevamiento || `#${idRel}`;
             const fecha = item.updated_at || item.createdAt || item.created_at ? new Date(item.updated_at || item.createdAt || item.created_at).toLocaleDateString() : 'Sin fecha';
             const ubicacion = `<strong>${item.departamento || ''}</strong> / ${item.localidad || ''}`;
