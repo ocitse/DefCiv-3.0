@@ -296,7 +296,6 @@ export async function verHistorialSolicitudes() {
         }
 
         tbody.innerHTML = data.map(item => {
-            // Usamos exactamente los campos que el backend ya te enviaba con éxito
             const idRel = item.id_relevamiento || item.id;
             const codigo = item.codigo_relevamiento || `#${idRel}`;
             const fecha = item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Sin fecha';
