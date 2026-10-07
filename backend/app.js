@@ -20,6 +20,7 @@ import authroutes from './routes/authroutes.js';
 import usuarioroutes from './routes/usuarioroutes.js';
 import solicitudroutes from './routes/solicitudroutes.js';
 import provisionesroutes from './routes/provisionesroutes.js';
+import estadisticasroutes from './routes/estadisticasroutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +73,7 @@ app.use('/api/usuarios', usuarioroutes);
 
 app.use('/api/solicitudes', solicitudroutes);
 app.use('/api/provisiones', provisionesroutes);
+app.use('/api/estadisticas', estadisticasroutes);
 
 // Ruta por defecto (Raíz)
 app.get('/', (req, res) => {
