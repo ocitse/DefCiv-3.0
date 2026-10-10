@@ -62,3 +62,21 @@ export const obtenerEstadisticasPublicas = async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al obtener las estadísticas.' });
     }
 };
+
+// GET /api/estadisticas/mapa: familias asistidas por departamento (solo relevamientos con provisión entregada)
+export const obtenerEstadisticasMapa = async (req, res) => {
+    try {
+        const filas = await sequelize.query(`
+            WITH cierres AS (${CIERRES})
+            SELECT r.departamento, COUNT(f.id_familia)::int AS familias_asistidas
+            FROM cierres c
+            JOIN relevamientos r ON r.id = c.relevamiento_id
+            JOIN familias f ON f.id_relevamiento = c.relevamiento_id
+            GROUP BY r.departamento`, { type: QueryTypes.SELECT });
+
+        res.json({ success: true, data: filas });
+    } catch (error) {
+        console.error('Error al obtener estadísticas del mapa:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener las estadísticas del mapa.' });
+    }
+};

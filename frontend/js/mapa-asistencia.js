@@ -1,21 +1,21 @@
 const datosAsistencia = [
-	{ departamento: "Capital", x: 21.4, y: 46.8, familiasAsistidas: 320 },
+	{ departamento: "Capital", x: 21.4, y: 46.8 },
 	{ departamento: "Pellegrini", x: 31.0, y: 12.6 },
-	{ departamento: "Copo", x: 69.8, y: 6.2, familiasAsistidas: 118 },
+	{ departamento: "Copo", x: 69.8, y: 6.2 },
 	{ departamento: "General Taboada", x: 81.4, y: 60.8 },
 	{ departamento: "Choya", x: 11.9, y: 64.8 },
 	{ departamento: "Jiménez", x: 25.5, y: 26.4 },
 	{ departamento: "Mitre", x: 69.6, y: 82.2 },
 	{ departamento: "Loreto", x: 25.1, y: 61.5 },
-	{ departamento: "Figueroa", x: 46.1, y: 35.0, familiasAsistidas: 74 },
+	{ departamento: "Figueroa", x: 46.1, y: 35.0 },
 	{ departamento: "Avellaneda", x: 75.7, y: 49.9 },
 	{ departamento: "San Martín", x: 37.9, y: 52.8 },
 	{ departamento: "Banda", x: 27.8, y: 37.3 },
-	{ departamento: "Ojo de Agua", x: 33.4, y: 75.5, familiasAsistidas: 63 },
+	{ departamento: "Ojo de Agua", x: 33.4, y: 75.5 },
 	{ departamento: "Rivadavia", x: 83.6, y: 90.4 },
 	{ departamento: "Guasayán", x: 8.9, y: 48.4 },
 	{ departamento: "Quebrachos", x: 52.2, y: 77.4 },
-	{ departamento: "Río Hondo", x: 11.9, y: 38.2, familiasAsistidas: 210 },
+	{ departamento: "Río Hondo", x: 11.9, y: 38.2 },
 	{ departamento: "Alberdi", x: 70.3, y: 18.3 },
 	{ departamento: "Robles", x: 36.1, y: 46.0 },
 	{ departamento: "Salavina", x: 53.3, y: 68.0 },
@@ -103,4 +103,34 @@ function escaparTextoMapa(texto) {
 	});
 }
 
-document.addEventListener("DOMContentLoaded", renderizarMarcadoresAsistencia);
+function normalizarNombreDepartamento(nombre) {
+	return String(nombre || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+}
+
+// Trae de la base las familias asistidas por departamento y vuelve a dibujar los pines
+function cargarAsistenciaDesdeBase() {
+	fetch("/api/estadisticas/mapa")
+		.then(function (res) {
+			if (!res.ok) throw new Error("No se pudo cargar el mapa");
+			return res.json();
+		})
+		.then(function (respuesta) {
+			const totales = {};
+			(respuesta.data || []).forEach(function (fila) {
+				totales[normalizarNombreDepartamento(fila.departamento)] = fila.familias_asistidas;
+			});
+			datosAsistencia.forEach(function (departamento) {
+				const total = totales[normalizarNombreDepartamento(departamento.departamento)];
+				if (total > 0) departamento.familiasAsistidas = total;
+			});
+			renderizarMarcadoresAsistencia();
+		})
+		.catch(function (error) {
+			console.warn("No se pudieron cargar los datos del mapa desde /api/estadisticas/mapa:", error);
+		});
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+	renderizarMarcadoresAsistencia();
+	cargarAsistenciaDesdeBase();
+});
